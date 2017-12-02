@@ -698,11 +698,11 @@ namespace Sisfarma.Sincronizador
             var proveedor = GetProveedorFromLocalOrDefault(farmaticService, articulo.ProveedorHabitual);
             var nombreLaboratorio = GetNombreLaboratorioFromLocalOrDefault(farmaticService, consejoService, articulo.Laboratorio, "<Sin Laboratorio>");
 
-            var espepara = consejoService.GetEspeparaByCodigo(articulo.IdArticu);
+            var espepara = consejoService.Esperas.Get(articulo.IdArticu);
             var present = espepara?.PRESENTACION ?? string.Empty;
 
             var descripcionHtml = string.Empty;
-            var textos = consejoService.GetTextosByCodigoEspepara(articulo.IdArticu);
+            var textos = consejoService.Esperas.GetTextos(articulo.IdArticu);
             foreach (var texto in textos)
             {
                 if (string.IsNullOrEmpty(descripcionHtml))
@@ -759,7 +759,7 @@ namespace Sisfarma.Sincronizador
             var nombreLaboratorio = byDefault;
             if (!string.IsNullOrEmpty(codigo?.Trim()) && !string.IsNullOrWhiteSpace(codigo))
             {
-                var laboratorioDb = consejoService.GetLaboratorioByCodigo(codigo);
+                var laboratorioDb = consejoService.Laboratorios.Get(codigo);
                 if (laboratorioDb == null)
                 {
                     var laboratorioLocal =

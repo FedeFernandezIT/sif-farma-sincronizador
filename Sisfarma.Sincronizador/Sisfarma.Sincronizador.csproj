@@ -66,6 +66,9 @@
     <Compile Include="Consejo\ConsejoService.cs" />
     <Compile Include="Consejo\Models\Esperara.cs" />
     <Compile Include="Consejo\Models\Labor.cs" />
+    <Compile Include="Consejo\Repositories\ConsejoRepository.cs" />
+    <Compile Include="Consejo\Repositories\EsperasRepository.cs" />
+    <Compile Include="Consejo\Repositories\LaboratoriosRepository.cs" />
     <Compile Include="Extensions\StringExtend.cs" />
     <Compile Include="Farmatic\FarmaticContext.cs" />
     <Compile Include="Farmatic\FarmaticService.cs" />
