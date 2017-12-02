@@ -101,6 +101,14 @@
     <Compile Include="Fisiotes\Models\Medicamento.cs" />
     <Compile Include="Fisiotes\Models\PuntosPendientes.cs" />
     <Compile Include="Fisiotes\Models\Sinonimo.cs" />
+    <Compile Include="Fisiotes\Repositories\ClientesRepository.cs" />
+    <Compile Include="Fisiotes\Repositories\ConfiguracionesRepository.cs" />
+    <Compile Include="Fisiotes\Repositories\EntregasRepository.cs" />
+    <Compile Include="Fisiotes\Repositories\FisiotesRepository.cs" />
+    <Compile Include="Fisiotes\Repositories\HuecosRepository.cs" />
+    <Compile Include="Fisiotes\Repositories\MedicamentosRepository.cs" />
+    <Compile Include="Fisiotes\Repositories\PuntosPendientesRepository.cs" />
+    <Compile Include="Fisiotes\Repositories\SinonimosRepository.cs" />
     <Compile Include="Models\ClienteDto.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

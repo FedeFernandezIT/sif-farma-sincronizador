@@ -16,6 +16,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 
 namespace Sisfarma.Sincronizador
 {
@@ -212,10 +213,10 @@ namespace Sisfarma.Sincronizador
             try
             {
                 // Creamos la tabla clientes_huecos
-                fisiotesService.CreateClientesHuecos();
+                fisiotesService.Huecos.CreateTable();
                 
                 // Validamos los campos existentes en clientes
-                fisiotesService.CheckAndCreateFieldsInClientes();
+                fisiotesService.Clientes.CheckAndCreateFields();
                 
                 // Validamos los campos existentes en ClienteAux
                 var existFieldSexo = farmaticService.Clientes.HasSexoField();
@@ -226,7 +227,7 @@ namespace Sisfarma.Sincronizador
                 var formatTime = DateTime.Now.ToString("HHmm");
                 lastCliente = "1500".Equals(formatTime) || "2300".Equals(formatTime)
                         ? "0"
-                        : fisiotesService.GetDniLastClientAsync();
+                        : fisiotesService.Clientes.GetDniTrackingLast();
 
                 // Recuperamos los clientes locales mayores al DNI del último cliente remoto
                 var localClientes = new List<Farmatic.Models.Cliente>();
@@ -244,18 +245,18 @@ namespace Sisfarma.Sincronizador
                     var clientData = FetchLocalClienteData(farmaticService, cliente, false);
 
                     // Recuperamos el último cliente remoto
-                    fisiotesService.SetCeroClientes();
-                    if (!fisiotesService.AnyClienteWithDni(lastCliente))
+                    fisiotesService.Clientes.ResetDniTracking();
+                    if (!fisiotesService.Clientes.AnyWithDni(lastCliente))
                     {                        
                         var tipo = "cliente";
-                        fisiotesService.InsertClienteAsync(
+                        fisiotesService.Clientes.Insert(
                                 clientData.Trabajador, clientData.Tarjeta, cliente.IDCLIENTE, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
                                 clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, tipo, clientData.FechaAlta, clientData.Baja, clientData.Lopd,
                                 withTrack: true);
                     }
                     else
                     {                        
-                        fisiotesService.UpdateClienteAsync(
+                        fisiotesService.Clientes.Update(
                                 clientData.Trabajador, clientData.Tarjeta, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
                                 clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, clientData.FechaAlta, clientData.Baja, clientData.Lopd,
                                 cliente.IDCLIENTE, withTrack: true);
@@ -267,8 +268,8 @@ namespace Sisfarma.Sincronizador
                     {
                         for (int i = contadorHuecos; i < intIdCliente; i++)
                         {                            
-                            if (!fisiotesService.AnyHuecoDeCliente(i))                            
-                                fisiotesService.InsertHuecoDeCliente(i.ToString());                            
+                            if (!fisiotesService.Huecos.Any(i))                            
+                                fisiotesService.Huecos.Insert(i.ToString());                            
                         }
                         contadorHuecos = intIdCliente;
                     }
@@ -420,7 +421,7 @@ namespace Sisfarma.Sincronizador
                 var existFieldSexo = farmaticService.Clientes.HasSexoField();
 
                 // Recuperamos los huecos de clientes en forma ascendente
-                var remoteHuecos = fisiotesService.GetHuecosDeClientesAscAsync();
+                var remoteHuecos = fisiotesService.Huecos.GetByOrderAsc();
 
                 // Sincronizamos los clientes con huecos con la BD remota
                 foreach (var hueco in remoteHuecos)
@@ -432,22 +433,22 @@ namespace Sisfarma.Sincronizador
                         var clientData = FetchLocalClienteData(farmaticService, cliente, existFieldSexo);
 
                         // Recuperamos el cliente remoto que coincida con el cliente local                        
-                        if (!fisiotesService.AnyClienteWithDni(cliente.IDCLIENTE))
+                        if (!fisiotesService.Clientes.AnyWithDni(cliente.IDCLIENTE))
                         {
                             var tipo = "cliente";
-                            fisiotesService.InsertClienteAsync(
+                            fisiotesService.Clientes.Insert(
                                 clientData.Trabajador, clientData.Tarjeta, cliente.IDCLIENTE, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
                                 clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, tipo, clientData.FechaAlta, clientData.Baja, clientData.Lopd);
                         }
                         else
                         {
-                            fisiotesService.UpdateClienteAsync(
+                            fisiotesService.Clientes.Update(
                                 clientData.Trabajador, clientData.Tarjeta, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
                                 clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, clientData.FechaAlta, clientData.Baja, clientData.Lopd, cliente.IDCLIENTE);
                         }
 
                         // Eliminamos el hueco del cliente.
-                        fisiotesService.DeleteHuecoDeCliente(hueco);
+                        fisiotesService.Huecos.Delete(hueco);
                     }
 
                 }
@@ -462,15 +463,15 @@ namespace Sisfarma.Sincronizador
         {         
             try
             {
-                var puntos = fisiotesService.GetPuntosPendientesOfRecetas();
+                var puntos = fisiotesService.PuntosPendientes.GetOfRecetasPendientes();
                 foreach (var punto in puntos)
                 {
                     var lineaVenta = farmaticService.Ventas.GetLineaVentaByKey(punto.idventa, punto.idnlinea);
 
                     if (lineaVenta != null && (punto.recetaPendiente == null || lineaVenta.RecetaPendiente != "D"))
-                        fisiotesService.UpdatePuntosPendientes(lineaVenta.RecetaPendiente, punto.idventa, punto.idnlinea);
+                        fisiotesService.PuntosPendientes.Update(lineaVenta.RecetaPendiente, punto.idventa, punto.idnlinea);
                     else if (punto.recetaPendiente == null)
-                        fisiotesService.UpdatePuntosPendientes(punto.idventa, punto.idnlinea);
+                        fisiotesService.PuntosPendientes.Update(punto.idventa, punto.idnlinea);
                 }
             }
             catch (Exception e)
@@ -482,31 +483,31 @@ namespace Sisfarma.Sincronizador
         public void ProcessUpdateEntregasClientes(FarmaticService farmaticService, FisiotesService fisiotesService)
         {            
             const string FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES =
-                FisiotesService.FieldsConfiguracion.FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES;
+                FieldsConfiguracion.FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES;
             try
             {
                 var cfg =
-                    fisiotesService.GetConfiguracionByCampo(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES);
+                    fisiotesService.Configuraciones.GetByCampo(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES);
                 var venta = 0L;
                 if (cfg == null)
                 {
-                    fisiotesService.InsertConfiguracion(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES);
-                    var entregaAny = fisiotesService.GetEntregaCliente();
+                    fisiotesService.Configuraciones.Insert(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES);
+                    var entregaAny = fisiotesService.Entregas.Last();
                     if (entregaAny == null)
                     {
-                        var pendiente = fisiotesService.GetFirstPuntosPendientes();
+                        var pendiente = fisiotesService.PuntosPendientes.Last();
                         venta = pendiente?.idventa ?? 0;
                     }
                     else venta = entregaAny.idventa;
 
-                    fisiotesService.UpdateConfiguracionByCampo(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES, venta.ToString());
+                    fisiotesService.Configuraciones.Update(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES, venta.ToString());
                 }
                 else venta = Convert.ToInt64(cfg.valor);
 
                 var ventasVirtuales = farmaticService.Ventas.GetVirtualesLessThanId(venta);
                 foreach (var vtaVirtual in ventasVirtuales)
                 {
-                    fisiotesService.UpdateConfiguracionByCampo(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES, vtaVirtual.IdVenta.ToString());
+                    fisiotesService.Configuraciones.Update(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES, vtaVirtual.IdVenta.ToString());
                     var dni = vtaVirtual.XClie_IdCliente.Strip();
                     if (string.IsNullOrEmpty(dni))
                         dni = "0";
@@ -515,9 +516,9 @@ namespace Sisfarma.Sincronizador
                     var lineas = farmaticService.Ventas.GetLineasVirtualesByVenta(vtaVirtual.IdVenta);
                     foreach (var linea in lineas)
                     {
-                        var entrega = fisiotesService.GetEntregaClienteByKey(linea.IdVenta, linea.IdNLinea);
+                        var entrega = fisiotesService.Entregas.GetByKey(linea.IdVenta, linea.IdNLinea);
                         if (entrega == null)
-                            fisiotesService.InsertEntregaCliente(linea.IdVenta, linea.IdNLinea, linea.Codigo.Strip(),
+                            fisiotesService.Entregas.Insert(linea.IdVenta, linea.IdNLinea, linea.Codigo.Strip(),
                                 linea.Descripcion.Strip(), linea.Cantidad, Convert.ToDecimal(linea.ImporteNeto), linea.TipoLinea,
                                 Convert.ToInt32(vtaVirtual.FechaHora.ToString("yyyyMMdd")), dni, vtaVirtual.Maquina, trabajador,
                                 vtaVirtual.FechaHora, Convert.ToSingle(linea.Pvp));
@@ -533,30 +534,30 @@ namespace Sisfarma.Sincronizador
         public void ProcessUpdateProductosBorrados(FarmaticService farmaticService, FisiotesService fisiotesService)
         {        
             const string FIELD_POR_DONDE_VOY_BORRAR =
-                FisiotesService.FieldsConfiguracion.FIELD_POR_DONDE_VOY_BORRAR;
+                FieldsConfiguracion.FIELD_POR_DONDE_VOY_BORRAR;
             try
             {
-                var cfg = fisiotesService.GetConfiguracionByCampo(FIELD_POR_DONDE_VOY_BORRAR);
+                var cfg = fisiotesService.Configuraciones.GetByCampo(FIELD_POR_DONDE_VOY_BORRAR);
                 var codArticulo = "0";
                 if (cfg == null)
-                    fisiotesService.InsertConfiguracion(FIELD_POR_DONDE_VOY_BORRAR);
+                    fisiotesService.Configuraciones.Insert(FIELD_POR_DONDE_VOY_BORRAR);
                 else
                     codArticulo = cfg.valor;
 
-                var exsitWebInMedicamentos = fisiotesService.ExistFieldWebInMedicamentos();
+                var exsitWebInMedicamentos = fisiotesService.Medicamentos.HasWebField();
                 var medicamentos =
-                    fisiotesService.GetCodigosNacionalesFromMedicamentos(codArticulo, exsitWebInMedicamentos);
+                    fisiotesService.Medicamentos.GetCodigosNacionalesGreaterOrEqual(codArticulo, exsitWebInMedicamentos);
                 switch (medicamentos.Count)
                 {
                     case 0:
-                        fisiotesService.UpdateConfiguracionByCampo(FIELD_POR_DONDE_VOY_BORRAR, "0");
+                        fisiotesService.Configuraciones.Update(FIELD_POR_DONDE_VOY_BORRAR, "0");
                         break;
                     case 1:
                         var articulo =
                             farmaticService.Articulos.GetById(medicamentos.First().PadLeft(6, '0'));
                         if (articulo == null)
-                            fisiotesService.DeleteMedicamentoByCodigoNacional(medicamentos.First());
-                        fisiotesService.UpdateConfiguracionByCampo(FIELD_POR_DONDE_VOY_BORRAR, "0");
+                            fisiotesService.Medicamentos.DeleteByCodigoNacional(medicamentos.First());
+                        fisiotesService.Configuraciones.Update(FIELD_POR_DONDE_VOY_BORRAR, "0");
                         break;
                 }
 
@@ -564,8 +565,8 @@ namespace Sisfarma.Sincronizador
                 {
                     var articulo = farmaticService.Articulos.GetById(codNac.PadLeft(6, '0'));
                     if (articulo == null)
-                        fisiotesService.DeleteMedicamentoByCodigoNacional(codNac);
-                    fisiotesService.UpdateConfiguracionByCampo(FIELD_POR_DONDE_VOY_BORRAR, codNac);
+                        fisiotesService.Medicamentos.DeleteByCodigoNacional(codNac);
+                    fisiotesService.Configuraciones.Update(FIELD_POR_DONDE_VOY_BORRAR, codNac);
                 }
             }
             catch (Exception e)
@@ -578,7 +579,7 @@ namespace Sisfarma.Sincronizador
         {            
             try
             {
-                var puntos = fisiotesService.GetPuntosPendientesWithoutRedencion();
+                var puntos = fisiotesService.PuntosPendientes.GetWithoutRedencion();
                 foreach (var pto in puntos)
                 {
                     var venta = farmaticService.Ventas.GetById(pto.idventa);
@@ -594,14 +595,14 @@ namespace Sisfarma.Sincronizador
                             var proveedor = articulo != null
                                 ? GetProveedorFromLocalOrDefault(farmaticService, articulo.ProveedorHabitual)
                                 : string.Empty;
-                            fisiotesService.UpdatePuntosPendientes(venta.TipoVenta, proveedor,
+                            fisiotesService.PuntosPendientes.Update(venta.TipoVenta, proveedor,
                                 Convert.ToSingle(linea.DescuentoLinea), Convert.ToSingle(venta.DescuentoOpera),
                                 Convert.ToSingle(redencion), linea.IdVenta, linea.IdNLinea);
                         }
                     }
                     else
                     {
-                        fisiotesService.UpdatePuntosPendientes(pto.idventa);
+                        fisiotesService.PuntosPendientes.Update(pto.idventa);
                     }
                 }
             }
@@ -621,15 +622,15 @@ namespace Sisfarma.Sincronizador
         {            
             try
             {
-                fisiotesService.CheckAndAlterFieldsInSinonimos(_remoteBase);
-                var sinonimo = fisiotesService.GetSinomimoSingle();
+                fisiotesService.Sinonimos.CheckAndAlterFields(_remoteBase);
+                var sinonimo = fisiotesService.Sinonimos.First();
                 var insertar = sinonimo == null || Array.Exists(new[] { "1230", "1730", "1930" }, x => x.Equals(DateTime.Now.ToString("HHmm")))
                         ? true
                         : false;
 
                 if (insertar)
                 {
-                    fisiotesService.TruncateSinonimos();
+                    fisiotesService.Sinonimos.Truncate();
                     var sinonimos = farmaticService.Sinonimos.Get();
 
                     var take = 1000;
@@ -640,7 +641,7 @@ namespace Sisfarma.Sincronizador
                             cod_barras = x.Sinonimo.Strip(),
                             cod_nacional = x.IdArticu.Strip()
                         }).ToList();
-                        fisiotesService.InsertSinonimosPerBatch(items);
+                        fisiotesService.Sinonimos.Insert(items);
                     }
 
                 }
@@ -653,20 +654,20 @@ namespace Sisfarma.Sincronizador
 
         public void ProcessControlSinStockInicial(FarmaticService farmaticService, ConsejoService consejoService, FisiotesService fisiotesService)
         {           
-            const string FIELD_POR_DONDE_VOY_SIN_STOCK = FisiotesService.FieldsConfiguracion.FIELD_POR_DONDE_VOY_SIN_STOCK;
+            const string FIELD_POR_DONDE_VOY_SIN_STOCK = FieldsConfiguracion.FIELD_POR_DONDE_VOY_SIN_STOCK;
             try
             {
-                var configuracion = fisiotesService.GetConfiguracionByCampo(FIELD_POR_DONDE_VOY_SIN_STOCK);
+                var configuracion = fisiotesService.Configuraciones.GetByCampo(FIELD_POR_DONDE_VOY_SIN_STOCK);
                 if (configuracion == null)
-                    fisiotesService.InsertConfiguracion(FIELD_POR_DONDE_VOY_SIN_STOCK);
+                    fisiotesService.Configuraciones.Insert(FIELD_POR_DONDE_VOY_SIN_STOCK);
                 var codArticulo = configuracion != null ? configuracion.valor : "0";
                 var articulos = farmaticService.Articulos.GetWithoutStockByIdGreaterOrEqual(codArticulo);
                 foreach (var articulo in articulos)
                 {
                     SyncUpArticuloWithIva(farmaticService, consejoService, fisiotesService, articulo, FIELD_POR_DONDE_VOY_SIN_STOCK, articulo.IdArticu);
                 }
-                fisiotesService.UpdateConfiguracionByCampo(FIELD_POR_DONDE_VOY_SIN_STOCK, "0");
-                fisiotesService.UpdateMedicamentoPorDondeVoySinStock();
+                fisiotesService.Configuraciones.Update(FIELD_POR_DONDE_VOY_SIN_STOCK, "0");
+                fisiotesService.Medicamentos.ResetPorDondeVoySinStock();
             }
             catch (Exception e)
             {                
@@ -676,7 +677,7 @@ namespace Sisfarma.Sincronizador
 
         private void SyncUpArticuloWithIva(FarmaticService farmaticService, ConsejoService consejoService, FisiotesService fisiotesService, ArticuloWithIva articulo, string updatefield, string updateValue)
         {            
-            fisiotesService.UpdateConfiguracionByCampo(updatefield, updateValue);
+            fisiotesService.Configuraciones.Update(updatefield, updateValue);
 
             var familila = farmaticService.Familias.GetById(articulo.XFam_IdFamilia);
             var fechaUltimaCompra = articulo.FechaUltimaEntrada;
@@ -717,9 +718,9 @@ namespace Sisfarma.Sincronizador
 
             var fechaCaducidad = articulo.FechaCaducidad;
 
-            var medicamento = fisiotesService.GetMedicamentoByCodNacional(articulo.IdArticu);
+            var medicamento = fisiotesService.Medicamentos.GetByCodNacional(articulo.IdArticu);
             if (medicamento == null)
-                fisiotesService.InsertMedicamento(codigoBarra.Strip(), articulo.IdArticu.Strip(), desc.Strip(), superFamilia.Strip(),
+                fisiotesService.Medicamentos.Insert(codigoBarra.Strip(), articulo.IdArticu.Strip(), desc.Strip(), superFamilia.Strip(),
                         familila?.Descripcion.Strip(), Convert.ToSingle(precio), desc.Strip(), articulo.Laboratorio.Strip(), nombreLaboratorio.Strip(),
                         proveedor.Strip(), Convert.ToSingle(pvpsIva), Convert.ToInt32(articulo.Iva), stock, Convert.ToSingle(pcoste), stockMinimo, stockMaximo, present.Strip(),
                         descripcionHtml.Strip(), activo, fechaCaducidad, fechaUltimaCompra, fechaUltimaVenta, baja);
@@ -729,13 +730,13 @@ namespace Sisfarma.Sincronizador
                     articulo.Laboratorio != medicamento.laboratorio || articulo.Iva != medicamento.iva ||
                     stock != medicamento.stock || present.Strip() != medicamento.presentacion ||
                     descripcionHtml != medicamento.descripcion)
-                    fisiotesService.UpdateMedicamento(codigoBarra.Strip(), desc.Strip(), superFamilia.Strip(),
+                    fisiotesService.Medicamentos.Update(codigoBarra.Strip(), desc.Strip(), superFamilia.Strip(),
                         familila?.Descripcion.Strip(), Convert.ToSingle(precio), desc.Strip(), articulo.Laboratorio.Strip(), nombreLaboratorio.Strip(),
                         proveedor.Strip(), Convert.ToInt32(articulo.Iva), Convert.ToSingle(pvpsIva), stock, Convert.ToSingle(pcoste), stockMinimo, stockMaximo, present.Strip(),
                         descripcionHtml.Strip(), activo, fechaCaducidad, fechaUltimaCompra, fechaUltimaVenta, baja, articulo.IdArticu,
                         withSqlExtra: true);
                 else
-                    fisiotesService.UpdateMedicamento(codigoBarra.Strip(), desc.Strip(), superFamilia.Strip(),
+                    fisiotesService.Medicamentos.Update(codigoBarra.Strip(), desc.Strip(), superFamilia.Strip(),
                         familila?.Descripcion.Strip(), Convert.ToSingle(precio), desc.Strip(), articulo.Laboratorio.Strip(), nombreLaboratorio.Strip(),
                         proveedor.Strip(), Convert.ToInt32(articulo.Iva), Convert.ToSingle(pvpsIva), stock, Convert.ToSingle(pcoste), stockMinimo, stockMaximo, present.Strip(),
                         descripcionHtml.Strip(), activo, fechaCaducidad, fechaUltimaCompra, fechaUltimaVenta, baja, articulo.IdArticu);
@@ -773,13 +774,13 @@ namespace Sisfarma.Sincronizador
 
         public void ProcessControlStockFechasSalida(FarmaticService farmaticService, ConsejoService consejoService, FisiotesService fisiotesService)
         {            
-            const string FIELD_NAME = FisiotesService.FieldsConfiguracion.FIELD_STOCK_SALIDA;
+            const string FIELD_NAME = FieldsConfiguracion.FIELD_STOCK_SALIDA;
             try
             {
                 DateTime? fechaActualizacionStock = null;
-                var configuracion = fisiotesService.GetConfiguracionByCampo(FIELD_NAME);
+                var configuracion = fisiotesService.Configuraciones.GetByCampo(FIELD_NAME);
                 if (configuracion == null)
-                    fisiotesService.InsertConfiguracion(FIELD_NAME);
+                    fisiotesService.Configuraciones.Insert(FIELD_NAME);
                 else
                     fechaActualizacionStock = CalculateFechaActualizacion(configuracion.valor);
 
@@ -815,24 +816,24 @@ namespace Sisfarma.Sincronizador
 
         public void ProcessControlStockInicial(FarmaticService farmaticService, ConsejoService consejoService, FisiotesService fisiotesService)
         {            
-            const string FIELD_STOCK_ENTRADA = FisiotesService.FieldsConfiguracion.FIELD_STOCK_ENTRADA;
-            const string FIELD_STOCK_SALIDA = FisiotesService.FieldsConfiguracion.FIELD_STOCK_SALIDA;
-            const string FIELD_POR_DONDE_VOY_CON_STOCK = FisiotesService.FieldsConfiguracion.FIELD_POR_DONDE_VOY_CON_STOCK;
-            const string FIELD_POR_DONDE_VOY_SIN_STOCK = FisiotesService.FieldsConfiguracion.FIELD_POR_DONDE_VOY_SIN_STOCK;
+            const string FIELD_STOCK_ENTRADA = FieldsConfiguracion.FIELD_STOCK_ENTRADA;
+            const string FIELD_STOCK_SALIDA = FieldsConfiguracion.FIELD_STOCK_SALIDA;
+            const string FIELD_POR_DONDE_VOY_CON_STOCK = FieldsConfiguracion.FIELD_POR_DONDE_VOY_CON_STOCK;
+            const string FIELD_POR_DONDE_VOY_SIN_STOCK = FieldsConfiguracion.FIELD_POR_DONDE_VOY_SIN_STOCK;
             try
             {
-                fisiotesService.CheckAndCreateFieldsInMedicamentos();
-                var configuracion = fisiotesService.GetConfiguracionByCampo(FIELD_STOCK_ENTRADA);
+                fisiotesService.Medicamentos.CheckAndCreateFields();
+                var configuracion = fisiotesService.Configuraciones.GetByCampo(FIELD_STOCK_ENTRADA);
                 if (configuracion == null)
-                    fisiotesService.InsertConfiguracion(FIELD_STOCK_ENTRADA);
-                configuracion = fisiotesService.GetConfiguracionByCampo(FIELD_STOCK_SALIDA);
+                    fisiotesService.Configuraciones.Insert(FIELD_STOCK_ENTRADA);
+                configuracion = fisiotesService.Configuraciones.GetByCampo(FIELD_STOCK_SALIDA);
                 if (configuracion == null)
-                    fisiotesService.InsertConfiguracion(FIELD_STOCK_SALIDA);
-                configuracion = fisiotesService.GetConfiguracionByCampo(FIELD_POR_DONDE_VOY_CON_STOCK);
+                    fisiotesService.Configuraciones.Insert(FIELD_STOCK_SALIDA);
+                configuracion = fisiotesService.Configuraciones.GetByCampo(FIELD_POR_DONDE_VOY_CON_STOCK);
                 if (configuracion == null)
                 {
-                    fisiotesService.InsertConfiguracion(FIELD_POR_DONDE_VOY_CON_STOCK);
-                    fisiotesService.InsertConfiguracion(FIELD_POR_DONDE_VOY_SIN_STOCK);
+                    fisiotesService.Configuraciones.Insert(FIELD_POR_DONDE_VOY_CON_STOCK);
+                    fisiotesService.Configuraciones.Insert(FIELD_POR_DONDE_VOY_SIN_STOCK);
                 }
                 var codArticulo = configuracion != null ? configuracion.valor : "0";
                 var articulos = farmaticService.Articulos.GetWithStockByIdGreaterOrEqual(codArticulo);
@@ -840,8 +841,8 @@ namespace Sisfarma.Sincronizador
                 {
                     SyncUpArticuloWithIva(farmaticService, consejoService, fisiotesService, articulo, FIELD_POR_DONDE_VOY_CON_STOCK, articulo.IdArticu);
                 }
-                fisiotesService.UpdateConfiguracionByCampo(FIELD_POR_DONDE_VOY_CON_STOCK, "0");
-                fisiotesService.UpdateMedicamentoPorDondeVoy();
+                fisiotesService.Configuraciones.Update(FIELD_POR_DONDE_VOY_CON_STOCK, "0");
+                fisiotesService.Medicamentos.ResetPorDondeVoy();
             }
             catch (Exception e)
             {                
@@ -851,14 +852,14 @@ namespace Sisfarma.Sincronizador
 
         public void ProcessControlStockFechasEntrada(FarmaticService farmaticService, ConsejoService consejoService, FisiotesService fisiotesService)
         {            
-            const string FIELD_NAME = FisiotesService.FieldsConfiguracion.FIELD_STOCK_ENTRADA;
+            const string FIELD_NAME = FieldsConfiguracion.FIELD_STOCK_ENTRADA;
             try
             {
                 // Estblecemos la fecha de actualización del stock
                 DateTime? fechaActualizacionStock = null;
-                var configuracion = fisiotesService.GetConfiguracionByCampo(FIELD_NAME);
+                var configuracion = fisiotesService.Configuraciones.GetByCampo(FIELD_NAME);
                 if (configuracion == null)
-                    fisiotesService.InsertConfiguracion(FIELD_NAME);
+                    fisiotesService.Configuraciones.Insert(FIELD_NAME);
                 else
                     fechaActualizacionStock = CalculateFechaActualizacion(configuracion.valor);
 
