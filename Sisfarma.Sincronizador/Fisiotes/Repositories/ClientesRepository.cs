@@ -34,7 +34,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             return _ctx.Database.SqlQuery<string>(sql)
                 .FirstOrDefault() ?? "0";
         }
-
+        
         public void Insert(string trabajador, string tarjeta, string idCliente, string nombre,
             string telefono, string direccion, string movil, string email, decimal puntos, long fechaNacimiento,
             string sexo, string tipo, DateTime? fechaAlta, int baja, int lopd, bool withTrack = false)

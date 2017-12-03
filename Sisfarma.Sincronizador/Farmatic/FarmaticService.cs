@@ -19,11 +19,15 @@ namespace Sisfarma.Sincronizador.Farmatic
         public DestinatariosRepository Destinatarios { get; private set; }
         public VendedoresRepository Vendedores { get; private set; }
         public VentasRepository Ventas { get; private set; }
-        public ArticulosRepository Articulos { get; set; }
+        public ArticulosRepository Articulos { get; private set; }
         public ProveedoresRepository Proveedores { get; private set; }
-        public SinonimosRepository Sinonimos { get; set; }
-        public FamiliasRepository Familias { get; set; }
-        public LaboratoriosRepository Laboratorios { get; set; }
+        public SinonimosRepository Sinonimos { get; private set; }
+        public FamiliasRepository Familias { get; private set; }
+        public LaboratoriosRepository Laboratorios { get; private set; }
+        public RecepcionesRepository Recepciones { get; private set; }
+        public ListasArticulosRepository ListasArticulos { get; private set; }
+        public EncargosRepository Encargos { get; private set; }
+        public PedidosRepository Pedidos { get; private set; }
 
         public FarmaticService()
         {
@@ -37,6 +41,9 @@ namespace Sisfarma.Sincronizador.Farmatic
             Sinonimos = new SinonimosRepository(_ctx);
             Familias = new FamiliasRepository(_ctx);
             Laboratorios = new LaboratoriosRepository(_ctx);
+            Recepciones = new RecepcionesRepository(_ctx);
+            ListasArticulos = new ListasArticulosRepository(_ctx);
+            Encargos = new EncargosRepository(_ctx);
         }        
     }
 }

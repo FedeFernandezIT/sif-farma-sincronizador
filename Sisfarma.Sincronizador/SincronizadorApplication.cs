@@ -37,6 +37,15 @@ namespace Sisfarma.Sincronizador
         private System.Timers.Timer timerControlStockFechasSalida;
         private System.Timers.Timer timerControlStockInicial;
         private System.Timers.Timer timerControlStockFechasEntrada;
+        private System.Timers.Timer timerPuntosPendientes;
+        private System.Timers.Timer timerPedidos;
+        private System.Timers.Timer timerListasTiendas;
+        private System.Timers.Timer timerCategorias;
+        private System.Timers.Timer timerListasFechas;
+        private System.Timers.Timer timerListas;
+        private System.Timers.Timer timerEncargos;
+        private System.Timers.Timer timerFamilias;
+        private System.Timers.Timer timerProductosCriticos;
 
         public SincronizadorApplication()
         {
@@ -51,8 +60,7 @@ namespace Sisfarma.Sincronizador
             {
                 timerClientes.Stop();
                 FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                //fisiotes.SetCeroClientes();
+                FisiotesService fisiotes = new FisiotesService();                
                 ProcessClientes(farmatic, fisiotes);
                 timerClientes.Start();
             };
@@ -157,11 +165,105 @@ namespace Sisfarma.Sincronizador
                 FarmaticService farmatic = new FarmaticService();
                 FisiotesService fisiotes = new FisiotesService();
                 ConsejoService consejo = new ConsejoService();
-                
+                ProcessControlStockFechasEntrada(farmatic, consejo, fisiotes);
                 timerControlStockFechasEntrada.Start();
             };
 
+            timerPuntosPendientes = new System.Timers.Timer(3000);
+            timerPuntosPendientes.Elapsed += (sender, @event) => 
+            {
+                timerPuntosPendientes.Stop();
+                FarmaticService farmatic = new FarmaticService();
+                FisiotesService fisiotes = new FisiotesService();
+                ConsejoService consejo = new ConsejoService();
+                ProcessPuntosPendientes(farmatic, consejo, fisiotes);
+                timerPuntosPendientes.Start();
+            };
 
+            timerPedidos = new System.Timers.Timer(3100);
+            timerPedidos.Elapsed += (sender, @event) =>
+            {
+                timerPedidos.Stop();
+                FarmaticService farmatic = new FarmaticService();
+                FisiotesService fisiotes = new FisiotesService();
+                ConsejoService consejo = new ConsejoService();
+                ProcessPedidos(farmatic, consejo, fisiotes);
+                timerPedidos.Start();
+            };
+
+            timerListasTiendas = new System.Timers.Timer(4500);
+            timerListasTiendas.Elapsed += (sender, @event) =>
+            {
+                timerListasTiendas.Stop();
+                FarmaticService farmatic = new FarmaticService();
+                FisiotesService fisiotes = new FisiotesService();
+                ConsejoService consejo = new ConsejoService();
+                ProcessListaTienda(farmatic, consejo, fisiotes);
+                timerListasTiendas.Start();
+            };
+
+            timerCategorias = new System.Timers.Timer(64000);
+            timerCategorias.Elapsed += (sender, @event) =>
+            {
+                timerCategorias.Stop();
+                FarmaticService farmatic = new FarmaticService();
+                FisiotesService fisiotes = new FisiotesService();                
+                ProcessCategorias(farmatic, fisiotes);
+                timerCategorias.Start();
+            };
+
+            timerListasFechas = new System.Timers.Timer(62000);
+            timerListasFechas.Elapsed += (sender, @event) =>
+            {
+                timerListasFechas.Stop();
+                FarmaticService farmatic = new FarmaticService();
+                FisiotesService fisiotes = new FisiotesService();
+                ProcessListasFechas(farmatic, fisiotes);
+                timerListasFechas.Start();
+            };
+
+            timerListas = new System.Timers.Timer(61000);
+            timerListas.Elapsed += (sender, @event) =>
+            {
+                timerListas.Stop();
+                FarmaticService farmatic = new FarmaticService();
+                FisiotesService fisiotes = new FisiotesService();
+                ProcessListas(farmatic, fisiotes);
+                timerListas.Start();
+            };
+
+            timerEncargos = new System.Timers.Timer(4000);
+            timerEncargos.Elapsed += (sender, @event) =>
+            {
+                timerEncargos.Stop();
+                FarmaticService farmatic = new FarmaticService();
+                FisiotesService fisiotes = new FisiotesService();
+                ConsejoService consejo = new ConsejoService();
+                ProcessEncargos(farmatic, consejo, fisiotes);
+                timerEncargos.Start();
+            };
+
+            timerFamilias = new System.Timers.Timer(65000);
+            timerFamilias.Elapsed += (sender, @event) =>
+            {
+                timerFamilias.Stop();
+                FarmaticService farmatic = new FarmaticService();
+                FisiotesService fisiotes = new FisiotesService();
+                ProcessFamilia(farmatic, fisiotes);
+                timerFamilias.Start();
+            };
+
+            timerProductosCriticos = new System.Timers.Timer(3500);
+            timerProductosCriticos.Elapsed += (sender, @event) =>
+            {
+                timerProductosCriticos.Stop();
+                FarmaticService farmatic = new FarmaticService();
+                FisiotesService fisiotes = new FisiotesService();
+                ConsejoService consejo = new ConsejoService();
+                ProcessProductosCrticos(farmatic, consejo, fisiotes);
+                timerProductosCriticos.Start();
+            };
+            
             timerClientes.Start();
             timerClientesHuecos.Start();
             timerActualizarRecetasPendientes.Start();
@@ -173,6 +275,15 @@ namespace Sisfarma.Sincronizador
             timerControlStockFechasSalida.Start();
             timerControlStockInicial.Start();
             timerControlStockFechasEntrada.Start();
+            timerPuntosPendientes.Start();
+            timerPedidos.Start();
+            timerListasTiendas.Start();
+            timerCategorias.Start();
+            timerListasFechas.Start();
+            timerListas.Start();
+            timerEncargos.Start();
+            timerFamilias.Start();
+            timerProductosCriticos.Start();
         }
 
         private void LeerFicherosConfiguracion()
@@ -873,6 +984,573 @@ namespace Sisfarma.Sincronizador
             }
             catch (Exception e)
             {                
+                Task.Delay(1500).Wait();
+            }
+        }
+
+        public void ProcessPuntosPendientes(FarmaticService farmatic, ConsejoService consejo, FisiotesService fisiotes)
+        {            
+            try
+            {
+                // Validamos los campos existentes en puntos_pendientes
+                fisiotes.PuntosPendientes.CheckAndCreateFields();
+
+                // Creamos la tabla entregas_clientes en la BD remota, si no existe
+                fisiotes.Entregas.CreateTable(_remoteBase);
+
+                // Validamos los campos existentes en ClienteAux
+                var existFieldSexo = farmatic.Clientes.HasSexoField();
+
+                // Verificamos el campo tipoPago en pendientes_puntos en la BD remota
+                fisiotes.PuntosPendientes.CheckTipoPagoField(_remoteBase);
+
+                // Recuperamos los puntos pendientes de la última venta y establecemos el ID de venta
+                var puntosPendientes = fisiotes.PuntosPendientes.Last();
+                var idVenta = puntosPendientes?.idventa ?? 1L;
+
+                // Recuperamos las ventas locales
+                var ventas = farmatic.Ventas.GetByIdGreaterOrEqual(idVenta);
+                foreach (var venta in ventas)
+                {
+                    // Establecemos los valores que necesitamos desde la venta extrída de
+                    // la BD local.
+                    var puesto = venta.Maquina;
+                    var tipoPago = venta.TipoVenta;
+                    var fechaVenta = venta.FechaHora;
+                    var dni = venta.XClie_IdCliente.Strip();
+                    if (!string.IsNullOrEmpty(dni))
+                    {
+                        var cliente = farmatic.Clientes.GetById(dni);
+                        // Extraemos los datos necesarios del cliente local para sincronizar con el remoto
+                        var clientData = FetchLocalClienteData(farmatic, cliente, existFieldSexo);
+
+                        // Recuperamos el cliente remoto que coincida con el cliente local                        
+                        if (!fisiotes.Clientes.AnyWithDni(cliente.IDCLIENTE))
+                        {
+                            var tipo = "cliente";
+                            fisiotes.Clientes.Insert(
+                                clientData.Trabajador, clientData.Tarjeta, cliente.IDCLIENTE, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
+                                clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, tipo, clientData.FechaAlta, clientData.Baja, clientData.Lopd);
+                        }
+                        else
+                        {
+                            fisiotes.Clientes.Update(
+                                clientData.Trabajador, clientData.Tarjeta, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
+                                clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, clientData.FechaAlta, clientData.Baja, clientData.Lopd, cliente.IDCLIENTE);
+                        }
+                    }
+                    // TODO: dni = 0 pero no se usa
+
+                    // Recuramos el vendedor de la venta desde la BD local y establecemos
+                    // el trabajador
+                    var idVendendor = venta.XVend_IdVendedor;
+                    var vendedor = farmatic.Vendedores.GetById(idVendendor);
+                    var trabajador = vendedor?.NOMBRE ?? "NO";
+
+                    // Recuperamos la la datos de la venta y el detalle de la misma
+                    var fecha = Convert.ToInt32(venta.FechaHora.ToString("yyyyMMdd"));
+                    var descuentoVenta = false;
+                    var detalleVenta = farmatic.Ventas.GetLineasVentaByVenta(venta.IdVenta);
+                    foreach (var linea in detalleVenta)
+                    {
+                        var recetaPendiente = linea.RecetaPendiente;
+                        var receta = linea.TipoAportacion;
+                        var precioMed = linea.PVP;
+
+                        var dtoVta = 0d;
+                        if (!descuentoVenta)
+                        {
+                            dtoVta = (venta.DescuentoOpera ?? 0d);
+                            descuentoVenta = true;
+                        }
+                        var dtoLinea = venta.DescuentoLinea ?? 0d;
+
+                        // Establecemos redencion
+                        var redencionDb =
+                            farmatic.Ventas.GetLineaRedencionByKey(venta.IdVenta, linea.IdNLinea);
+                        var redencion = redencionDb?.Redencion ?? 0;
+
+                        var codigoBarra = GetCodidoBarrasFromLocalOrDefault(farmatic, linea.Codigo);
+
+                        // Recuperamos el artículo para establcer los siguientes datos
+                        var familia = string.Empty;
+                        var superFamilia = string.Empty;
+                        var codLaboratorio = string.Empty;
+                        var nombreLaboratorio = string.Empty;
+                        var proveedor = string.Empty;
+                        var pcoste = 0d;
+
+                        var articulo = farmatic.Articulos.GetById(linea.Codigo);
+                        if (articulo == null)
+                            nombreLaboratorio = "<Sin Laboratorio>";
+                        else
+                        {
+                            pcoste = articulo.Puc;
+                            familia = GetFamiliaFromLocalOrDefault(farmatic, articulo.XFam_IdFamilia, "<Sin Clasificar>");
+
+                            codLaboratorio = articulo.Laboratorio ?? string.Empty;
+
+                            superFamilia = familia.Equals("<Sin Clasificar>")
+                                ? superFamilia = familia
+                                : GetSuperFamiliaFromLocalOrDefault(farmatic, familia, "<Sin Clasificar>");
+
+                            proveedor = GetProveedorFromLocalOrDefault(farmatic, articulo.ProveedorHabitual);
+                            nombreLaboratorio = GetNombreLaboratorioFromLocalOrDefault(farmatic, consejo, codLaboratorio, "<Sin Laboratorio>");
+                        }
+
+                        // Verificamos si hay puntos pendientes desde la base remota, para el item de venta actual
+                        var puntos =
+                            fisiotes.PuntosPendientes.GetByItemVenta(venta.IdVenta, linea.IdNLinea);
+                        if (puntos == null)
+                        {
+                            // Si no hay, lo insertamos
+                            var numero = linea.ImporteNeto;
+                            var cargado = "no";
+                            fisiotes.PuntosPendientes.Insert(venta.IdVenta, linea.IdNLinea, codigoBarra, linea.Codigo,
+                                linea.Descripcion.Strip(), familia.Strip(), linea.Cantidad, Convert.ToDecimal(numero),
+                                tipoPago, fecha, dni, cargado, puesto, trabajador, codLaboratorio.Strip(), nombreLaboratorio.Strip(),
+                                proveedor.Strip(), receta, fechaVenta, superFamilia.Strip(), Convert.ToSingle(precioMed),
+                                Convert.ToSingle(pcoste), Convert.ToSingle(dtoLinea), Convert.ToSingle(dtoVta), Convert.ToSingle(redencion), recetaPendiente);
+                        }
+
+                        // Verificamos el idVenta
+                        if (venta.IdVenta > idVenta)
+                            idVenta = venta.IdVenta - 3;
+                    }
+
+                    // Recuperamos el detalle de ventas virtuales
+                    var virtuales = farmatic.Ventas.GetLineasVirtualesByVenta(venta.IdVenta);
+                    foreach (var lineaVirtual in virtuales)
+                    {
+                        // Verificamos la entrega del item de venta
+                        var entrega = fisiotes.Entregas.GetByKey(venta.IdVenta, lineaVirtual.IdNLinea);
+                        if (entrega == null)
+                        {
+                            var numero = lineaVirtual.ImporteNeto;
+                            var pvp = lineaVirtual.Pvp;
+                            fisiotes.Entregas.Insert(venta.IdVenta, lineaVirtual.IdNLinea, lineaVirtual.Codigo.Strip(),
+                                lineaVirtual.Descripcion.Strip(), lineaVirtual.Cantidad, Convert.ToDecimal(numero), lineaVirtual.TipoLinea, fecha, dni, puesto,
+                                trabajador, fechaVenta, Convert.ToSingle(pvp));
+                        }
+                    }
+
+                }
+
+            }
+            catch (Exception e)
+            {         
+                Task.Delay(1500).Wait();
+            }
+        }
+
+        private string GetFamiliaFromLocalOrDefault(FarmaticService farmatic, short id, string byDefault = "")
+        {
+            var familiaDb = farmatic.Familias.GetById(id);
+            return !string.IsNullOrEmpty(familiaDb?.Descripcion)
+                ? familiaDb.Descripcion
+                : byDefault;
+        }
+
+        public void ProcessPedidos(FarmaticService farmatic, ConsejoService consejo, FisiotesService fisiotes)
+        {            
+            try
+            {
+                fisiotes.Pedidos.CreateTable(_remoteBase);
+                fisiotes.Pedidos.CheckAndCreateFechaPedidoField();
+
+                var anyPedido = fisiotes.Pedidos.Last();
+                var recepciones = anyPedido == null
+                    ? farmatic.Recepciones.GetByYear()
+                    : farmatic.Recepciones.GetByIdAndYear(anyPedido.idPedido);
+
+                foreach (var recepcion in recepciones)
+                {
+                    var proveedor = GetProveedorFromLocalOrDefault(farmatic, recepcion.XProv_IdProveedor);
+                    var trabajador = GetNombreVendedorOrDefault(farmatic, recepcion.XVend_IdVendedor);
+
+                    var resume = farmatic.Recepciones.GetResumeById(recepcion.IdRecepcion);
+                    var pedido = fisiotes.Pedidos.Get(recepcion.IdRecepcion);
+
+                    if (pedido == null && resume.numLineas > 0)
+                        fisiotes.Pedidos.Insert(recepcion.IdRecepcion, recepcion.Hora, DateTime.Now,
+                            resume.numLineas, Convert.ToSingle(resume.importePvp), Convert.ToSingle(resume.importePuc),
+                            recepcion.XProv_IdProveedor, proveedor, trabajador);
+
+                    if (resume.numLineas > 0)
+                    {
+                        var lineas = farmatic.Recepciones.GetLineasById(recepcion.IdRecepcion);
+                        foreach (var linea in lineas)
+                        {
+                            if (!string.IsNullOrEmpty(linea.XArt_IdArticu?.Trim()))
+                            {
+                                var familia = string.Empty;
+                                var superFamilia = string.Empty;
+                                var codLaboratorio = string.Empty;
+                                var nombreLaboratorio = string.Empty;
+                                var pvp = 0d;
+                                var puc = 0d;
+
+                                var articulo = farmatic.Articulos.GetById(linea.XArt_IdArticu);
+                                if (articulo == null)
+                                    nombreLaboratorio = "<Sin Laboratorio>";
+                                else
+                                {
+                                    puc = articulo.Puc;
+                                    pvp = articulo.Pvp;
+
+                                    familia = GetFamiliaFromLocalOrDefault(farmatic, articulo.XFam_IdFamilia, "<Sin Clasificar>");
+                                    superFamilia = familia.Equals("<Sin Clasificar>")
+                                        ? superFamilia = familia
+                                        : GetSuperFamiliaFromLocalOrDefault(farmatic, familia, "<Sin Clasificar>");
+
+                                    codLaboratorio = articulo.Laboratorio ?? string.Empty;
+                                    nombreLaboratorio = GetNombreLaboratorioFromLocalOrDefault(farmatic, consejo, codLaboratorio, "<Sin Laboratorio>");
+                                }
+
+                                var lineaPedido = fisiotes.Pedidos.GetLineaByKey(linea.IdRecepcion, linea.IdNLinea);
+                                if (lineaPedido == null && articulo != null)
+                                    fisiotes.Pedidos.InsertLinea(recepcion.Hora, linea.IdRecepcion, linea.IdNLinea,
+                                        articulo.IdArticu.Strip(), articulo.Descripcion.Strip(), familia.Strip(),
+                                        superFamilia.Strip(), linea.Recibidas, Convert.ToSingle(pvp), Convert.ToSingle(puc),
+                                        codLaboratorio.Strip(), nombreLaboratorio.Strip());
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Task.Delay(1500).Wait();
+            }
+
+        }
+
+        public void ProcessListaTienda(FarmaticService farmatic, ConsejoService consejo, FisiotesService fisiotes)
+        {            
+            try
+            {
+                if (_marketCodeList > 0)
+                {
+                    var lista = farmatic.ListasArticulos.Get(_marketCodeList);
+                    if (lista != null)
+                    {
+                        var listaRemote = fisiotes.Listas.Get(lista.IdLista);
+                        if (listaRemote == null)
+                            fisiotes.Listas.Insert(lista.IdLista, lista.Descripcion.Strip());
+                        else
+                            fisiotes.Listas.Update(lista.IdLista, lista.Descripcion.Strip());
+
+                        fisiotes.Listas.DeArticulos.Delete(lista.IdLista);
+                        var articulos = farmatic.ListasArticulos.GetArticulosByLista(lista.IdLista);
+                        foreach (var articulo in articulos)
+                        {
+                            fisiotes.Listas.DeArticulos.Insert(articulo.XItem_IdLista, Convert.ToInt32(articulo.XItem_IdArticu));
+                            var awi = farmatic.ListasArticulos.GetArticuloWithIva(_marketCodeList, articulo.XItem_IdArticu);
+                            
+                            var precio = awi.Pvp;
+                            var pcoste = awi.Puc;
+                            var pvpSinIva = Math.Round(precio * 100 / (awi.Iva + 100), 2);
+                            var stock = awi.StockActual;
+                            var stockMinimo = awi.StockMaximo;
+                            var stockMaximo = awi.StockMaximo;
+                            var desc = awi.Descripcion.Strip();
+                            var familia = farmatic.Familias.GetById(awi.XFam_IdFamilia);
+                            var superFamilia = string.IsNullOrEmpty(familia?.Descripcion)
+                                    ? string.Empty
+                                    : GetSuperFamiliaFromLocalOrDefault(farmatic, familia.Descripcion);
+                            var codigoBarras = GetCodidoBarrasFromLocalOrDefault(farmatic, awi.IdArticu);
+                            var proveedor = GetProveedorFromLocalOrDefault(farmatic, awi.ProveedorHabitual);
+                            var nombreLaboratorio = GetNombreLaboratorioFromLocalOrDefault(farmatic, consejo, awi.Laboratorio, "<Sin Laboratorio>");
+
+                            var espepara = consejo.Esperas.Get(awi.IdArticu);
+                            var present = espepara?.PRESENTACION ?? string.Empty;
+
+                            var descripcionHtml = string.Empty;
+                            var textos = consejo.Esperas.GetTextos(awi.IdArticu);
+                            foreach (var texto in textos)
+                            {
+                                if (string.IsNullOrEmpty(descripcionHtml))
+                                    descripcionHtml = texto;
+                                descripcionHtml += $@" <br> {texto}";
+                            }
+                            descripcionHtml = descripcionHtml.Length < 30000
+                                ? descripcionHtml.Replace(Environment.NewLine, "<br>").Replace("\0", string.Empty).Strip()
+                                : string.Empty;
+
+                            var baja = awi.Baja;
+                            var activo = !baja;
+                            var medicamento = fisiotes.Medicamentos.GetByCodNacional(awi.IdArticu);
+                            if (medicamento == null)
+                                fisiotes.Medicamentos.Insert(codigoBarras.Strip(), awi.IdArticu.Strip(), desc.Strip(), superFamilia.Strip(),
+                                        familia?.Descripcion.Strip(), Convert.ToSingle(precio), desc.Strip(), awi.Laboratorio.Strip(), nombreLaboratorio.Strip(),
+                                        proveedor.Strip(), Convert.ToSingle(pvpSinIva), Convert.ToInt32(awi.Iva), stock, Convert.ToSingle(pcoste), stockMinimo, stockMaximo, present.Strip(),
+                                        descripcionHtml.Strip(), activo, baja);
+                            else
+                            {
+                                if (desc.Strip() != medicamento.nombre || precio != medicamento.precio || familia?.Descripcion.Strip() != medicamento.familia ||
+                                    awi.Laboratorio != medicamento.laboratorio || awi.Iva != medicamento.iva || pcoste != medicamento.puc ||
+                                    stock != medicamento.stock || present.Strip() != medicamento.presentacion ||
+                                    descripcionHtml != medicamento.descripcion)
+                                    fisiotes.Medicamentos.Update(codigoBarras.Strip(), desc.Strip(), superFamilia.Strip(),
+                                        familia?.Descripcion.Strip(), Convert.ToSingle(precio), desc.Strip(), awi.Laboratorio.Strip(), nombreLaboratorio.Strip(),
+                                        proveedor.Strip(), Convert.ToInt32(awi.Iva), Convert.ToSingle(pvpSinIva), stock, Convert.ToSingle(pcoste), stockMinimo, stockMaximo, present.Strip(),
+                                        descripcionHtml.Strip(), activo, baja, awi.IdArticu);
+                            }
+                        }
+                        farmatic.ListasArticulos.Update(_marketCodeList);
+                    }
+                }
+            }
+            catch (Exception e)
+            {        
+                Task.Delay(1500).Wait();
+            }
+
+        }
+
+        public void ProcessCategorias(FarmaticService farmatic, FisiotesService fisiotes)
+        {            
+            try
+            {
+                var familias = farmatic.Familias.GetByDescripcion();
+                foreach (var familia in familias)
+                {
+                    var padre = GetPadreFromLocalOrDefault(farmatic, familia.IdFamilia, @"<SIN PADRE>");
+                    var categoria = fisiotes.Categorias.GetByCategoriaAndPadre(familia.Descripcion.Strip(), padre.Strip());
+                    if (categoria == null)
+                    {
+                        var categoriaOnlyPadre = fisiotes.Categorias.GetByPadre(padre.Strip());
+                        var padreId = categoriaOnlyPadre?.prestashopPadreId;
+                        fisiotes.Categorias.Insert(familia.Descripcion.Strip(), padre.Strip(), padreId);
+                    }
+                }
+            }
+            catch (Exception e)
+            {         
+                Task.Delay(1500).Wait();
+            }
+        }
+
+        private string GetPadreFromLocalOrDefault(FarmaticService farmatic, short familia, string byDefault = "")
+        {
+            return farmatic.Familias.GetSuperFamiliaDescripcionById(familia) ?? byDefault;
+        }
+
+        public void ProcessListasFechas(FarmaticService farmatic, FisiotesService fisiotes)
+        {            
+            try
+            {
+                var listas = farmatic.ListasArticulos.GetByFechaExceptList(_marketCodeList);
+                foreach (var lista in listas)
+                {
+                    var listaRemote = fisiotes.Listas.Get(lista.IdLista);
+                    if (listaRemote == null)
+                        fisiotes.Listas.Insert(lista.IdLista, lista.Descripcion.Strip());
+                    else
+                        fisiotes.Listas.Update(lista.IdLista, lista.Descripcion.Strip());
+
+                    fisiotes.Listas.DeArticulos.Delete(lista.IdLista);
+                    var articulos = farmatic.ListasArticulos.GetArticulosByLista(lista.IdLista);
+                    foreach (var articulo in articulos)
+                    {
+                        fisiotes.Listas.DeArticulos.Insert(articulo.XItem_IdLista, Convert.ToInt32(articulo.XItem_IdArticu));
+                    }
+                    if (articulos.Count != 0)
+                    {
+                        var take = 1000;
+                        for (int i = 0; i < articulos.Count; i += take)
+                        {
+                            var items = articulos.Skip(i).Take(1000).Select(x => new Fisiotes.Models.ListaArticulo
+                            {
+                                cod_lista = x.XItem_IdLista,
+                                cod_articulo = Convert.ToInt32(x.XItem_IdArticu)
+                            }).ToList();
+                            fisiotes.Listas.DeArticulos.Insert(items);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {         
+                Task.Delay(1500).Wait();
+            }
+        }
+
+        public void ProcessListas(FarmaticService farmatic, FisiotesService fisiotes)
+        {           
+            try
+            {
+                fisiotes.Listas.CheckAndCreatePorDondeVoyField();
+                var codLista = fisiotes.Listas.GetCodPorDondeVoy();
+                var listas = farmatic.ListasArticulos.GetByIdGreaterThan(codLista);
+                foreach (var lista in listas)
+                {
+                    var listaRemote = fisiotes.Listas.Get(lista.IdLista);
+                    fisiotes.Listas.ResetPorDondeVoy();
+                    if (listaRemote == null)
+                        fisiotes.Listas.InsertWithPorDondeVoy(lista.IdLista, lista.Descripcion.Strip());
+                    else
+                        fisiotes.Listas.UpdateWithPorDondeVoy(lista.IdLista, lista.Descripcion.Strip());
+
+                    var articulos = farmatic.ListasArticulos.GetArticulosByLista(lista.IdLista);
+                    if (articulos.Count != 0)
+                    {
+                        fisiotes.Listas.DeArticulos.Delete(lista.IdLista);
+                        var take = 1000;
+                        for (int i = 0; i < articulos.Count; i += take)
+                        {
+                            var items = articulos.Skip(i).Take(1000).Select(x => new Fisiotes.Models.ListaArticulo
+                            {
+                                cod_lista = x.XItem_IdLista,
+                                cod_articulo = Convert.ToInt32(x.XItem_IdArticu)
+                            }).ToList();
+                            fisiotes.Listas.DeArticulos.Insert(items);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {         
+                Task.Delay(1500).Wait();
+            }
+        }
+
+        public void ProcessEncargos(FarmaticService farmatic, ConsejoService consejo, FisiotesService fisiotes)
+        {            
+            try
+            {
+                fisiotes.Encargos.CheckAndCreateProveedorField();
+                var encargoRemote = fisiotes.Encargos.Last();
+                var idEncargo = encargoRemote != null ? encargoRemote.idEncargo : 1;
+
+                var encargos = farmatic.Encargos.GetByContadorGreaterOrEqual(idEncargo);
+                foreach (var encargo in encargos)
+                {
+                    var codNacional = encargo.XArt_IdArticu?.Trim();
+                    var cliente = !string.IsNullOrEmpty(encargo.XCli_IdCliente)
+                        ? encargo.XCli_IdCliente.Trim()
+                        : "0";
+
+                    // Recuperamos el artículo para establcer los siguientes datos
+                    var nombre = string.Empty;
+                    var familia = string.Empty;
+                    var superFamilia = string.Empty;
+                    var codLaboratorio = string.Empty;
+                    var nombreLaboratorio = string.Empty;
+                    var proveedor = string.Empty;
+                    var pcoste = 0d;
+                    var precioMed = 0d;
+
+                    var articulo = farmatic.Articulos.GetById(encargo.XArt_IdArticu);
+                    if (articulo == null)
+                        nombreLaboratorio = "<Sin Laboratorio>";
+                    else
+                    {
+                        nombre = articulo.Descripcion.Strip();
+                        pcoste = articulo.Puc;
+                        precioMed = articulo.Pvp;
+                        familia = GetFamiliaFromLocalOrDefault(farmatic, articulo.XFam_IdFamilia, "<Sin Clasificar>");
+                        superFamilia = familia.Equals("<Sin Clasificar>")
+                            ? familia
+                            : GetSuperFamiliaFromLocalOrDefault(farmatic, familia, "<Sin Clasificar>");
+                        proveedor = GetProveedorFromLocalOrDefault(farmatic, articulo.ProveedorHabitual);
+                        codLaboratorio = articulo.Laboratorio ?? string.Empty;
+                        nombreLaboratorio = GetNombreLaboratorioFromLocalOrDefault(farmatic, consejo, codLaboratorio, "<Sin Laboratorio>");
+                    }
+
+                    var trabajador = GetNombreVendedorOrDefault(farmatic, encargo.Vendedor);
+                    encargoRemote = fisiotes.Encargos.Get(encargo.IdContador);
+
+                    if (encargoRemote == null)
+                        fisiotes.Encargos.Insert(encargo.IdContador, codNacional, nombre, superFamilia.Strip(),
+                            familia, codLaboratorio.Strip(), nombreLaboratorio.Strip(), proveedor.Strip(),
+                            Convert.ToSingle(precioMed), Convert.ToSingle(pcoste), cliente, encargo.IdFecha, trabajador, encargo.Unidades,
+                            encargo.FechaEntrega, encargo.Observaciones.Strip());
+                }
+            }
+            catch (Exception e)
+            {         
+                Task.Delay(1500).Wait();
+            }
+        }
+
+        public void ProcessFamilia(FarmaticService farmatic, FisiotesService fisiotes)
+        {         
+            try
+            {
+                var familias = farmatic.Familias.Get();
+                foreach (var familia in familias)
+                {
+                    var familiaRemote = fisiotes.Familias.GetByFamilia(familia.Descripcion);
+                    if (familiaRemote == null)
+                        fisiotes.Familias.Insert(familia.Descripcion);
+                }
+            }
+            catch (Exception e)
+            {         
+                Task.Delay(1500).Wait();
+            }
+        }
+
+        public void ProcessProductosCrticos(FarmaticService farmatic, ConsejoService consejo, FisiotesService fisiotes)
+        {            
+            try
+            {
+                fisiotes.Faltas.CheckAndCreateProveedorField();
+                var falta = fisiotes.Faltas.Last();
+                var pedidos = falta == null
+                    ? farmatic.Pedidos.GetByFechaGreaterOrEqual(DateTime.Now)
+                    : farmatic.Pedidos.GetByIdGreaterOrEqual(falta.idPedido);
+
+                foreach (var pedido in pedidos)
+                {
+                    var fechaPedido = pedido.Hora;
+                    var fechaActual = DateTime.Now;
+
+                    var detallePedido = farmatic.Pedidos.GetLineasByPedido(pedido.IdPedido);
+                    foreach (var linea in detallePedido)
+                    {
+                        if (!string.IsNullOrEmpty(linea.XArt_IdArticu?.Trim()))
+                        {
+                            var familia = string.Empty;
+                            var superFamilia = string.Empty;
+                            var codLaboratorio = string.Empty;
+                            var nombreLaboratorio = string.Empty;
+                            var proveedor = string.Empty;
+                            var pcoste = 0d;
+                            var precioMed = 0d;
+
+                            var articulo = farmatic.Articulos.GetById(linea.XArt_IdArticu);
+                            if (articulo == null)
+                                nombreLaboratorio = "<Sin Laboratorio>";
+                            else
+                            {
+                                pcoste = articulo.Puc;
+                                precioMed = articulo.Pvp;
+
+                                familia = GetFamiliaFromLocalOrDefault(farmatic, articulo.XFam_IdFamilia, "<Sin Clasificar>");
+                                superFamilia = familia.Equals("<Sin Clasificar>")
+                                    ? superFamilia = familia
+                                    : GetSuperFamiliaFromLocalOrDefault(farmatic, familia, "<Sin Clasificar>");
+
+                                proveedor = GetProveedorFromLocalOrDefault(farmatic, articulo.ProveedorHabitual);
+
+                                codLaboratorio = articulo.Laboratorio ?? string.Empty;
+                                nombreLaboratorio = GetNombreLaboratorioFromLocalOrDefault(farmatic, consejo, codLaboratorio, "<Sin Laboratorio>");
+                            }
+
+                            var faltaLineaActual = fisiotes.Faltas.GetByLineaPedido(linea.IdPedido, linea.IdLinea);
+                            if (faltaLineaActual == null && articulo.StockActual == 0)
+                                fisiotes.Faltas.Insert(linea.IdPedido, linea.IdLinea, articulo.IdArticu.Strip(),
+                                    articulo.Descripcion.Strip(), familia.Strip(), superFamilia.Strip(), linea.Unidades,
+                                    fechaActual, codLaboratorio.Strip(), nombreLaboratorio.Strip(), proveedor.Strip(),
+                                    fechaPedido, Convert.ToSingle(precioMed), Convert.ToSingle(pcoste));
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {         
                 Task.Delay(1500).Wait();
             }
         }

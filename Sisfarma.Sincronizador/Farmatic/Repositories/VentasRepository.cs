@@ -23,6 +23,14 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
                 .FirstOrDefault();
         }
 
+        public List<Venta> GetByIdGreaterOrEqual(long value)
+        {            
+            var sql = @"SELECT * FROM venta WHERE ejercicio >= 2015 AND IdVenta >= @value ORDER BY IdVenta ASC";
+            return _ctx.Database.SqlQuery<Venta>(sql,
+                new SqlParameter("value", value))
+                .ToList();            
+        }
+
         public List<Venta> GetVirtualesLessThanId(long venta)
         {
             var sql = @"SELECT v.* FROM venta v INNER JOIN lineaventavirtual lvv ON lvv.idventa = v.idventa AND (lvv.codigo = 'Pago' OR lvv.codigo = 'A Cuenta') " +

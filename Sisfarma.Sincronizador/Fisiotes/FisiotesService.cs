@@ -20,6 +20,12 @@ namespace Sisfarma.Sincronizador.Fisiotes
         public EntregasRepository Entregas { get; private set; }
         public MedicamentosRepository Medicamentos { get; private set; }
         public SinonimosRepository Sinonimos { get; private set; }
+        public PedidosRepository Pedidos { get; private set; }
+        public ListasRepository Listas { get; private set; }
+        public CategoriasRepository Categorias { get; set; }
+        public EncargosRepository Encargos { get; set; }
+        public FamiliasRepository Familias { get; set; }
+        public FaltasRepository Faltas { get; set; }
 
         public FisiotesService()
         {            
@@ -31,6 +37,12 @@ namespace Sisfarma.Sincronizador.Fisiotes
             Entregas = new EntregasRepository(_ctx);
             Medicamentos = new MedicamentosRepository(_ctx);
             Sinonimos = new SinonimosRepository(_ctx);
+            Pedidos = new PedidosRepository(_ctx);
+            Listas = new ListasRepository(_ctx);
+            Categorias = new CategoriasRepository(_ctx);
+            Encargos = new EncargosRepository(_ctx);
+            Familias = new FamiliasRepository(_ctx);
+            Faltas = new FaltasRepository(_ctx);
         }                                        
     }
 }
