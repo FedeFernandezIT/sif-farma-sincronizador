@@ -263,7 +263,7 @@ namespace Sisfarma.Sincronizador
                 ProcessProductosCrticos(farmatic, consejo, fisiotes);
                 timerProductosCriticos.Start();
             };
-            
+
             timerClientes.Start();
             timerClientesHuecos.Start();
             timerActualizarRecetasPendientes.Start();
@@ -293,9 +293,9 @@ namespace Sisfarma.Sincronizador
                 var dir = ConfigurationManager.AppSettings["Directory.Setup"];
 
                 // Configuramos el acceso a el servidor remoto de MySql
-                var path = ConfigurationManager.AppSettings["File.Remote.Server"];
+                var path = ConfigurationManager.AppSettings["File.Remote.Base"];
                 _remoteBase = new StreamReader(Path.Combine(dir, path)).ReadLine();
-                path = ConfigurationManager.AppSettings["File.Remote.Base"];
+                path = ConfigurationManager.AppSettings["File.Remote.Server"];
                 _remoteServer = new StreamReader(Path.Combine(dir, path)).ReadLine();
 
                 // Servidor Local
