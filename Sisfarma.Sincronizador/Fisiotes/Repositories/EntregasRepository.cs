@@ -71,7 +71,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 string dni, string puesto, string trabajador, DateTime fechaVenta, float? pvp)
         {
             var sql =
-                @"INSERT INTO IGNORE entregas_clientes (idventa,idnlinea,codigo,descripcion,cantidad,precio,tipo,fecha,dni,puesto,trabajador,fechaEntrega,pvp) VALUES(" +
+                @"INSERT IGNORE INTO entregas_clientes (idventa,idnlinea,codigo,descripcion,cantidad,precio,tipo,fecha,dni,puesto,trabajador,fechaEntrega,pvp) VALUES(" +
                 @"@venta, @linea, @codigo, @descripcion, @cantidad, @numero, @tipoLinea, @fecha, @dni, @puesto, @trabajador, @fechaVenta, @pvp)";
             _ctx.Database.ExecuteSqlCommand(sql,
                 new MySqlParameter("venta", venta),
