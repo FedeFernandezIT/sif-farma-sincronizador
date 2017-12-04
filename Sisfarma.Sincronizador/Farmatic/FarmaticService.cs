@@ -44,6 +44,7 @@ namespace Sisfarma.Sincronizador.Farmatic
             Recepciones = new RecepcionesRepository(_ctx);
             ListasArticulos = new ListasArticulosRepository(_ctx);
             Encargos = new EncargosRepository(_ctx);
+            Pedidos = new PedidosRepository(_ctx);
         }        
     }
 }
