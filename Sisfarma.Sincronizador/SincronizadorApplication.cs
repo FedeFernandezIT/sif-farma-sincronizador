@@ -24,266 +24,225 @@ namespace Sisfarma.Sincronizador
     {
         private string _remoteBase, _remoteServer;
         private string _localBase, _localServer, _localUser, _localPass;
-        private int _marketCodeList;
-        
-        private System.Timers.Timer timerClientes;
-        private System.Timers.Timer timerClientesHuecos;
-        private System.Timers.Timer timerActualizarRecetasPendientes;
-        private System.Timers.Timer timerActualizarEntregasClientes;
-        private System.Timers.Timer timerActualizarProductosBorrados;
-        private System.Timers.Timer timerActualizarPuntosPendientes;
-        private System.Timers.Timer timerSinonimos;
-        private System.Timers.Timer timerControlSinStockInicial;
-        private System.Timers.Timer timerControlStockFechasSalida;
-        private System.Timers.Timer timerControlStockInicial;
-        private System.Timers.Timer timerControlStockFechasEntrada;
-        private System.Timers.Timer timerPuntosPendientes;
-        private System.Timers.Timer timerPedidos;
-        private System.Timers.Timer timerListasTiendas;
-        private System.Timers.Timer timerCategorias;
-        private System.Timers.Timer timerListasFechas;
-        private System.Timers.Timer timerListas;
-        private System.Timers.Timer timerEncargos;
-        private System.Timers.Timer timerFamilias;
-        private System.Timers.Timer timerProductosCriticos;
+        private int _marketCodeList;                
 
         public SincronizadorApplication()
         {
             LeerFicherosConfiguracion();            
-            InitializeTimer();            
+            ParallelTasksInvoke();            
         }
 
-        private void InitializeTimer()
+        private void ParallelTasksInvoke()
         {
-            timerClientes = new System.Timers.Timer(2500);                        
-            timerClientes.Elapsed += (sender, @event) =>
-            {
-                timerClientes.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();                
-                ProcessClientes(farmatic, fisiotes);
-                timerClientes.Start();
-            };
-
-            timerClientesHuecos = new System.Timers.Timer(63000);
-            timerClientesHuecos.Elapsed += (sender, @event) =>
-            {
-                timerClientesHuecos.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ProcessClientesHuecos(farmatic, fisiotes);
-                timerClientesHuecos.Start();
-            };
-
-            timerActualizarRecetasPendientes = new System.Timers.Timer(5000);
-            timerActualizarRecetasPendientes.Elapsed += (sender, @event) =>
-            {
-                timerActualizarRecetasPendientes.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ProcessClientesHuecos(farmatic, fisiotes);
-                timerActualizarRecetasPendientes.Start();
-            };
-
-            timerActualizarEntregasClientes = new System.Timers.Timer(30000);
-            timerActualizarEntregasClientes.Elapsed += (sender, @event) =>
-            {
-                timerActualizarEntregasClientes.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ProcessUpdateEntregasClientes(farmatic, fisiotes);
-                timerActualizarEntregasClientes.Start();
-            };
-
-            timerActualizarProductosBorrados = new System.Timers.Timer(30000);
-            timerActualizarProductosBorrados.Elapsed += (sender, @event) =>
-            {
-                timerActualizarProductosBorrados.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ProcessUpdateProductosBorrados(farmatic, fisiotes);
-                timerActualizarProductosBorrados.Start();
-            };
-
-            timerActualizarPuntosPendientes = new System.Timers.Timer(5000);
-            timerActualizarPuntosPendientes.Elapsed += (sender, @event) =>
-            {
-                timerActualizarPuntosPendientes.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ProcessUpdatePuntosPendientes(farmatic, fisiotes);
-                timerActualizarPuntosPendientes.Start();
-            };
-
-            timerSinonimos = new System.Timers.Timer(50000);
-            timerSinonimos.Elapsed += (sender, @event) =>
-            {
-                timerSinonimos.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ProcessSinonimos(farmatic, fisiotes);
-                timerSinonimos.Start();
-            };
-
-            timerControlSinStockInicial = new System.Timers.Timer(10000);
-            timerControlSinStockInicial.Elapsed += (sender, @event) =>
-            {
-                timerControlSinStockInicial.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ConsejoService consejo = new ConsejoService();
-                ProcessControlSinStockInicial(farmatic, consejo, fisiotes);
-                timerControlSinStockInicial.Start();
-            };
-
-            timerControlStockFechasSalida = new System.Timers.Timer(60000);
-            timerControlStockFechasSalida.Elapsed += (sender, @event) =>
-            {
-                timerControlStockFechasSalida.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ConsejoService consejo = new ConsejoService();
-                ProcessControlStockFechasSalida(farmatic, consejo, fisiotes);
-                timerControlStockFechasSalida.Start();
-            };
-
-            timerControlStockInicial = new System.Timers.Timer(5000);
-            timerControlStockInicial.Elapsed += (sender, @event) =>
-            {
-                timerControlStockInicial.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ConsejoService consejo = new ConsejoService();
-                ProcessControlStockInicial(farmatic, consejo, fisiotes);
-                timerControlStockInicial.Start();
-            };
-
-            timerControlStockFechasEntrada = new System.Timers.Timer(60000);
-            timerControlStockFechasEntrada.Elapsed += (sender, @event) =>
-            {
-                timerControlStockFechasEntrada.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ConsejoService consejo = new ConsejoService();
-                ProcessControlStockFechasEntrada(farmatic, consejo, fisiotes);
-                timerControlStockFechasEntrada.Start();
-            };
-
-            timerPuntosPendientes = new System.Timers.Timer(3000);
-            timerPuntosPendientes.Elapsed += (sender, @event) => 
-            {
-                timerPuntosPendientes.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ConsejoService consejo = new ConsejoService();
-                ProcessPuntosPendientes(farmatic, consejo, fisiotes);
-                timerPuntosPendientes.Start();
-            };
-
-            timerPedidos = new System.Timers.Timer(3100);
-            timerPedidos.Elapsed += (sender, @event) =>
-            {
-                timerPedidos.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ConsejoService consejo = new ConsejoService();
-                ProcessPedidos(farmatic, consejo, fisiotes);
-                timerPedidos.Start();
-            };
-
-            timerListasTiendas = new System.Timers.Timer(4500);
-            timerListasTiendas.Elapsed += (sender, @event) =>
-            {
-                timerListasTiendas.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ConsejoService consejo = new ConsejoService();
-                ProcessListaTienda(farmatic, consejo, fisiotes);
-                timerListasTiendas.Start();
-            };
-
-            timerCategorias = new System.Timers.Timer(64000);
-            timerCategorias.Elapsed += (sender, @event) =>
-            {
-                timerCategorias.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();                
-                ProcessCategorias(farmatic, fisiotes);
-                timerCategorias.Start();
-            };
-
-            timerListasFechas = new System.Timers.Timer(62000);
-            timerListasFechas.Elapsed += (sender, @event) =>
-            {
-                timerListasFechas.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ProcessListasFechas(farmatic, fisiotes);
-                timerListasFechas.Start();
-            };
-
-            timerListas = new System.Timers.Timer(61000);
-            timerListas.Elapsed += (sender, @event) =>
-            {
-                timerListas.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ProcessListas(farmatic, fisiotes);
-                timerListas.Start();
-            };
-
-            timerEncargos = new System.Timers.Timer(4000);
-            timerEncargos.Elapsed += (sender, @event) =>
-            {
-                timerEncargos.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ConsejoService consejo = new ConsejoService();
-                ProcessEncargos(farmatic, consejo, fisiotes);
-                timerEncargos.Start();
-            };
-
-            timerFamilias = new System.Timers.Timer(65000);
-            timerFamilias.Elapsed += (sender, @event) =>
-            {
-                timerFamilias.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ProcessFamilia(farmatic, fisiotes);
-                timerFamilias.Start();
-            };
-
-            timerProductosCriticos = new System.Timers.Timer(3500);
-            timerProductosCriticos.Elapsed += (sender, @event) =>
-            {
-                timerProductosCriticos.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ConsejoService consejo = new ConsejoService();
-                ProcessProductosCrticos(farmatic, consejo, fisiotes);
-                timerProductosCriticos.Start();
-            };
-
-            timerClientes.Start();
-            timerClientesHuecos.Start();
-            timerActualizarRecetasPendientes.Start();
-            timerActualizarEntregasClientes.Start();
-            timerActualizarProductosBorrados.Start();
-            timerActualizarPuntosPendientes.Start();
-            timerSinonimos.Start();
-            timerControlSinStockInicial.Start();
-            timerControlStockFechasSalida.Start();
-            timerControlStockInicial.Start();
-            timerControlStockFechasEntrada.Start();
-            timerPuntosPendientes.Start();
-            timerPedidos.Start();
-            timerListasTiendas.Start();
-            timerCategorias.Start();
-            timerListasFechas.Start();
-            timerListas.Start();
-            timerEncargos.Start();
-            timerFamilias.Start();
-            timerProductosCriticos.Start();
+            Parallel.Invoke(() => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Clientes");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ProcessClientes(farmatic, fisiotes);
+                    Debug.WriteLine("Finish Clientes");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Huecos");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ProcessClientesHuecos(farmatic, fisiotes);
+                    Debug.WriteLine("Finish Huecos");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Recetas pendientes");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ProcessUpdateRecetasPendientes(farmatic, fisiotes);
+                    Debug.WriteLine("Finish Recetas pendientes");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Entregas pendientes");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ProcessUpdateEntregasClientes(farmatic, fisiotes);
+                    Debug.WriteLine("Finish Entregas pendientes");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Productos borrados");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ProcessUpdateProductosBorrados(farmatic, fisiotes);
+                    Debug.WriteLine("Finish Productos borrados");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Puntos pendientes (update)");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ProcessUpdatePuntosPendientes(farmatic, fisiotes);
+                    Debug.WriteLine("Finish Puntos pendientes (update)");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Sinonimos");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ProcessSinonimos(farmatic, fisiotes);
+                    Debug.WriteLine("Finish Sinonimos");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Control sin stock");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ConsejoService consejo = new ConsejoService();
+                    ProcessControlSinStockInicial(farmatic, consejo, fisiotes);
+                    Debug.WriteLine("Finish Control sin stock");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Control stock fecha salida");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ConsejoService consejo = new ConsejoService();
+                    ProcessControlStockFechasSalida(farmatic, consejo, fisiotes);
+                    Debug.WriteLine("Finish Control stock fecha salida");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Control stock");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ConsejoService consejo = new ConsejoService();
+                    ProcessControlStockInicial(farmatic, consejo, fisiotes);
+                    Debug.WriteLine("Finish Control stock");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Control stock fechas entrada");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ConsejoService consejo = new ConsejoService();
+                    ProcessControlStockFechasEntrada(farmatic, consejo, fisiotes);
+                    Debug.WriteLine("Finish Control stock fechas entrada");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Puntos pendientes");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ConsejoService consejo = new ConsejoService();
+                    ProcessPuntosPendientes(farmatic, consejo, fisiotes);
+                    Debug.WriteLine("Finish Puntos pendientes");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Pedidos");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ConsejoService consejo = new ConsejoService();
+                    ProcessPedidos(farmatic, consejo, fisiotes);
+                    Debug.WriteLine("Finish Pedidos");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Lista tiendas");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ConsejoService consejo = new ConsejoService();
+                    ProcessListaTienda(farmatic, consejo, fisiotes);
+                    Debug.WriteLine("Finish Lista tiendas");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Categorias");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ProcessCategorias(farmatic, fisiotes);
+                    Debug.WriteLine("Finish Categorias");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Listas fechas");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ProcessListasFechas(farmatic, fisiotes);
+                    Debug.WriteLine("Finish Listas fechas");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Listas");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ProcessListas(farmatic, fisiotes);
+                    Debug.WriteLine("Finish Listas");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Encargos");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ConsejoService consejo = new ConsejoService();
+                    ProcessEncargos(farmatic, consejo, fisiotes);
+                    Debug.WriteLine("Finish Encargos");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Familia");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ProcessFamilia(farmatic, fisiotes);
+                    Debug.WriteLine("Finish Familia");
+                }                
+            },
+            () => {
+                while (true)
+                {
+                    Debug.WriteLine("Begin Productos críticos");
+                    FarmaticService farmatic = new FarmaticService();
+                    FisiotesService fisiotes = new FisiotesService();
+                    ConsejoService consejo = new ConsejoService();
+                    ProcessProductosCrticos(farmatic, consejo, fisiotes);
+                    Debug.WriteLine("Finish Productos críticos");
+                }                
+            });                        
         }
 
         private void LeerFicherosConfiguracion()
