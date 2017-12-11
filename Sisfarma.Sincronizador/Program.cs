@@ -1,6 +1,7 @@
 ﻿using Sisfarma.Sincronizador.Properties;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,18 +17,22 @@ namespace Sisfarma.Sincronizador
         static void Main()
         {
             var notifyIcon = new NotifyIcon();
-            notifyIcon.ContextMenuStrip = GetSincronizadorMenuStrip();
+            var app = new SincronizadorApplication();
+            notifyIcon.ContextMenuStrip = GetSincronizadorMenuStrip(app);
             notifyIcon.Icon = Resources.sync;
-            notifyIcon.Visible = true;
-
+            notifyIcon.Visible = true;            
             Application.ApplicationExit += (sender, @event) => notifyIcon.Visible = false;
-            Application.Run(new SincronizadorApplication());            
+            Application.Run(app); 
         }
 
-        private static ContextMenuStrip GetSincronizadorMenuStrip()
+        private static ContextMenuStrip GetSincronizadorMenuStrip(SincronizadorApplication app)
         {
             var cms = new ContextMenuStrip();
-            cms.Items.Add("Salir", null, (sender, @event) => Application.Exit());
+            cms.Items.Add("Salir", null, (sender, @event) =>
+            {
+                app.wtoken.Cancel();
+                Application.Exit();
+            });
             return cms;
         }
     }
