@@ -66,7 +66,9 @@ namespace Sisfarma.RestClient.RestSharp
 
         public T SendGet<T>()
         {
+            Console.WriteLine($"GET: {_resource} ...");
             var response = _restClient.Execute(_request, RSharp.Method.GET);
+            Console.WriteLine($"GET: {_resource} finalizado");
             return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
         }
 
@@ -78,29 +80,46 @@ namespace Sisfarma.RestClient.RestSharp
 
         public T SendPost<T>(object body)
         {
+            Console.WriteLine($"POST: {_resource} ...");
             var response = _restClient.Execute(_request.AddJsonBody(body), RSharp.Method.POST);
+            Console.WriteLine($"POST: {_resource} finalizado");
             return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
         }
 
         public void SendPost(object body)
         {
+            Console.WriteLine($"POST: {_resource} ...");
             _restClient.Execute(_request.AddJsonBody(body), RSharp.Method.POST);
+            Console.WriteLine($"POST: {_resource} finalizado");
         }
 
         public void SendPut()
         {
+            Console.WriteLine($"PUT: {_resource} ...");
             _restClient.Execute(_request, RSharp.Method.PUT);
+            Console.WriteLine($"PUT: {_resource} finalizado");
         }
 
         public void SendPut(object body)
         {
+            Console.WriteLine($"PUT: {_resource} ...");
             _restClient.Execute(_request.AddJsonBody(body), RSharp.Method.PUT);
+            Console.WriteLine($"PUT: {_resource} finalizado");
         }
 
         public T SendPut<T>(object body)
         {
+            Console.WriteLine($"PUT: {_resource} ...");
             var response = _restClient.Execute(_request.AddJsonBody(body), RSharp.Method.PUT);
+            Console.WriteLine($"PUT: {_resource} finalizado");
             return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
+        }
+
+        public void SendDelete(object body)
+        {
+            Console.WriteLine($"DELETE: {_resource} ...");
+            _restClient.Execute(_request.AddJsonBody(body), RSharp.Method.DELETE);
+            Console.WriteLine($"DELETE: {_resource} finalizado");
         }
     }
 }

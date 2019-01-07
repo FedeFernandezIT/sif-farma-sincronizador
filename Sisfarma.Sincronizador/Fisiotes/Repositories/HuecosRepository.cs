@@ -27,21 +27,24 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         public void Insert(string hueco)
         {
             _restClient
-                .Resource(_config.Huecos.Insert.Replace("{hueco}", $"{hueco}"))
-                .SendPut();
+                .Resource(_config.Huecos.Insert)
+                .SendPut(new { id = hueco });
         }
 
         public IEnumerable<string> GetByOrderAsc()
         {
-            var sql = @"SELECT hueco FROM clientes_huecos ORDER BY hueco ASC";
-            return _ctx.Database.SqlQuery<string>(sql).ToList();
+            var response = _restClient
+                .Resource(_config.Huecos.GetAll)
+                .SendGet<IEnumerable<HuecoNumerado>>();
+
+            return response.Select(x => x.Hueco).OrderBy(x => x);
         }
 
         public void Delete(string hueco)
         {
-            var sql = @"DELETE FROM clientes_huecos WHERE hueco = @hueco";
-            _ctx.Database.ExecuteSqlCommand(sql,
-                    new MySqlParameter("hueco", hueco));
+            _restClient
+                .Resource(_config.Huecos.Delete)
+                .SendDelete(new { id = hueco });
         }
 
         #region SQL Methods
@@ -67,7 +70,25 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new MySqlParameter("hueco", hueco));
         }
 
+        public IEnumerable<string> GetByOrderAscSql()
+        {
+            var sql = @"SELECT hueco FROM clientes_huecos ORDER BY hueco ASC";
+            return _ctx.Database.SqlQuery<string>(sql).ToList();
+        }
+
+        public void DeleteSql(string hueco)
+        {
+            var sql = @"DELETE FROM clientes_huecos WHERE hueco = @hueco";
+            _ctx.Database.ExecuteSqlCommand(sql,
+                    new MySqlParameter("hueco", hueco));
+        }
+
         #endregion SQL Methods
+    }
+
+    public class HuecoNumerado
+    {
+        public string Hueco { get; set; }
     }
 
     public class HuecoExists

@@ -37,7 +37,9 @@ namespace Sisfarma.Sincronizador.Fisiotes
                 Huecos = new HuecoResource
                 {
                     Exists = "api/cliente/exists/hueco/{hueco}",
-                    Insert = "api/cliente/hueco/{hueco}"
+                    Insert = "api/cliente/hueco",
+                    GetAll = "api/cliente/hueco",
+                    Delete = "api/cliente/hueco"
                 }
             };
         }
@@ -66,6 +68,10 @@ public class HuecoResource
     public string Exists { get; set; }
 
     public string Insert { get; set; }
+
+    public string GetAll { get; set; }
+
+    public string Delete { get; set; }
 }
 
 public class Credential

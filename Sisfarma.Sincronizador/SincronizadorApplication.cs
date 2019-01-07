@@ -26,7 +26,7 @@ namespace Sisfarma.Sincronizador
         private int _marketCodeList;
 
         private System.Timers.Timer timerClientes;
-        //private System.Timers.Timer timerClientesHuecos;
+        private System.Timers.Timer timerClientesHuecos;
         //private System.Timers.Timer timerActualizarRecetasPendientes;
         //private System.Timers.Timer timerActualizarEntregasClientes;
         //private System.Timers.Timer timerActualizarProductosBorrados;
@@ -64,15 +64,15 @@ namespace Sisfarma.Sincronizador
                 //timerClientes.Start();
             };
 
-            //timerClientesHuecos = new System.Timers.Timer(63000);
-            //timerClientesHuecos.Elapsed += (sender, @event) =>
-            //{
-            //    timerClientesHuecos.Stop();
-            //    FarmaticService farmatic = new FarmaticService();
-            //    FisiotesService fisiotes = new FisiotesService();
-            //    ProcessClientesHuecos(farmatic, fisiotes);
-            //    timerClientesHuecos.Start();
-            //};
+            timerClientesHuecos = new System.Timers.Timer(63000);
+            timerClientesHuecos.Elapsed += (sender, @event) =>
+            {
+                timerClientesHuecos.Stop();
+                FarmaticService farmatic = new FarmaticService();
+                FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
+                ProcessClientesHuecos(farmatic, fisiotes);
+                timerClientesHuecos.Start();
+            };
 
             //timerActualizarRecetasPendientes = new System.Timers.Timer(5000);
             //timerActualizarRecetasPendientes.Elapsed += (sender, @event) =>
@@ -335,11 +335,9 @@ namespace Sisfarma.Sincronizador
                 var lastCliente = string.Empty;
                 var formatTime = DateTime.Now.ToString("HHmm");
 
-                Console.WriteLine("GET: GetDniTrackingLast ...");
                 lastCliente = "1500".Equals(formatTime) || "2300".Equals(formatTime)
                         ? "0"
                         : fisiotesService.Clientes.GetDniTrackingLast();
-                Console.WriteLine("GET: GetDniTrackingLast finalizado");
 
                 // Recuperamos los clientes locales mayores al DNI del último cliente remoto
                 var localClientes = new List<Farmatic.Models.Cliente>();
@@ -357,31 +355,21 @@ namespace Sisfarma.Sincronizador
                     var clientData = FetchLocalClienteData(farmaticService, cliente, false);
 
                     //Recuperamos el último cliente remoto
-                    Console.WriteLine("GET: ResetDniTracking ...");
                     fisiotesService.Clientes.ResetDniTracking();
-                    Console.WriteLine("GET: ResetDniTracking finalizado");
-
-                    Console.WriteLine("GET: AnyWithDni ...");
                     if (!fisiotesService.Clientes.AnyWithDni(lastCliente))
                     {
-                        Console.WriteLine("GET: AnyWithDni finalizado");
                         var tipo = "cliente";
-                        Console.WriteLine("GET: Insert cliente ...");
                         fisiotesService.Clientes.Insert(
                                 clientData.Trabajador, clientData.Tarjeta, cliente.IDCLIENTE, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
                                 clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, tipo, clientData.FechaAlta, clientData.Baja, clientData.Lopd,
                                 withTrack: true);
-                        Console.WriteLine("GET: Insert cliente finalizado");
                     }
                     else
                     {
-                        Console.WriteLine("GET: AnyWithDni finalizado");
-                        Console.WriteLine("GET: Update cliente ...");
                         fisiotesService.Clientes.Update(
                                 clientData.Trabajador, clientData.Tarjeta, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
                                 clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, clientData.FechaAlta, clientData.Baja, clientData.Lopd,
                                 cliente.IDCLIENTE, withTrack: true);
-                        Console.WriteLine("GET: Update cliente finalizado");
                     }
 
                     //Almacenamos todos los huecos de clientes que hayan.
@@ -390,15 +378,10 @@ namespace Sisfarma.Sincronizador
                     {
                         for (int i = contadorHuecos; i < intIdCliente; i++)
                         {
-                            Console.WriteLine("GET: Hueco exists ...");
                             if (!fisiotesService.Huecos.Any(i))
                             {
-                                Console.WriteLine("GET: hueco extis finalizado");
-                                Console.WriteLine("GET: hueco insert ...");
                                 fisiotesService.Huecos.Insert(i.ToString());
-                                Console.WriteLine("GET: hueco insert finalizado");
                             }
-                            else Console.WriteLine("GET: hueco extis finalizado");
                         }
                         contadorHuecos = intIdCliente;
                     }
@@ -542,50 +525,51 @@ namespace Sisfarma.Sincronizador
             return vendedorDb?.NOMBRE ?? byDefault;
         }
 
-        //private void ProcessClientesHuecos(FarmaticService farmaticService, FisiotesService fisiotesService)
-        //{
-        //    try
-        //    {
-        //        // Validamos los campos existentes en ClienteAux
-        //        var existFieldSexo = farmaticService.Clientes.HasSexoField();
+        private void ProcessClientesHuecos(FarmaticService farmaticService, FisiotesService fisiotesService)
+        {
+            try
+            {
+                // Validamos los campos existentes en ClienteAux
+                var existFieldSexo = farmaticService.Clientes.HasSexoField();
 
-        //        // Recuperamos los huecos de clientes en forma ascendente
-        //        var remoteHuecos = fisiotesService.Huecos.GetByOrderAsc();
+                // Recuperamos los huecos de clientes en forma ascendente
+                var remoteHuecos = fisiotesService.Huecos.GetByOrderAsc();
 
-        //        // Sincronizamos los clientes con huecos con la BD remota
-        //        foreach (var hueco in remoteHuecos)
-        //        {
-        //            var cliente = farmaticService.Clientes.GetById(hueco);
-        //            if (cliente != null)
-        //            {
-        //                // Extraemos los datos necesarios del cliente local para sincronizar con el remoto
-        //                var clientData = FetchLocalClienteData(farmaticService, cliente, existFieldSexo);
+                // Sincronizamos los clientes con huecos con la BD remota
+                foreach (var hueco in remoteHuecos)
+                {
+                    var cliente = farmaticService.Clientes.GetById(hueco);
+                    if (cliente != null)
+                    {
+                        // Extraemos los datos necesarios del cliente local para sincronizar con el remoto
+                        var clientData = FetchLocalClienteData(farmaticService, cliente, existFieldSexo);
 
-        //                // Recuperamos el cliente remoto que coincida con el cliente local
-        //                if (!fisiotesService.Clientes.AnyWithDni(cliente.IDCLIENTE))
-        //                {
-        //                    var tipo = "cliente";
-        //                    fisiotesService.Clientes.Insert(
-        //                        clientData.Trabajador, clientData.Tarjeta, cliente.IDCLIENTE, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
-        //                        clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, tipo, clientData.FechaAlta, clientData.Baja, clientData.Lopd);
-        //                }
-        //                else
-        //                {
-        //                    fisiotesService.Clientes.Update(
-        //                        clientData.Trabajador, clientData.Tarjeta, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
-        //                        clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, clientData.FechaAlta, clientData.Baja, clientData.Lopd, cliente.IDCLIENTE);
-        //                }
+                        // Recuperamos el cliente remoto que coincida con el cliente local
+                        if (!fisiotesService.Clientes.AnyWithDni(cliente.IDCLIENTE))
+                        {
+                            var tipo = "cliente";
+                            fisiotesService.Clientes.Insert(
+                                clientData.Trabajador, clientData.Tarjeta, cliente.IDCLIENTE, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
+                                clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, tipo, clientData.FechaAlta, clientData.Baja, clientData.Lopd);
+                        }
+                        else
+                        {
+                            fisiotesService.Clientes.Update(
+                                clientData.Trabajador, clientData.Tarjeta, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
+                                clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, clientData.FechaAlta, clientData.Baja, clientData.Lopd, cliente.IDCLIENTE);
+                        }
 
-        //                // Eliminamos el hueco del cliente.
-        //                fisiotesService.Huecos.Delete(hueco);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Task.Delay(1500).Wait();
-        //    }
-        //}
+                        // Eliminamos el hueco del cliente.
+                        fisiotesService.Huecos.Delete(hueco);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                //Task.Delay(1500).Wait();
+                Console.WriteLine(e.Message);
+            }
+        }
 
         //public void ProcessUpdateRecetasPendientes(FarmaticService farmaticService, FisiotesService fisiotesService)
         //{

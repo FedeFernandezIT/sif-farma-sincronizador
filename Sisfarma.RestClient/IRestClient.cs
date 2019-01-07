@@ -25,5 +25,7 @@ namespace Sisfarma.RestClient
         void SendPut(object body);
 
         T SendPut<T>(object body);
+
+        void SendDelete(object body);
     }
 }
