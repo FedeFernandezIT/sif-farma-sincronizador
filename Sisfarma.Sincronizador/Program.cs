@@ -7,13 +7,13 @@ using System.Windows.Forms;
 
 namespace Sisfarma.Sincronizador
 {
-    static class Program
+    internal static class Program
     {
         /// <summary>
         /// Punto de entrada principal para la aplicación.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             var notifyIcon = new NotifyIcon();
             notifyIcon.ContextMenuStrip = GetSincronizadorMenuStrip();
@@ -21,7 +21,7 @@ namespace Sisfarma.Sincronizador
             notifyIcon.Visible = true;
 
             Application.ApplicationExit += (sender, @event) => notifyIcon.Visible = false;
-            Application.Run(new SincronizadorApplication());            
+            Application.Run(new SincronizadorApplication());
         }
 
         private static ContextMenuStrip GetSincronizadorMenuStrip()

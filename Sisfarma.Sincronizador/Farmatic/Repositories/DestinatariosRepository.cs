@@ -16,7 +16,7 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
             var sql = @"SELECT * FROM Destinatario WHERE fk_Cliente_1 = @idCliente";
             return _ctx.Database.SqlQuery<Destinatario>(sql,
                 new SqlParameter("idCliente", cliente))
-                .ToList();            
+                .ToList();
         }
     }
 }

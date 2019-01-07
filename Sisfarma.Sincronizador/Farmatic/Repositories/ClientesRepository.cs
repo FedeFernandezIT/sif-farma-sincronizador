@@ -37,7 +37,7 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
             var sql = @"SELECT ISNULL(SUM(cantidad), 0) AS puntos FROM HistoOferta WHERE IdCliente = @idCliente AND TipoAcumulacion = 'P'";
             return _ctx.Database.SqlQuery<decimal>(sql,
                 new SqlParameter("idCliente", idCliente))
-                .FirstOrDefault(); // Default = 0            
+                .FirstOrDefault(); // Default = 0
         }
 
         public bool HasSexoField()

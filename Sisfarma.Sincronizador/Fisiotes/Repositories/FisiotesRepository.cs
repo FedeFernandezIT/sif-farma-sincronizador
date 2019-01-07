@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿using Sisfarma.RestClient;
+using System;
+using System.Data;
 using System.Linq;
 
 namespace Sisfarma.Sincronizador.Fisiotes.Repositories
@@ -6,10 +8,21 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
     public abstract class FisiotesRepository
     {
         protected FisiotesContext _ctx;
+        protected IRestClient _restClient;
+        protected FisiotesConfig _config;
 
         public FisiotesRepository(FisiotesContext ctx)
         {
             _ctx = ctx;
+        }
+
+        public FisiotesRepository(IRestClient restClient, FisiotesConfig config)
+        {
+            _restClient = restClient ?? throw new ArgumentNullException(nameof(restClient));
+            _config = config ?? throw new ArgumentNullException(nameof(config));
+
+            _restClient.BaseAddress(_config.BaseAddress)
+                .UseAuthenticationBasic(_config.Credentials.Username, _config.Credentials.Password);
         }
 
         protected void CheckAndCreateFieldsTemplate(string sqlTable, string[] fields, string[] sqlAlter)

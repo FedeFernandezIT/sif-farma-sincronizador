@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using Sisfarma.RestClient;
 using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
@@ -14,13 +15,98 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
         }
 
+        public ClientesRepository(IRestClient restClient, FisiotesConfig config) : base(restClient, config)
+        {
+        }
+
+        public string GetDniTrackingLast()
+        {
+            return _restClient
+                .Resource(_config.Clientes.GetDniTrackingLast)
+                .SendGet<Cliente>().dni;
+        }
+
         public void ResetDniTracking()
+        {
+            _restClient
+                .Resource(_config.Clientes.ResetDniTracking)
+                .SendPut();
+        }
+
+        public bool AnyWithDni(string dni)
+        {
+            var cliente = _restClient
+                .Resource(_config.Clientes.GetByDni.Replace("{dni}", $"{dni}"))
+                .SendGet<Cliente>();
+            return cliente != null;
+        }
+
+        public void Insert(string trabajador, string tarjeta, string idCliente, string nombre,
+            string telefono, string direccion, string movil, string email, decimal puntos, long fechaNacimiento,
+            string sexo, string tipo, DateTime? fechaAlta, int baja, int lopd, bool withTrack = false)
+        {
+            _restClient
+                .Resource(_config.Clientes.Insert.Replace("{dni}", $"{idCliente}"))
+                .SendPost(new Cliente
+                {
+                    apellidos = nombre,
+                    telefono = telefono,
+                    direccion = direccion,
+                    movil = movil,
+                    email = email,
+                    fecha_nacimiento = fechaNacimiento
+                });
+        }
+
+        public void Update(string trabajador, string tarjeta, string nombre, string telefono, string direccion,
+            string movil, string email, decimal puntos, long fechaNacimiento, string sexo, DateTime? fechaAlta, int baja, int lopd, string idCliente,
+            bool withTrack = false)
+        {
+            var clientes = new List<Cliente> { new Cliente
+            {
+                dni = idCliente,
+                nombre = nombre,
+                apellidos = nombre,
+                telefono = telefono
+            } };
+
+            _restClient
+                .Resource(_config.Clientes.Update)
+                .SendPut(new
+                {
+                    bulk = clientes
+                });
+        }
+
+        public void CheckAndCreateFields()
+        {
+            const string table = @"SELECT * from clientes LIMIT 0,1;";
+            var fields = new[] { "baja", "fechaAlta" };
+            var alters = new[]
+            {
+                @"ALTER TABLE clientes ADD `baja` tinyint(1) DEFAULT 0 AFTER dia_alta;",
+                @"ALTER TABLE clientes ADD `fechaAlta` datetime AFTER dia_alta;"
+            };
+
+            CheckAndCreateFieldsTemplate(table, fields, alters);
+        }
+
+        #region SQL Methods
+
+        public void ResetDniTrackingSql()
         {
             var sql = "UPDATE clientes SET dni_tra = 0";
             _ctx.Database.ExecuteSqlCommand(sql);
         }
 
-        public bool AnyWithDni(string filter)
+        public string GetDniTrackingLastSql()
+        {
+            var sql = @"SELECT dni FROM clientes WHERE dni_tra = 1";
+            return _ctx.Database.SqlQuery<string>(sql)
+                .FirstOrDefault() ?? "0";
+        }
+
+        public bool AnyWithDniSql(string filter)
         {
             var sql = @"SELECT * FROM clientes WHERE dni = @dni";
             return _ctx.Database.SqlQuery<Cliente>(sql,
@@ -28,14 +114,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 .Any();
         }
 
-        public string GetDniTrackingLast()
-        {
-            var sql = @"SELECT dni FROM clientes WHERE dni_tra = 1";
-            return _ctx.Database.SqlQuery<string>(sql)
-                .FirstOrDefault() ?? "0";
-        }
-        
-        public void Insert(string trabajador, string tarjeta, string idCliente, string nombre,
+        public void InsertSql(string trabajador, string tarjeta, string idCliente, string nombre,
             string telefono, string direccion, string movil, string email, decimal puntos, long fechaNacimiento,
             string sexo, string tipo, DateTime? fechaAlta, int baja, int lopd, bool withTrack = false)
         {
@@ -71,12 +150,12 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                         new MySqlParameter("lopd", lopd));
             }
             catch (Exception e)
-            {                
+            {
                 throw e;
             }
         }
 
-        public void Update(string trabajador, string tarjeta, string nombre, string telefono, string direccion,
+        public void UpdateSql(string trabajador, string tarjeta, string nombre, string telefono, string direccion,
             string movil, string email, decimal puntos, long fechaNacimiento, string sexo, DateTime? fechaAlta, int baja, int lopd, string idCliente,
             bool withTrack = false)
         {
@@ -109,19 +188,6 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                     new MySqlParameter("idCliente", idCliente));
         }
 
-        public void CheckAndCreateFields()
-        {
-            const string table = @"SELECT * from clientes LIMIT 0,1;";
-            var fields = new[] { "baja", "fechaAlta" };
-            var alters = new[]
-            {
-                @"ALTER TABLE clientes ADD `baja` tinyint(1) DEFAULT 0 AFTER dia_alta;",
-                @"ALTER TABLE clientes ADD `fechaAlta` datetime AFTER dia_alta;"
-            };
-
-            CheckAndCreateFieldsTemplate(table, fields, alters);
-        }
-
-        
+        #endregion SQL Methods
     }
 }
