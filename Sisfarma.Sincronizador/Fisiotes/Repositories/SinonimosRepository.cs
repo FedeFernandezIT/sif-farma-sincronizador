@@ -1,7 +1,7 @@
-﻿using MySql.Data.MySqlClient;
-using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +18,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
             var sql = @"SELECT data_type AS tipo From information_schema.Columns WHERE TABLE_SCHEMA = @baseRemoto AND TABLE_NAME = 'sinonimos' AND COLUMN_NAME = 'cod_barras'";
             var type = _ctx.Database.SqlQuery<string>(sql,
-                new MySqlParameter("baseRemoto", remote))
+                new SqlParameter("baseRemoto", remote))
                 .FirstOrDefault();
             if (type != null)
             {

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Core.EntityClient;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +14,51 @@ namespace Sisfarma.Sincronizador.Farmatic
         public FarmaticContext()
             : base("FarmaticContext")
         {
+        }
+
+        public FarmaticContext(string server, string database, string username, string password)
+            //: base(ConnectToSqlServer(server, database, username, password))
+            : base($@"data source={server}; initial catalog={database}; persist security info=True;user id={username}; password={password};MultipleActiveResultSets=True;App=EntityFramework")
+        {
+        }
+
+        public static string ConnectToSqlServer(string hostServer, string catalogDbName, string user, string pass)
+        {
+            SqlConnectionStringBuilder sqlBuilder = new SqlConnectionStringBuilder
+            {
+                DataSource = hostServer,
+                InitialCatalog = catalogDbName,
+                PersistSecurityInfo = true,
+                IntegratedSecurity = false,
+                MultipleActiveResultSets = true,
+
+                UserID = user,
+                Password = pass,
+            };
+
+            // assumes a connectionString name in .config of MyDbEntities
+            var entityConnectionStringBuilder = new EntityConnectionStringBuilder
+            {
+                Provider = "System.Data.SqlClient",
+                ProviderConnectionString = sqlBuilder.ConnectionString,
+                //Metadata = "res://*/",
+                // or
+                //Metadata = "res://*/DbModel.csdl|res://*/DbModel.ssdl|res://*/DbModel.msl",
+            };
+
+            ////  //works though
+            //using (EntityConnection conn =
+            //        new EntityConnection(entityConnectionStringBuilder.ToString()))
+            //{
+            //    conn.Open();
+            //    Console.WriteLine("Just testing the connection.");
+            //    conn.Close();
+            //}
+
+            // return entityConnectionStringBuilder.ConnectionString;
+            var connString = entityConnectionStringBuilder.ToString();
+            //return connString;
+            return sqlBuilder.ConnectionString;
         }
     }
 }

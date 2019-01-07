@@ -1,5 +1,4 @@
-﻿using MySql.Data.MySqlClient;
-using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.Sincronizador.Fisiotes.Models;
 using Sisfarma.Sincronizador.Fisiotes.Repositories;
 using System;
 using System.Collections.Generic;

@@ -1,7 +1,7 @@
-﻿using MySql.Data.MySqlClient;
-using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +18,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
             var sql = @"SELECT * FROM configuracion WHERE campo = @field";
             return _ctx.Database.SqlQuery<Configuracion>(sql,
-                new MySqlParameter("field", field))
+                new SqlParameter("field", field))
                 .FirstOrDefault();
         }
 
@@ -31,6 +31,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 case FieldsConfiguracion.FIELD_STOCK_SALIDA:
                     sql = @"INSERT IGNORE INTO configuracion (campo, valor) VALUES (@field, NULL)";
                     break;
+
                 case FieldsConfiguracion.FIELD_POR_DONDE_VOY_CON_STOCK:
                 case FieldsConfiguracion.FIELD_POR_DONDE_VOY_SIN_STOCK:
                 case FieldsConfiguracion.FIELD_POR_DONDE_VOY_BORRAR:
@@ -39,15 +40,15 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                     break;
             }
             _ctx.Database.ExecuteSqlCommand(sql,
-                new MySqlParameter("field", field));
+                new SqlParameter("field", field));
         }
 
         public void Update(string field, string value)
         {
             var sql = @"UPDATE IGNORE configuracion SET valor = @value WHERE campo = @field";
             _ctx.Database.ExecuteSqlCommand(sql,
-                new MySqlParameter("value", value),
-                new MySqlParameter("field", field));
+                new SqlParameter("value", value),
+                new SqlParameter("field", field));
         }
 
         public static class FieldsConfiguracion

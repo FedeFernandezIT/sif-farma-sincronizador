@@ -1,8 +1,8 @@
-﻿using MySql.Data.MySqlClient;
-using Sisfarma.RestClient;
+﻿using Sisfarma.RestClient;
 using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -110,7 +110,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
             var sql = @"SELECT * FROM clientes WHERE dni = @dni";
             return _ctx.Database.SqlQuery<Cliente>(sql,
-                new MySqlParameter("dni", filter))
+                new SqlParameter("dni", filter))
                 .Any();
         }
 
@@ -133,21 +133,21 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                             "@trabajador, @tarjeta, @idCliente, @nombre, @telefono, @direccion, @movil, @email, @puntos, @fechaNacimiento, @sexo, @tipo, @fechaAlta, @baja, @lopd)";
 
                 _ctx.Database.ExecuteSqlCommand(sql,
-                        new MySqlParameter("trabajador", trabajador),
-                        new MySqlParameter("tarjeta", tarjeta),
-                        new MySqlParameter("idCliente", idCliente),
-                        new MySqlParameter("nombre", nombre),
-                        new MySqlParameter("telefono", telefono),
-                        new MySqlParameter("direccion", direccion),
-                        new MySqlParameter("movil", movil),
-                        new MySqlParameter("email", email),
-                        new MySqlParameter("puntos", puntos),
-                        new MySqlParameter("fechaNacimiento", fechaNacimiento),
-                        new MySqlParameter("sexo", sexo),
-                        new MySqlParameter("tipo", tipo),
-                        new MySqlParameter("fechaAlta", fechaAlta),
-                        new MySqlParameter("baja", baja),
-                        new MySqlParameter("lopd", lopd));
+                        new SqlParameter("trabajador", trabajador),
+                        new SqlParameter("tarjeta", tarjeta),
+                        new SqlParameter("idCliente", idCliente),
+                        new SqlParameter("nombre", nombre),
+                        new SqlParameter("telefono", telefono),
+                        new SqlParameter("direccion", direccion),
+                        new SqlParameter("movil", movil),
+                        new SqlParameter("email", email),
+                        new SqlParameter("puntos", puntos),
+                        new SqlParameter("fechaNacimiento", fechaNacimiento),
+                        new SqlParameter("sexo", sexo),
+                        new SqlParameter("tipo", tipo),
+                        new SqlParameter("fechaAlta", fechaAlta),
+                        new SqlParameter("baja", baja),
+                        new SqlParameter("lopd", lopd));
             }
             catch (Exception e)
             {
@@ -172,20 +172,20 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                         "WHERE dni = @idCliente";
 
             _ctx.Database.ExecuteSqlCommand(sql,
-                    new MySqlParameter("trabajador", trabajador),
-                    new MySqlParameter("tarjeta", tarjeta),
-                    new MySqlParameter("nombre", nombre),
-                    new MySqlParameter("telefono", telefono),
-                    new MySqlParameter("direccion", direccion),
-                    new MySqlParameter("movil", movil),
-                    new MySqlParameter("email", email),
-                    new MySqlParameter("puntos", puntos),
-                    new MySqlParameter("fechaNacimiento", fechaNacimiento),
-                    new MySqlParameter("sexo", sexo),
-                    new MySqlParameter("fechaAlta", fechaAlta),
-                    new MySqlParameter("baja", baja),
-                    new MySqlParameter("lopd", lopd),
-                    new MySqlParameter("idCliente", idCliente));
+                    new SqlParameter("trabajador", trabajador),
+                    new SqlParameter("tarjeta", tarjeta),
+                    new SqlParameter("nombre", nombre),
+                    new SqlParameter("telefono", telefono),
+                    new SqlParameter("direccion", direccion),
+                    new SqlParameter("movil", movil),
+                    new SqlParameter("email", email),
+                    new SqlParameter("puntos", puntos),
+                    new SqlParameter("fechaNacimiento", fechaNacimiento),
+                    new SqlParameter("sexo", sexo),
+                    new SqlParameter("fechaAlta", fechaAlta),
+                    new SqlParameter("baja", baja),
+                    new SqlParameter("lopd", lopd),
+                    new SqlParameter("idCliente", idCliente));
         }
 
         #endregion SQL Methods

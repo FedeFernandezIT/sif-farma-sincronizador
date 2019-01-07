@@ -1,8 +1,8 @@
-﻿using MySql.Data.MySqlClient;
-using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,21 +50,21 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 ? @"SELECT cod_nacional FROM medicamentos WHERE web = 0 AND cod_nacional >= @codigo ORDER BY cod_nacional ASC LIMIT 0,1000"
                 : @"SELECT cod_nacional FROM medicamentos WHERE cod_nacional >= @codigo ORDER BY cod_nacional ASC LIMIT 0,1000";
             return _ctx.Database.SqlQuery<string>(sql,
-                new MySqlParameter("codigo", codigo))
+                new SqlParameter("codigo", codigo))
                 .ToList();
         }
 
         public void DeleteByCodigoNacional(string codigo)
         {
             var sql = @"DELETE FROM medicamentos WHERE cod_nacional = @codigo";
-            _ctx.Database.ExecuteSqlCommand(sql, new MySqlParameter("codigo", codigo));
+            _ctx.Database.ExecuteSqlCommand(sql, new SqlParameter("codigo", codigo));
         }
 
         public Medicamento GetByCodNacional(string codNacional)
         {
             var sql = @"select * from medicamentos where cod_nacional = @codNacional";
             return _ctx.Database.SqlQuery<Medicamento>(sql,
-                new MySqlParameter("codNacional", codNacional))
+                new SqlParameter("codNacional", codNacional))
                 .FirstOrDefault();
         }
 
@@ -80,29 +80,29 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                     @"@proveedor, @pvpSinIva, @iva, @stock, @puc, @stockMinimo, @stockMaximo, @presentacion, @descripcionTienda, @activo, 1, " +
                     @"@caducidad, @ultimaCompra, @ultimaVenta, @baja)";
             _ctx.Database.ExecuteSqlCommand(sql,
-                new MySqlParameter("codigoBarras", codigoBarras),
-                new MySqlParameter("codNacional", codNacional),
-                new MySqlParameter("nombre", nombre),
-                new MySqlParameter("superFamilia", superFamilia),
-                new MySqlParameter("familia", familia),
-                new MySqlParameter("precio", precio),
-                new MySqlParameter("descripcion", descripcion),
-                new MySqlParameter("laboratorio", laboratorio),
-                new MySqlParameter("nombreLaboratorio", nombreLaboratorio),
-                new MySqlParameter("proveedor", proveedor),
-                new MySqlParameter("iva", iva),
-                new MySqlParameter("pvpSinIva", pvpSinIva),
-                new MySqlParameter("stock", stock),
-                new MySqlParameter("puc", puc),
-                new MySqlParameter("stockMinimo", stockMinimo),
-                new MySqlParameter("stockMaximo", stockMaximo),
-                new MySqlParameter("presentacion", presentacion),
-                new MySqlParameter("descripcionTienda", descripcionTienda),
-                new MySqlParameter("activo", activo),
-                new MySqlParameter("caducidad", caducidad),
-                new MySqlParameter("ultimaCompra", ultimaCompra),
-                new MySqlParameter("ultimaVenta", ultimaVenta),
-                new MySqlParameter("baja", baja));
+                new SqlParameter("codigoBarras", codigoBarras),
+                new SqlParameter("codNacional", codNacional),
+                new SqlParameter("nombre", nombre),
+                new SqlParameter("superFamilia", superFamilia),
+                new SqlParameter("familia", familia),
+                new SqlParameter("precio", precio),
+                new SqlParameter("descripcion", descripcion),
+                new SqlParameter("laboratorio", laboratorio),
+                new SqlParameter("nombreLaboratorio", nombreLaboratorio),
+                new SqlParameter("proveedor", proveedor),
+                new SqlParameter("iva", iva),
+                new SqlParameter("pvpSinIva", pvpSinIva),
+                new SqlParameter("stock", stock),
+                new SqlParameter("puc", puc),
+                new SqlParameter("stockMinimo", stockMinimo),
+                new SqlParameter("stockMaximo", stockMaximo),
+                new SqlParameter("presentacion", presentacion),
+                new SqlParameter("descripcionTienda", descripcionTienda),
+                new SqlParameter("activo", activo),
+                new SqlParameter("caducidad", caducidad),
+                new SqlParameter("ultimaCompra", ultimaCompra),
+                new SqlParameter("ultimaVenta", ultimaVenta),
+                new SqlParameter("baja", baja));
         }
 
         public void Insert(string codigoBarras, string codNacional, string nombre, string superFamilia, string familia,
@@ -116,26 +116,26 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                     @"@proveedor, @pvpSinIva, @iva, @stock, @puc, @stockMinimo, @stockMaximo, @presentacion, @descripcionTienda, @activo, 1, " +
                     @"@baja)";
             _ctx.Database.ExecuteSqlCommand(sql,
-                new MySqlParameter("codigoBarras", codigoBarras),
-                new MySqlParameter("codNacional", codNacional),
-                new MySqlParameter("nombre", nombre),
-                new MySqlParameter("superFamilia", superFamilia),
-                new MySqlParameter("familia", familia),
-                new MySqlParameter("precio", precio),
-                new MySqlParameter("descripcion", descripcion),
-                new MySqlParameter("laboratorio", laboratorio),
-                new MySqlParameter("nombreLaboratorio", nombreLaboratorio),
-                new MySqlParameter("proveedor", proveedor),
-                new MySqlParameter("iva", iva),
-                new MySqlParameter("pvpSinIva", pvpSinIva),
-                new MySqlParameter("stock", stock),
-                new MySqlParameter("puc", puc),
-                new MySqlParameter("stockMinimo", stockMinimo),
-                new MySqlParameter("stockMaximo", stockMaximo),
-                new MySqlParameter("presentacion", presentacion),
-                new MySqlParameter("descripcionTienda", descripcionTienda),
-                new MySqlParameter("activo", activo),
-                new MySqlParameter("baja", baja));
+                new SqlParameter("codigoBarras", codigoBarras),
+                new SqlParameter("codNacional", codNacional),
+                new SqlParameter("nombre", nombre),
+                new SqlParameter("superFamilia", superFamilia),
+                new SqlParameter("familia", familia),
+                new SqlParameter("precio", precio),
+                new SqlParameter("descripcion", descripcion),
+                new SqlParameter("laboratorio", laboratorio),
+                new SqlParameter("nombreLaboratorio", nombreLaboratorio),
+                new SqlParameter("proveedor", proveedor),
+                new SqlParameter("iva", iva),
+                new SqlParameter("pvpSinIva", pvpSinIva),
+                new SqlParameter("stock", stock),
+                new SqlParameter("puc", puc),
+                new SqlParameter("stockMinimo", stockMinimo),
+                new SqlParameter("stockMaximo", stockMaximo),
+                new SqlParameter("presentacion", presentacion),
+                new SqlParameter("descripcionTienda", descripcionTienda),
+                new SqlParameter("activo", activo),
+                new SqlParameter("baja", baja));
         }
 
         public void Update(string codigoBarras, string nombre, string superFamilia, string familia,
@@ -152,29 +152,29 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                     @" activoPrestashop = @activo, fechaCaducidad = @caducidad, fechaUltimaCompra = @ultimaCompra, fechaUltimaVenta = @ultimaVenta, " +
                     @"baja = @baja WHERE cod_nacional = @codNacional";
             _ctx.Database.ExecuteSqlCommand(sql,
-                new MySqlParameter("codigoBarras", codigoBarras),
-                new MySqlParameter("nombre", nombre),
-                new MySqlParameter("superFamilia", superFamilia),
-                new MySqlParameter("familia", familia),
-                new MySqlParameter("precio", precio),
-                new MySqlParameter("descripcion", descripcion),
-                new MySqlParameter("laboratorio", laboratorio),
-                new MySqlParameter("nombreLaboratorio", nombreLaboratorio),
-                new MySqlParameter("proveedor", proveedor),
-                new MySqlParameter("iva", iva),
-                new MySqlParameter("pvpSinIva", pvpSinIva),
-                new MySqlParameter("stock", stock),
-                new MySqlParameter("puc", puc),
-                new MySqlParameter("stockMinimo", stockMinimo),
-                new MySqlParameter("stockMaximo", stockMaximo),
-                new MySqlParameter("presentacion", presentacion),
-                new MySqlParameter("descripcionTienda", descripcionTienda),
-                new MySqlParameter("activo", activo),
-                new MySqlParameter("caducidad", caducidad),
-                new MySqlParameter("ultimaCompra", ultimaCompra),
-                new MySqlParameter("ultimaVenta", ultimaVenta),
-                new MySqlParameter("baja", baja),
-                new MySqlParameter("codNacional", codNacional));
+                new SqlParameter("codigoBarras", codigoBarras),
+                new SqlParameter("nombre", nombre),
+                new SqlParameter("superFamilia", superFamilia),
+                new SqlParameter("familia", familia),
+                new SqlParameter("precio", precio),
+                new SqlParameter("descripcion", descripcion),
+                new SqlParameter("laboratorio", laboratorio),
+                new SqlParameter("nombreLaboratorio", nombreLaboratorio),
+                new SqlParameter("proveedor", proveedor),
+                new SqlParameter("iva", iva),
+                new SqlParameter("pvpSinIva", pvpSinIva),
+                new SqlParameter("stock", stock),
+                new SqlParameter("puc", puc),
+                new SqlParameter("stockMinimo", stockMinimo),
+                new SqlParameter("stockMaximo", stockMaximo),
+                new SqlParameter("presentacion", presentacion),
+                new SqlParameter("descripcionTienda", descripcionTienda),
+                new SqlParameter("activo", activo),
+                new SqlParameter("caducidad", caducidad),
+                new SqlParameter("ultimaCompra", ultimaCompra),
+                new SqlParameter("ultimaVenta", ultimaVenta),
+                new SqlParameter("baja", baja),
+                new SqlParameter("codNacional", codNacional));
         }
 
         public void Update(string codigoBarras, string nombre, string superFamilia, string familia,
@@ -188,26 +188,26 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 @"presentacion = @presentacion, descripcionTienda = @descripcionTienda, cargadoPS = 0, actualizadoPS = 1, " +
                 @" activoPrestashop = @activo, baja = @baja WHERE cod_nacional = @codNacional";
             _ctx.Database.ExecuteSqlCommand(sql,
-                new MySqlParameter("codigoBarras", codigoBarras),
-                new MySqlParameter("nombre", nombre),
-                new MySqlParameter("superFamilia", superFamilia),
-                new MySqlParameter("familia", familia),
-                new MySqlParameter("precio", precio),
-                new MySqlParameter("descripcion", descripcion),
-                new MySqlParameter("laboratorio", laboratorio),
-                new MySqlParameter("nombreLaboratorio", nombreLaboratorio),
-                new MySqlParameter("proveedor", proveedor),
-                new MySqlParameter("iva", iva),
-                new MySqlParameter("pvpSinIva", pvpSinIva),
-                new MySqlParameter("stock", stock),
-                new MySqlParameter("puc", puc),
-                new MySqlParameter("stockMinimo", stockMinimo),
-                new MySqlParameter("stockMaximo", stockMaximo),
-                new MySqlParameter("presentacion", presentacion),
-                new MySqlParameter("descripcionTienda", descripcionTienda),
-                new MySqlParameter("activo", activo),
-                new MySqlParameter("baja", baja),
-                new MySqlParameter("codNacional", codNacional));
+                new SqlParameter("codigoBarras", codigoBarras),
+                new SqlParameter("nombre", nombre),
+                new SqlParameter("superFamilia", superFamilia),
+                new SqlParameter("familia", familia),
+                new SqlParameter("precio", precio),
+                new SqlParameter("descripcion", descripcion),
+                new SqlParameter("laboratorio", laboratorio),
+                new SqlParameter("nombreLaboratorio", nombreLaboratorio),
+                new SqlParameter("proveedor", proveedor),
+                new SqlParameter("iva", iva),
+                new SqlParameter("pvpSinIva", pvpSinIva),
+                new SqlParameter("stock", stock),
+                new SqlParameter("puc", puc),
+                new SqlParameter("stockMinimo", stockMinimo),
+                new SqlParameter("stockMaximo", stockMaximo),
+                new SqlParameter("presentacion", presentacion),
+                new SqlParameter("descripcionTienda", descripcionTienda),
+                new SqlParameter("activo", activo),
+                new SqlParameter("baja", baja),
+                new SqlParameter("codNacional", codNacional));
         }
 
         public void ResetPorDondeVoySinStock()
@@ -246,7 +246,6 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 @"ALTER TABLE medicamentos ADD proveedor VARCHAR(255) DEFAULT NULL AFTER nombre_laboratorio, " +
                     @"ADD (baja TINYINT(1) DEFAULT 0);",
                 @"ALTER TABLE medicamentos ADD superFamilia VARCHAR(255) DEFAULT NULL AFTER nombre;"
-
             };
             CheckAndCreateFieldsTemplate(table, fields, alters);
         }

@@ -1,6 +1,6 @@
-﻿using MySql.Data.MySqlClient;
-using Sisfarma.RestClient;
+﻿using Sisfarma.RestClient;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 
 namespace Sisfarma.Sincronizador.Fisiotes.Repositories
@@ -59,7 +59,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
             var sql = @"SELECT * FROM clientes_huecos WHERE hueco = @value";
             return _ctx.Database.SqlQuery<string>(sql,
-                new MySqlParameter("value", value))
+                new SqlParameter("value", value))
                 .Any();
         }
 
@@ -67,7 +67,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
             var sql = "INSERT IGNORE INTO clientes_huecos (hueco) VALUES (@hueco)";
             _ctx.Database.ExecuteSqlCommand(sql,
-                new MySqlParameter("hueco", hueco));
+                new SqlParameter("hueco", hueco));
         }
 
         public IEnumerable<string> GetByOrderAscSql()
@@ -80,7 +80,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
             var sql = @"DELETE FROM clientes_huecos WHERE hueco = @hueco";
             _ctx.Database.ExecuteSqlCommand(sql,
-                    new MySqlParameter("hueco", hueco));
+                    new SqlParameter("hueco", hueco));
         }
 
         #endregion SQL Methods

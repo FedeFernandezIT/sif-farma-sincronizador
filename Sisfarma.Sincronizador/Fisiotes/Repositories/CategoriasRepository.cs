@@ -1,5 +1,5 @@
-﻿using MySql.Data.MySqlClient;
-using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.Sincronizador.Fisiotes.Models;
+using System.Data.SqlClient;
 using System.Linq;
 
 namespace Sisfarma.Sincronizador.Fisiotes.Repositories
@@ -14,8 +14,8 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
             var sql = @"select * from ps_categorias where categoria = @categoria AND padre = @padre";
             return _ctx.Database.SqlQuery<Categoria>(sql,
-                new MySqlParameter("categoria", categoria),
-                new MySqlParameter("padre", padre))
+                new SqlParameter("categoria", categoria),
+                new SqlParameter("padre", padre))
                 .FirstOrDefault();
         }
 
@@ -23,7 +23,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
             var sql = @"select * from ps_categorias where padre = @padre";
             return _ctx.Database.SqlQuery<Categoria>(sql,
-                new MySqlParameter("padre", padre))
+                new SqlParameter("padre", padre))
                 .FirstOrDefault();
         }
 
@@ -32,9 +32,9 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             var sql = @"INSERT IGNORE INTO ps_categorias (categoria, padre, prestashopPadreId) VALUES(" +
                     @"@categoria, @padre, @prestaShop)";
             _ctx.Database.ExecuteSqlCommand(sql,
-                new MySqlParameter("categoria", categoria),
-                new MySqlParameter("padre", padre),
-                new MySqlParameter("prestaShop", prestaShop));
+                new SqlParameter("categoria", categoria),
+                new SqlParameter("padre", padre),
+                new SqlParameter("prestaShop", prestaShop));
         }
     }
 }

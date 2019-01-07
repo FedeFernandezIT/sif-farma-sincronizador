@@ -55,20 +55,22 @@ namespace Sisfarma.Sincronizador
         private void InitializeTimer()
         {
             timerClientes = new System.Timers.Timer(2500);
+            timerClientes.AutoReset = false;
             timerClientes.Elapsed += (sender, @event) =>
             {
                 //timerClientes.Stop();
-                FarmaticService farmatic = new FarmaticService();
+                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
                 FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
                 ProcessClientes(farmatic, fisiotes);
                 //timerClientes.Start();
             };
 
             timerClientesHuecos = new System.Timers.Timer(63000);
+            timerClientesHuecos.AutoReset = false;
             timerClientesHuecos.Elapsed += (sender, @event) =>
             {
                 timerClientesHuecos.Stop();
-                FarmaticService farmatic = new FarmaticService();
+                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
                 FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
                 ProcessClientesHuecos(farmatic, fisiotes);
                 timerClientesHuecos.Start();

@@ -1,7 +1,7 @@
-﻿using MySql.Data.MySqlClient;
-using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,11 +15,11 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         }
 
         public void CreateTable(string remote)
-        {            
+        {
             var sql =
                 @"SELECT TABLE_NAME AS tipo From information_schema.TABLES WHERE TABLE_SCHEMA = @baseRemoto AND TABLE_NAME = 'entregas_clientes'";
-            var result =_ctx.Database.SqlQuery<string>(sql,
-                new MySqlParameter("baseRemoto", remote))
+            var result = _ctx.Database.SqlQuery<string>(sql,
+                new SqlParameter("baseRemoto", remote))
                 .ToList();
             if (result.Count == 0)
             {
@@ -47,7 +47,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                         "KEY `tx_fecha_entrega` (`fechaEntrega`)," +
                         "KEY `tx_venta` (`idventa`,`idnlinea`)" +
                         ") ENGINE=MyISAM DEFAULT CHARSET=latin1;";
-                _ctx.Database.ExecuteSqlCommand(sql);            
+                _ctx.Database.ExecuteSqlCommand(sql);
             }
         }
 
@@ -57,13 +57,13 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             return _ctx.Database.SqlQuery<EntregaCliente>(sql)
                 .FirstOrDefault();
         }
-        
+
         public EntregaCliente GetByKey(int venta, int linea)
         {
             var sql = @"SELECT * FROM entregas_clientes WHERE IdVenta = @venta AND Idnlinea = @linea";
             return _ctx.Database.SqlQuery<EntregaCliente>(sql,
-                new MySqlParameter("venta", venta),
-                new MySqlParameter("linea", linea))
+                new SqlParameter("venta", venta),
+                new SqlParameter("linea", linea))
                 .FirstOrDefault();
         }
 
@@ -74,19 +74,19 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 @"INSERT IGNORE INTO entregas_clientes (idventa,idnlinea,codigo,descripcion,cantidad,precio,tipo,fecha,dni,puesto,trabajador,fechaEntrega,pvp) VALUES(" +
                 @"@venta, @linea, @codigo, @descripcion, @cantidad, @numero, @tipoLinea, @fecha, @dni, @puesto, @trabajador, @fechaVenta, @pvp)";
             _ctx.Database.ExecuteSqlCommand(sql,
-                new MySqlParameter("venta", venta),
-                new MySqlParameter("linea", linea),
-                new MySqlParameter("codigo", codigo),
-                new MySqlParameter("descripcion", descripcion),
-                new MySqlParameter("cantidad", cantidad),
-                new MySqlParameter("numero", numero),
-                new MySqlParameter("tipoLinea", tipoLinea),
-                new MySqlParameter("fecha", fecha),
-                new MySqlParameter("dni", dni),
-                new MySqlParameter("puesto", puesto),
-                new MySqlParameter("trabajador", trabajador),
-                new MySqlParameter("fechaVenta", fechaVenta),
-                new MySqlParameter("pvp", pvp));
+                new SqlParameter("venta", venta),
+                new SqlParameter("linea", linea),
+                new SqlParameter("codigo", codigo),
+                new SqlParameter("descripcion", descripcion),
+                new SqlParameter("cantidad", cantidad),
+                new SqlParameter("numero", numero),
+                new SqlParameter("tipoLinea", tipoLinea),
+                new SqlParameter("fecha", fecha),
+                new SqlParameter("dni", dni),
+                new SqlParameter("puesto", puesto),
+                new SqlParameter("trabajador", trabajador),
+                new SqlParameter("fechaVenta", fechaVenta),
+                new SqlParameter("pvp", pvp));
         }
     }
 }

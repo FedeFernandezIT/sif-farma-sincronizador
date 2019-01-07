@@ -17,9 +17,22 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
 
         public List<Cliente> GetGreatThanId(int id)
         {
-            var sql =
+            try
+            {
+                var sql =
                 @"SELECT * FROM cliente WHERE Idcliente > @ultimoCliente ORDER BY CAST(Idcliente AS DECIMAL(20)) ASC";
-            return _ctx.Database.SqlQuery<Cliente>(sql,
+                return _ctx.Database.SqlQuery<Cliente>(sql,
+                    new SqlParameter("ultimoCliente", id))
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            var sql1 =
+                @"SELECT * FROM cliente WHERE Idcliente > @ultimoCliente ORDER BY CAST(Idcliente AS DECIMAL(20)) ASC";
+            return _ctx.Database.SqlQuery<Cliente>(sql1,
                 new SqlParameter("ultimoCliente", id))
                 .ToList();
         }

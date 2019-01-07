@@ -1,7 +1,7 @@
-﻿using MySql.Data.MySqlClient;
-using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,45 +26,45 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         }
 
         public Encargo Last()
-        {            
+        {
             var sql = @"select * from encargos order by idEncargo Desc Limit 0,1";
             return _ctx.Database.SqlQuery<Encargo>(sql)
-                .FirstOrDefault();            
+                .FirstOrDefault();
         }
 
         public Encargo Get(int encargo)
-        {            
+        {
             var sql = @"select * from encargos where IdEncargo = @encargo";
             return _ctx.Database.SqlQuery<Encargo>(sql,
-                new MySqlParameter("encargo", encargo))
+                new SqlParameter("encargo", encargo))
                 .FirstOrDefault();
         }
 
         public void Insert(long? encargo, string codNacional, string nombre, string superFamilia, string familia, string codLaboratorio,
             string laboratorio, string proveedor, float? pvp, float? puc, string dni, DateTime? fecha, string trabajador, int? unidades, DateTime? fechaEntrega,
             string observaciones)
-        {            
+        {
             var sql = @"INSERT IGNORE INTO encargos (idEncargo, cod_nacional, nombre, superFamilia, familia, cod_laboratorio, laboratorio, proveedor, pvp, puc, dni, " +
                         @"fecha, trabajador, unidades, fechaEntrega, observaciones) VALUES(" +
                         @"@encargo, @codNacional, @nombre, @superFamilia, @familia, @codLaboratorio, @laboratorio, @proveedor, @pvp, @puc, @dni, " +
                         @"@fecha, @trabajador, @unidades, @fechaEntrega, @observaciones)";
             _ctx.Database.ExecuteSqlCommand(sql,
-                new MySqlParameter("encargo", encargo),
-                new MySqlParameter("codNacional", codNacional),
-                new MySqlParameter("nombre", nombre),
-                new MySqlParameter("superFamilia", superFamilia),
-                new MySqlParameter("familia", familia),
-                new MySqlParameter("codLaboratorio", codLaboratorio),
-                new MySqlParameter("laboratorio", laboratorio),
-                new MySqlParameter("proveedor", proveedor),
-                new MySqlParameter("pvp", pvp),
-                new MySqlParameter("puc", puc),
-                new MySqlParameter("dni", dni),
-                new MySqlParameter("fecha", fecha),
-                new MySqlParameter("trabajador", trabajador),
-                new MySqlParameter("unidades", unidades),
-                new MySqlParameter("fechaEntrega", fechaEntrega),
-                new MySqlParameter("observaciones", observaciones));        
+                new SqlParameter("encargo", encargo),
+                new SqlParameter("codNacional", codNacional),
+                new SqlParameter("nombre", nombre),
+                new SqlParameter("superFamilia", superFamilia),
+                new SqlParameter("familia", familia),
+                new SqlParameter("codLaboratorio", codLaboratorio),
+                new SqlParameter("laboratorio", laboratorio),
+                new SqlParameter("proveedor", proveedor),
+                new SqlParameter("pvp", pvp),
+                new SqlParameter("puc", puc),
+                new SqlParameter("dni", dni),
+                new SqlParameter("fecha", fecha),
+                new SqlParameter("trabajador", trabajador),
+                new SqlParameter("unidades", unidades),
+                new SqlParameter("fechaEntrega", fechaEntrega),
+                new SqlParameter("observaciones", observaciones));
         }
     }
 }
