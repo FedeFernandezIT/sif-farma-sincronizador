@@ -15,6 +15,8 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
         {
         }
 
+        public bool Exists(string codigo) => this.GetById(codigo) != null;
+
         public Articulo GetById(string codigo)
         {
             var sql = @"SELECT * FROM articu WHERE IdArticu = @codigo";
@@ -22,6 +24,8 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
                 new SqlParameter("codigo", codigo))
                 .FirstOrDefault();
         }
+
+        
 
         public List<ArticuloWithIva> GetWithoutStockByIdGreaterOrEqual(string codArticulo)
         {

@@ -14,18 +14,18 @@ namespace Sisfarma.RestClient
 
         T SendGet<T>();
 
+        void SendGet();
+
         Task<T> SendPostAsync<T>(object body);
 
         T SendPost<T>(object body);
 
-        void SendPost(object body);
+        void SendPost(object body = null);        
 
-        void SendPut();
-
-        void SendPut(object body);
+        void SendPut(object body = null);
 
         T SendPut<T>(object body);
 
-        void SendDelete(object body);
+        void SendDelete(object body = null);        
     }
 }

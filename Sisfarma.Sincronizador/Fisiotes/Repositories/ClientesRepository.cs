@@ -1,4 +1,6 @@
 ﻿using Sisfarma.RestClient;
+using Sisfarma.RestClient.Exceptions;
+using Sisfarma.Sincronizador.Extensions;
 using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
@@ -35,10 +37,42 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
 
         public bool AnyWithDni(string dni)
         {
-            var cliente = _restClient
+            try
+            {
+                _restClient
                 .Resource(_config.Clientes.GetByDni.Replace("{dni}", $"{dni}"))
-                .SendGet<Cliente>();
-            return cliente != null;
+                .SendGet();
+                return true;
+            }
+            catch (RestClientNotFoundException)
+            {
+                return false;
+            }            
+        }
+
+        public void InsertOrUpdate(string trabajador, string tarjeta, string idCliente, string nombre,
+            string telefono, string direccion, string movil, string email, decimal puntos, long fechaNacimiento,
+            string sexo, DateTime? fechaAlta, int baja, int lopd, bool withTrack = false)
+        {
+            _restClient
+                .Resource(_config.Clientes.Insert.Replace("{dni}", $"{idCliente}"))
+                .SendPut(new 
+                {
+                    dni_tra = withTrack ? "1" : "0",
+                    nombre_tra = trabajador,
+                    tarjeta = tarjeta,
+                    apellidos = nombre,
+                    telefono = telefono,
+                    direccion = direccion,
+                    movil = movil,
+                    email = email,
+                    fecha_nacimiento = fechaNacimiento,
+                    puntos = puntos,
+                    sexo = sexo,
+                    fechaAlta = fechaAlta.ToIsoString(),
+                    baja = baja,
+                    lopd = lopd
+                });
         }
 
         public void Insert(string trabajador, string tarjeta, string idCliente, string nombre,

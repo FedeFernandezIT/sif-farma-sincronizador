@@ -59,6 +59,11 @@ namespace Sisfarma.Sincronizador.Fisiotes
             var config = FisiotesConfig.TestConfig(host, username, password);
             Clientes = new ClientesRepository(restClient, config);
             Huecos = new HuecosRepository(restClient, config);
+            PuntosPendientes = new PuntosPendientesRepository(restClient, config);
+            Configuraciones = new ConfiguracionesRepository(restClient, config);
+            Entregas = new EntregasRepository(restClient, config);
+            Medicamentos = new MedicamentosRepository(restClient, config);
+            Sinonimos = new SinonimosRepository(restClient, config);
         }
     }
 }

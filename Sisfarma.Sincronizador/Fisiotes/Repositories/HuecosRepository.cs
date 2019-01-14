@@ -44,7 +44,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
             _restClient
                 .Resource(_config.Huecos.Delete)
-                .SendDelete(new { id = hueco });
+                .SendPut(new { id = hueco });
         }
 
         #region SQL Methods

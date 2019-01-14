@@ -1,4 +1,7 @@
-﻿using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.RestClient;
+using Sisfarma.RestClient.Exceptions;
+using Sisfarma.Sincronizador.Extensions;
+using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -12,6 +15,161 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
     {
         public PuntosPendientesRepository(FisiotesContext ctx) : base(ctx)
         {
+        }
+
+        public PuntosPendientesRepository(IRestClient restClient, FisiotesConfig config) : base(restClient, config)
+        {
+        }
+
+        public IEnumerable<PuntosPendientes> GetOfRecetasPendientes()
+        {
+            return _restClient
+               .Resource(_config.Puntos.GetVentasNoActualizadas)
+               .SendGet<IEnumerable<PuntosPendientes>>();
+        }
+
+        public void Update(long venta)
+        {
+            var set = new { tipoPago = "C", redencion = 0 };
+            var where = new { idventa = venta };
+
+            _restClient
+               .Resource(_config.Puntos.Update)
+               .SendPut(new
+               {
+                   puntos = new { set, where }
+               });
+        }
+
+        public void Update(long venta, long linea, string receta = "C")
+        {
+            var set = new { recetaPendiente = receta, actualizado = 1 };
+            var where = new { idventa = venta, idnlinea = linea };
+
+            _restClient
+               .Resource(_config.Puntos.Update)
+               .SendPut(new
+               {
+                   puntos = new { set, where }                   
+               });
+        }
+
+        public void Update(string tipoPago, string proveedor, float? dtoLinea, float? dtoVenta, float redencion, long venta, long linea)
+        {
+            var set = new {
+                tipoPago = tipoPago,
+                proveedor = proveedor,
+                dtoLinea = dtoLinea,
+                dtoVenta = dtoVenta,
+                redencion = redencion
+            };
+
+            var where = new { idventa = venta, idnlinea = linea };
+
+            _restClient
+               .Resource(_config.Puntos.Update)
+               .SendPut(new
+               {
+                   puntos = new { set, where }
+               });            
+        }
+
+        public IEnumerable<PuntosPendientes> GetWithoutRedencion()
+        {
+            try
+            {
+                return _restClient
+                    .Resource(_config.Puntos.GetSinRedencion)
+                    .SendGet<IEnumerable<PuntosPendientes>>();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return new List<PuntosPendientes>();
+            }            
+        }
+
+        public long GetLastOfYear(int year)
+        {
+            try
+            {
+                return _restClient
+                    .Resource(_config.Puntos.GetLastOfYear
+                        .Replace("{year}", $"{year}"))
+                    .SendGet<IdVentaResponse>()
+                        .idventa ?? 1L;                
+            }
+            catch (RestClientNotFoundException)
+            {
+                return 1L;
+            }
+        }
+
+        public bool Exists(int venta, int linea) 
+            => GetOneOrDefaultByItemVenta(venta, linea) != null;
+
+        public PuntosPendientes GetOneOrDefaultByItemVenta(int venta, int linea)
+        {
+            try
+            {
+                return _restClient
+                    .Resource(_config.Puntos.GetByItemVenta
+                        .Replace("{venta}", $"{venta}")
+                        .Replace("{linea}", $"{linea}"))
+                    .SendGet<PuntosPendientes>();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return null;
+            }
+        }        
+
+        internal class IdVentaResponse
+        {
+            public long? idventa { get; set; }
+        }
+
+        public void Insert(int venta, int linea, string codigoBarra, string codigo, string descripcion, string familia, int cantidad, decimal numero,
+                string tipoPago, int fecha, string dni, string cargado, string puesto, string trabajador, string codLaboratorio, string laboratorio, string proveedor,
+                string receta, DateTime fechaVenta, string superFamlia, float precioMed, float pcoste, float dtoLinea, float dtoVta, float redencion, string recetaPendiente)
+        {
+            var set = new
+            {
+                idventa = venta,
+                idnlinea = linea,
+                cod_barras = codigoBarra,
+                cod_nacional = codigo,
+                descripcion = descripcion,
+                familia = familia,
+                cantidad = cantidad,
+                precio = numero,
+                tipoPago = tipoPago,
+                fecha = fecha,
+                dni = dni,
+                cargado = cargado,
+                puesto = puesto,
+                trabajador = trabajador,
+                cod_laboratorio = codLaboratorio,
+                laboratorio = laboratorio,
+                proveedor = proveedor,
+                receta = receta,
+                fechaVenta = fechaVenta.ToIsoString(),
+                superFamilia = superFamlia,
+                pvp = precioMed,
+                puc = pcoste,
+                dtoLinea = dtoLinea,
+                dtoVenta = dtoVta,
+                redencion = redencion,
+                recetaPendiente = recetaPendiente
+            };
+
+            var where = new { idventa = venta, idnlinea = linea };
+
+            _restClient
+                .Resource(_config.Puntos.Insert)
+                .SendPost(new
+                {
+                    puntos = new { set, where }
+                });
         }
 
         public void CheckAndCreateFields()
@@ -49,9 +207,72 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 sql = @"ALTER TABLE pendiente_puntos ADD tipoPago CHAR(2) DEFAULT NULL AFTER precio;";
                 _ctx.Database.ExecuteSqlCommand(sql);
             }
+        }                                                                        
+
+        #region SQL Methods
+
+        public IEnumerable<PuntosPendientes> GetOfRecetasPendientesSql()
+        {
+            var sql = @"SELECT * FROM pendiente_puntos WHERE (recetaPendiente IS NULL OR recetaPendiente = 'D') " +
+                        @"AND YEAR(fechaVenta) >= 2016 GROUP BY idventa, idnlinea ORDER BY idventa ASC LIMIT 0,1000";
+            return _ctx.Database.SqlQuery<PuntosPendientes>(sql).ToList();
         }
 
-        public PuntosPendientes GetByItemVenta(int venta, int linea)
+        public void UpdateSql(long venta, long linea)
+        {
+            var sql = @"UPDATE IGNORE pendiente_puntos SET recetaPendiente = 'C' WHERE IdVenta = @venta AND Idnlinea = @linea";
+            _ctx.Database.ExecuteSqlCommand(sql,
+                new SqlParameter("venta", venta),
+                new SqlParameter("linea", linea));
+        }
+
+        public void UpdateSql(string receta, long venta, long linea)
+        {
+            var sql = @"UPDATE IGNORE pendiente_puntos SET recetaPendiente = @receta WHERE IdVenta = @venta AND Idnlinea = @linea";
+            _ctx.Database.ExecuteSqlCommand(sql,
+                new SqlParameter("receta", receta),
+                new SqlParameter("venta", venta),
+                new SqlParameter("linea", linea));
+        }
+
+        public void UpdateSql(string tipoPago, string proveedor, float? dtoLinea, float? dtoVenta, float redencion, long venta, long linea)
+        {
+            var sql =
+                @"UPDATE IGNORE pendiente_puntos SET tipoPago = @tipoPago, proveedor = @proveedor, dtoLinea = @dtoLinea, dtoVenta = @dtoVenta, redencion = @redencion " +
+                @"WHERE IdVenta = @venta AND Idnlinea= @linea";
+            _ctx.Database.ExecuteSqlCommand(sql,
+                new SqlParameter("tipoPago", tipoPago),
+                new SqlParameter("proveedor", proveedor),
+                new SqlParameter("dtoLinea", dtoLinea),
+                new SqlParameter("dtoVenta", dtoVenta),
+                new SqlParameter("redencion", redencion),
+                new SqlParameter("venta", venta),
+                new SqlParameter("linea", linea));
+        }
+
+        public void UpdateSql(long venta)
+        {
+            var sql = @"UPDATE IGNORE pendiente_puntos SET tipoPago = 'C', redencion = 0 WHERE IdVenta = @venta";
+            _ctx.Database.ExecuteSqlCommand(sql,
+                new SqlParameter("venta", venta));
+        }
+
+        public IEnumerable<PuntosPendientes> GetWithoutRedencionSql()
+        {
+            var sql =
+                @"SELECT * FROM pendiente_puntos WHERE redencion IS NULL AND YEAR(fechaVenta) >= 2015 GROUP BY idventa ORDER BY idventa ASC LIMIT 0,1000";
+            return _ctx.Database.SqlQuery<PuntosPendientes>(sql)
+                .ToList();
+        }
+
+        public PuntosPendientes LastSql()
+        {
+            var sql = @"SELECT * FROM pendiente_puntos ORDER BY idventa DESC LIMIT 0,1";
+            return _ctx.Database.SqlQuery<PuntosPendientes>(sql)
+                .FirstOrDefault();
+        }
+
+        public PuntosPendientes GetByItemVentaSql(int venta, int linea)
         {
             var sql = @"SELECT * FROM pendiente_puntos WHERE IdVenta = @venta AND Idnlinea = @linea";
             return _ctx.Database.SqlQuery<PuntosPendientes>(sql,
@@ -60,29 +281,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 .FirstOrDefault();
         }
 
-        public IEnumerable<PuntosPendientes> GetOfRecetasPendientes()
-        {
-            var sql = @"SELECT * FROM pendiente_puntos WHERE (recetaPendiente IS NULL OR recetaPendiente = 'D') " +
-                        @"AND YEAR(fechaVenta) >= 2016 GROUP BY idventa, idnlinea ORDER BY idventa ASC LIMIT 0,1000";
-            return _ctx.Database.SqlQuery<PuntosPendientes>(sql).ToList();
-        }
-
-        public IEnumerable<PuntosPendientes> GetWithoutRedencion()
-        {
-            var sql =
-                @"SELECT * FROM pendiente_puntos WHERE redencion IS NULL AND YEAR(fechaVenta) >= 2015 GROUP BY idventa ORDER BY idventa ASC LIMIT 0,1000";
-            return _ctx.Database.SqlQuery<PuntosPendientes>(sql)
-                .ToList();
-        }
-
-        public PuntosPendientes Last()
-        {
-            var sql = @"SELECT * FROM pendiente_puntos ORDER BY idventa DESC LIMIT 0,1";
-            return _ctx.Database.SqlQuery<PuntosPendientes>(sql)
-                .FirstOrDefault();
-        }
-
-        public void Insert(int venta, int linea, string codigoBarra, string codigo, string descripcion, string familia, int cantidad, decimal numero,
+        public void InsertSql(int venta, int linea, string codigoBarra, string codigo, string descripcion, string familia, int cantidad, decimal numero,
                 string tipoPago, int fecha, string dni, string cargado, string puesto, string trabajador, string codLaboratorio, string laboratorio, string proveedor,
                 string receta, DateTime fechaVenta, string superFamlia, float precioMed, float pcoste, float dtoLinea, float dtoVta, float redencion, string recetaPendiente)
         {
@@ -121,43 +320,6 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("recetaPendiente", recetaPendiente));
         }
 
-        public void Update(long venta)
-        {
-            var sql = @"UPDATE IGNORE pendiente_puntos SET tipoPago = 'C', redencion = 0 WHERE IdVenta = @venta";
-            _ctx.Database.ExecuteSqlCommand(sql,
-                new SqlParameter("venta", venta));
-        }
-
-        public void Update(string receta, long venta, long linea)
-        {
-            var sql = @"UPDATE IGNORE pendiente_puntos SET recetaPendiente = @receta WHERE IdVenta = @venta AND Idnlinea = @linea";
-            _ctx.Database.ExecuteSqlCommand(sql,
-                new SqlParameter("receta", receta),
-                new SqlParameter("venta", venta),
-                new SqlParameter("linea", linea));
-        }
-
-        public void Update(long venta, long linea)
-        {
-            var sql = @"UPDATE IGNORE pendiente_puntos SET recetaPendiente = 'C' WHERE IdVenta = @venta AND Idnlinea = @linea";
-            _ctx.Database.ExecuteSqlCommand(sql,
-                new SqlParameter("venta", venta),
-                new SqlParameter("linea", linea));
-        }
-
-        public void Update(string tipoPago, string proveedor, float? dtoLinea, float? dtoVenta, float redencion, long venta, long linea)
-        {
-            var sql =
-                @"UPDATE IGNORE pendiente_puntos SET tipoPago = @tipoPago, proveedor = @proveedor, dtoLinea = @dtoLinea, dtoVenta = @dtoVenta, redencion = @redencion " +
-                @"WHERE IdVenta = @venta AND Idnlinea= @linea";
-            _ctx.Database.ExecuteSqlCommand(sql,
-                new SqlParameter("tipoPago", tipoPago),
-                new SqlParameter("proveedor", proveedor),
-                new SqlParameter("dtoLinea", dtoLinea),
-                new SqlParameter("dtoVenta", dtoVenta),
-                new SqlParameter("redencion", redencion),
-                new SqlParameter("venta", venta),
-                new SqlParameter("linea", linea));
-        }
+        #endregion
     }
 }

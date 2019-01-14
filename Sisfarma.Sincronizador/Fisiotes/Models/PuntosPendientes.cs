@@ -68,7 +68,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Models
 
         public float? redencion { get; set; }
 
-        public bool? actualizado { get; set; }
+        public int? actualizado { get; set; }
 
         public string ubicacion { get; set; }
 

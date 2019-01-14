@@ -34,7 +34,7 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
         public List<Venta> GetVirtualesLessThanId(long venta)
         {
             var sql = @"SELECT v.* FROM venta v INNER JOIN lineaventavirtual lvv ON lvv.idventa = v.idventa AND (lvv.codigo = 'Pago' OR lvv.codigo = 'A Cuenta') " +
-                    @"WHERE v.ejercicio >= 2015 AND v.IdVenta <= @venta ORDER BY v.IdVenta DESC";
+                    @"WHERE v.ejercicio >= 2015 AND v.IdVenta < @venta ORDER BY v.IdVenta DESC";
             return _ctx.Database.SqlQuery<Venta>(sql,
                 new SqlParameter("venta", venta))
                 .ToList();

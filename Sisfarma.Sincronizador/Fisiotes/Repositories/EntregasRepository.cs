@@ -1,4 +1,7 @@
-﻿using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.RestClient;
+using Sisfarma.RestClient.Exceptions;
+using Sisfarma.Sincronizador.Extensions;
+using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -12,6 +15,50 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
     {
         public EntregasRepository(FisiotesContext ctx) : base(ctx)
         {
+        }
+
+        public EntregasRepository(IRestClient restClient, FisiotesConfig config)
+            : base(restClient, config)
+        {
+        }
+
+        public bool Exists(int venta, int linea)
+        {
+            try
+            {
+                _restClient.Resource(_config.Entregas.GetByKey
+                    .Replace("{venta}", $"{venta}")
+                    .Replace("{linea}", $"{linea}"))
+                        .SendGet();
+                return true;
+            }
+            catch (RestClientNotFoundException)
+            {
+                return false;
+            }            
+        }
+
+        public void Insert(int venta, int linea, string codigo, string descripcion, int cantidad, decimal numero, string tipoLinea, int fecha,
+                string dni, string puesto, string trabajador, DateTime fechaVenta, float? pvp)
+        {            
+            _restClient
+                .Resource(_config.Entregas.Insert)
+                .SendPost(new
+                {
+                    idventa = venta,
+                    idnlinea = linea,
+                    codigo = codigo,
+                    descripcion = descripcion,
+                    cantidad = cantidad,
+                    precio = numero,
+                    tipo = tipoLinea,
+                    fecha = fecha,
+                    dni = dni,
+                    puesto = puesto,
+                    trabajador = trabajador,
+                    fechaEntrega = fechaVenta.ToIsoString(),
+                    pvp = pvp                    
+                });
         }
 
         public void CreateTable(string remote)
@@ -57,8 +104,12 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             return _ctx.Database.SqlQuery<EntregaCliente>(sql)
                 .FirstOrDefault();
         }
+        
+        
 
-        public EntregaCliente GetByKey(int venta, int linea)
+        #region MyRegion
+
+        public EntregaCliente GetOneOrDefaultByKeySql(int venta, int linea)
         {
             var sql = @"SELECT * FROM entregas_clientes WHERE IdVenta = @venta AND Idnlinea = @linea";
             return _ctx.Database.SqlQuery<EntregaCliente>(sql,
@@ -67,7 +118,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 .FirstOrDefault();
         }
 
-        public void Insert(int venta, int linea, string codigo, string descripcion, int cantidad, decimal numero, string tipoLinea, int fecha,
+        public void InsertSql(int venta, int linea, string codigo, string descripcion, int cantidad, decimal numero, string tipoLinea, int fecha,
                 string dni, string puesto, string trabajador, DateTime fechaVenta, float? pvp)
         {
             var sql =
@@ -88,5 +139,6 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("fechaVenta", fechaVenta),
                 new SqlParameter("pvp", pvp));
         }
+        #endregion
     }
 }

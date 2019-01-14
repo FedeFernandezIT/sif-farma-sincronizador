@@ -1,5 +1,7 @@
 ﻿using RestSharp.Authenticators;
+using Sisfarma.RestClient.Exceptions;
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using RSharp = RestSharp;
 
@@ -13,19 +15,25 @@ namespace Sisfarma.RestClient.RestSharp
         public RestClient()
         {
             _restClient = new RSharp.RestClient();
-            _request = new RSharp.RestRequest();
+            _restClient.ClearHandlers();
+            _restClient.AddHandler("application/json", new RSharp.Serialization.Json.JsonDeserializer());            
+            //_request.RequestFormat = RSharp.DataFormat.Json;
         }
 
         public RestClient(Uri baseAddress) : base(baseAddress)
         {
             _restClient = new RSharp.RestClient(baseAddress);
-            _request = new RSharp.RestRequest();
+            _restClient.ClearHandlers();
+            _restClient.AddHandler("application/json", new RSharp.Serialization.Json.JsonDeserializer());            
+            //_request.RequestFormat = RSharp.DataFormat.Json;
         }
 
         public RestClient(Uri baseAddress, Uri resource) : base(baseAddress, resource)
         {
             _restClient = new RSharp.RestClient(baseAddress);
-            _request = new RSharp.RestRequest();
+            _restClient.ClearHandlers();
+            _restClient.AddHandler("application/json", new RSharp.Serialization.Json.JsonDeserializer());            
+            //_request.RequestFormat = RSharp.DataFormat.Json;
         }
 
         public IRestClient BaseAddress(string url)
@@ -48,7 +56,8 @@ namespace Sisfarma.RestClient.RestSharp
             if (_resource.IsAbsoluteUri)
                 throw new ArgumentException("No es una ruta relativa", nameof(resource));
 
-            _request.Resource = resource;
+            _request = new RSharp.RestRequest();
+            _request.Resource = resource;            
             return this;
         }
 
@@ -64,13 +73,19 @@ namespace Sisfarma.RestClient.RestSharp
             return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
         }
 
-        public T SendGet<T>()
-        {
-            Console.WriteLine($"GET: {_resource} ...");
-            var response = _restClient.Execute(_request, RSharp.Method.GET);
-            Console.WriteLine($"GET: {_resource} finalizado");
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
-        }
+        public T SendGet<T>() => DoSend<T>(RSharp.Method.GET);
+
+        public void SendGet() => DoSend(RSharp.Method.GET, null);
+
+        public T SendPost<T>(object body) => DoSend<T>(RSharp.Method.POST, body);
+
+        public void SendPost(object body = null) => DoSend(RSharp.Method.POST, body);
+
+        public void SendPut(object body = null) => DoSend(RSharp.Method.PUT, body);
+
+        public void SendDelete(object body = null) => DoSend(RSharp.Method.DELETE, body);         
+
+
 
         public async Task<T> SendPostAsync<T>(object body)
         {
@@ -78,35 +93,11 @@ namespace Sisfarma.RestClient.RestSharp
             return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
         }
 
-        public T SendPost<T>(object body)
-        {
-            Console.WriteLine($"POST: {_resource} ...");
-            var response = _restClient.Execute(_request.AddJsonBody(body), RSharp.Method.POST);
-            Console.WriteLine($"POST: {_resource} finalizado");
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
-        }
 
-        public void SendPost(object body)
-        {
-            Console.WriteLine($"POST: {_resource} ...");
-            _restClient.Execute(_request.AddJsonBody(body), RSharp.Method.POST);
-            Console.WriteLine($"POST: {_resource} finalizado");
-        }
 
-        public void SendPut()
-        {
-            Console.WriteLine($"PUT: {_resource} ...");
-            _restClient.Execute(_request, RSharp.Method.PUT);
-            Console.WriteLine($"PUT: {_resource} finalizado");
-        }
+        
 
-        public void SendPut(object body)
-        {
-            Console.WriteLine($"PUT: {_resource} ...");
-            _restClient.Execute(_request.AddJsonBody(body), RSharp.Method.PUT);
-            Console.WriteLine($"PUT: {_resource} finalizado");
-        }
-
+        
         public T SendPut<T>(object body)
         {
             Console.WriteLine($"PUT: {_resource} ...");
@@ -115,11 +106,49 @@ namespace Sisfarma.RestClient.RestSharp
             return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
         }
 
-        public void SendDelete(object body)
+        
+        private T DoSend<T>(RSharp.Method method)
         {
-            Console.WriteLine($"DELETE: {_resource} ...");
-            _restClient.Execute(_request.AddJsonBody(body), RSharp.Method.DELETE);
-            Console.WriteLine($"DELETE: {_resource} finalizado");
+            Console.WriteLine($"{method}: {_resource} ...");
+            var response = _restClient.Execute(_request, method);
+            Console.WriteLine($"{method}: {_resource} finalizado {(int) response.StatusCode} {response.StatusCode}");
+            
+            if (response.IsSuccessful)            
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
+
+            if (response.ErrorException != null)            
+                throw new RestClientException(HttpStatusCode.InternalServerError, response.ErrorMessage);
+            
+            throw RestClientException.Create(response.StatusCode, response.StatusDescription);           
+        }
+
+        private T DoSend<T>(RSharp.Method method, object body)
+        {            
+            Console.WriteLine($"{method}: {_resource} ...");
+            var response = _restClient.Execute(_request.AddJsonBody(body), method);
+            Console.WriteLine($"GET: {_resource} finalizado {(int)response.StatusCode} {response.StatusCode}");
+
+            if (response.IsSuccessful)
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
+
+            if (response.ErrorException != null)
+                throw new RestClientException(HttpStatusCode.InternalServerError, response.ErrorMessage);
+
+            throw RestClientException.Create(response.StatusCode, response.StatusDescription);
+        }
+
+        private void DoSend(RSharp.Method method, object body)
+        {
+            Console.WriteLine($"{method}: {_resource} ...");
+            var response = _restClient.Execute(_request.AddJsonBody(body), method);
+            Console.WriteLine($"{method}: {_resource} finalizado {(int)response.StatusCode} {response.StatusCode}");
+
+            
+            if (response.ErrorException != null)
+                throw new RestClientException(HttpStatusCode.InternalServerError, response.ErrorMessage);
+            
+            if (!response.IsSuccessful)
+                throw RestClientException.Create(response.StatusCode, response.StatusDescription);                                        
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.RestClient;
+using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -14,12 +15,23 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
         }
 
-        public Configuracion GetByCampo(string field)
+        public ConfiguracionesRepository(IRestClient restClient, FisiotesConfig config) 
+            : base(restClient, config)
         {
-            var sql = @"SELECT * FROM configuracion WHERE campo = @field";
-            return _ctx.Database.SqlQuery<Configuracion>(sql,
-                new SqlParameter("field", field))
-                .FirstOrDefault();
+        }
+
+        public string GetByCampo(string field)
+        {
+            return _restClient
+                .Resource(_config.Configuraciones.GetValorByCampo.Replace("{campo}", field))
+                .SendGet<string>();            
+        }
+
+        public void Update(string field, string value)
+        {
+            _restClient
+                .Resource(_config.Configuraciones.UpdateValorByCampo)
+                .SendPut(new { campo = field, valor = value });            
         }
 
         public void Insert(string field)
@@ -43,13 +55,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("field", field));
         }
 
-        public void Update(string field, string value)
-        {
-            var sql = @"UPDATE IGNORE configuracion SET valor = @value WHERE campo = @field";
-            _ctx.Database.ExecuteSqlCommand(sql,
-                new SqlParameter("value", value),
-                new SqlParameter("field", field));
-        }
+        
 
         public static class FieldsConfiguracion
         {
@@ -60,5 +66,24 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             public const string FIELD_POR_DONDE_VOY_BORRAR = "porDondeVoyBorrar";
             public const string FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES = "porDondeEntregasClientes";
         }
+
+        #region SQL Methods
+
+        public Configuracion GetByCampoSql(string field)
+        {
+            var sql = @"SELECT * FROM configuracion WHERE campo = @field";
+            return _ctx.Database.SqlQuery<Configuracion>(sql,
+                new SqlParameter("field", field))
+                .FirstOrDefault();
+        }
+
+        public void UpdateSql(string field, string value)
+        {
+            var sql = @"UPDATE IGNORE configuracion SET valor = @value WHERE campo = @field";
+            _ctx.Database.ExecuteSqlCommand(sql,
+                new SqlParameter("value", value),
+                new SqlParameter("field", field));
+        }
+        #endregion
     }
 }
