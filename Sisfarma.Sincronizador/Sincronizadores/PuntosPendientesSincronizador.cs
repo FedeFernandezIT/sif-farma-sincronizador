@@ -58,7 +58,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                     {
                         if (!fisiotes.PuntosPendientes.Exists(venta.IdVenta, linea.IdNLinea))
                         {                            
-                            fisiotes.PuntosPendientes.Insert(
+                            puntosPendientes.Add(
                                 GenerarPuntoPendiente(venta, linea, vendedor, farmatic, consejo));                            
                         }
                         
@@ -79,7 +79,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                         }
                     }
                 }
-                //fisiotes.PuntosPendientes.Insert(puntosPendientes);
+                fisiotes.PuntosPendientes.Insert(puntosPendientes);
             }
             catch (Exception e)
             {
