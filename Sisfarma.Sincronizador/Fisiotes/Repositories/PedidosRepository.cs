@@ -1,4 +1,5 @@
-﻿using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.RestClient;
+using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -12,6 +13,32 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
     {
         public PedidosRepository(FisiotesContext ctx) : base(ctx)
         {
+        }
+
+        public PedidosRepository(IRestClient restClient, FisiotesConfig config) 
+            : base(restClient, config)
+        {
+        }
+
+        //public bool IsEmpty()
+        //{
+        //    return _restClient
+        //        .Resource(_config.Pedidos.IsEmpty)
+        //        .SendGet<IsEmptyResponse>()
+        //            .isEmpty;
+        //}
+
+        internal class IsEmptyResponse
+        {
+            public int count { get; set; }
+            public bool isEmpty { get; set; }
+        }
+
+        public Pedido LastOrDefault()
+        {
+            var sql = @"select * from pedidos order by idPedido Desc Limit 0,1";
+            return _ctx.Database.SqlQuery<Pedido>(sql)
+                .FirstOrDefault();
         }
 
         public void CreateTable(string remote)
@@ -70,12 +97,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             CheckAndCreateFieldsTemplate(table, fields, alters);
         }
 
-        public Pedido Last()
-        {
-            var sql = @"select * from pedidos order by idPedido Desc Limit 0,1";
-            return _ctx.Database.SqlQuery<Pedido>(sql)
-                .FirstOrDefault();
-        }
+        
 
         public Pedido Get(int pedido)
         {
@@ -129,5 +151,15 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("codLaboratorio", codLaboratorio),
                 new SqlParameter("laboratorio", laboratorio));
         }
+
+        #region SQL Methods
+
+        public Pedido LastSql()
+        {
+            var sql = @"select * from pedidos order by idPedido Desc Limit 0,1";
+            return _ctx.Database.SqlQuery<Pedido>(sql)
+                .FirstOrDefault();
+        }
+        #endregion
     }
 }

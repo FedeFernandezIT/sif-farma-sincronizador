@@ -38,6 +38,29 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             }            
         }
 
+
+        public void Insert(EntregaCliente ec)
+        {
+            _restClient
+                .Resource(_config.Entregas.Insert)
+                .SendPost(new
+                {
+                    idventa = ec.idventa,
+                    idnlinea = ec.idnlinea,
+                    codigo = ec.codigo,
+                    descripcion = ec.descripcion,
+                    cantidad = ec.cantidad,
+                    precio = ec.precio,
+                    tipo = ec.tipo,
+                    fecha = ec.fecha,
+                    dni = ec.dni,
+                    puesto = ec.puesto,
+                    trabajador = ec.trabajador,
+                    fechaEntrega = ec.fechaEntrega.ToIsoString(),
+                    pvp = ec.pvp
+                });
+        }
+
         public void Insert(int venta, int linea, string codigo, string descripcion, int cantidad, decimal numero, string tipoLinea, int fecha,
                 string dni, string puesto, string trabajador, DateTime fechaVenta, float? pvp)
         {            

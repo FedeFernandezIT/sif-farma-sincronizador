@@ -17,7 +17,8 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
         }
 
-        public PuntosPendientesRepository(IRestClient restClient, FisiotesConfig config) : base(restClient, config)
+        public PuntosPendientesRepository(IRestClient restClient, FisiotesConfig config) 
+            : base(restClient, config)
         {
         }
 
@@ -104,8 +105,24 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             }
         }
 
+        public long GetUltimaVenta()
+        {
+            try
+            {
+                return _restClient
+                    .Resource(_config.Puntos.GetUltimaVenta)
+                    .SendGet<IdVentaResponse>()
+                        .idventa ?? 1L;
+            }
+            catch (RestClientNotFoundException)
+            {
+                return 1L;
+            }
+        }
+
         public bool Exists(int venta, int linea) 
             => GetOneOrDefaultByItemVenta(venta, linea) != null;
+        
 
         public PuntosPendientes GetOneOrDefaultByItemVenta(int venta, int linea)
         {
@@ -126,6 +143,49 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         internal class IdVentaResponse
         {
             public long? idventa { get; set; }
+        }
+
+
+        public void Insert(PuntosPendientes pp)
+        {
+            var set = new
+            {
+                idventa = pp.idventa,
+                idnlinea = pp.idnlinea,
+                cod_barras = pp.cod_barras,
+                cod_nacional = pp.cod_nacional,
+                descripcion = pp.descripcion,
+                familia = pp.familia,
+                cantidad = pp.cantidad,
+                precio = pp.precio,
+                tipoPago = pp.tipoPago,
+                fecha = pp.fecha,
+                dni = pp.dni,
+                cargado = pp.cargado,
+                puesto = pp.puesto,
+                trabajador = pp.trabajador,
+                cod_laboratorio = pp.cod_laboratorio,
+                laboratorio = pp.laboratorio,
+                proveedor = pp.proveedor,
+                receta = pp.receta,
+                fechaVenta = pp.fechaVenta.ToIsoString(),
+                superFamilia = pp.superFamilia,
+                pvp = pp.pvp,
+                puc = pp.puc,
+                dtoLinea = pp.dtoLinea,
+                dtoVenta = pp.dtoVenta,
+                redencion = pp.redencion,
+                recetaPendiente = pp.recetaPendiente
+            };
+
+            var where = new { idventa = pp.idventa, idnlinea = pp.idnlinea };
+
+            _restClient
+                .Resource(_config.Puntos.Insert)
+                .SendPost(new
+                {
+                    puntos = new { set, where }
+                });
         }
 
         public void Insert(int venta, int linea, string codigoBarra, string codigo, string descripcion, string familia, int cantidad, decimal numero,

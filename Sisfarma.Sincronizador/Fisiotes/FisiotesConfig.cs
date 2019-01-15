@@ -57,6 +57,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
                     GetSinRedencion = "api/puntos/sinRedencion",
                     GetLastOfYear = "api/puntos/ultimo/year/{year}",
                     GetByItemVenta = "api/puntos/item/venta/{venta}/linea/{linea}",
+                    GetUltimaVenta = "api/puntos/ultimo",
                     Update = "api/puntos/update",
                     Insert = "api/puntos/createUpdate"
                 },
@@ -132,6 +133,7 @@ public class PuntoResource
     public string GetLastOfYear { get; set; }
     public string GetByItemVenta { get; set; }
     public string Insert { get; internal set; }
+    public string GetUltimaVenta { get; set; }
 }
 
 public class ConfiguracionResource
