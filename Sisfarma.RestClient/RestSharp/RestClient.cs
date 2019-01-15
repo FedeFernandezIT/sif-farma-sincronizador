@@ -99,19 +99,15 @@ namespace Sisfarma.RestClient.RestSharp
 
         
         public T SendPut<T>(object body)
-        {
-            Console.WriteLine($"PUT: {_resource} ...");
-            var response = _restClient.Execute(_request.AddJsonBody(body), RSharp.Method.PUT);
-            Console.WriteLine($"PUT: {_resource} finalizado");
+        {         
+            var response = _restClient.Execute(_request.AddJsonBody(body), RSharp.Method.PUT);         
             return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
         }
 
         
         private T DoSend<T>(RSharp.Method method)
-        {
-            Console.WriteLine($"{method}: {_resource} ...");
-            var response = _restClient.Execute(_request, method);
-            Console.WriteLine($"{method}: {_resource} finalizado {(int) response.StatusCode} {response.StatusCode}");
+        {            
+            var response = _restClient.Execute(_request, method);            
             
             if (response.IsSuccessful)            
                 return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
@@ -124,9 +120,7 @@ namespace Sisfarma.RestClient.RestSharp
 
         private T DoSend<T>(RSharp.Method method, object body)
         {            
-            Console.WriteLine($"{method}: {_resource} ...");
-            var response = _restClient.Execute(_request.AddJsonBody(body), method);
-            Console.WriteLine($"GET: {_resource} finalizado {(int)response.StatusCode} {response.StatusCode}");
+            var response = _restClient.Execute(_request.AddJsonBody(body), method);            
 
             if (response.IsSuccessful)
                 return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
@@ -138,11 +132,8 @@ namespace Sisfarma.RestClient.RestSharp
         }
 
         private void DoSend(RSharp.Method method, object body)
-        {
-            Console.WriteLine($"{method}: {_resource} ...");
-            var response = _restClient.Execute(_request.AddJsonBody(body), method);
-            Console.WriteLine($"{method}: {_resource} finalizado {(int)response.StatusCode} {response.StatusCode}");
-
+        {            
+            var response = _restClient.Execute(_request.AddJsonBody(body), method);         
             
             if (response.ErrorException != null)
                 throw new RestClientException(HttpStatusCode.InternalServerError, response.ErrorMessage);

@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sisfarma.Sincronizador.Farmatic.Repositories
 {
@@ -20,7 +18,7 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
             try
             {
                 var sql =
-                @"SELECT * FROM cliente WHERE Idcliente > @ultimoCliente ORDER BY CAST(Idcliente AS DECIMAL(20)) ASC";
+                @"SELECT TOP 1000 * FROM cliente WHERE Idcliente > @ultimoCliente ORDER BY CAST(Idcliente AS DECIMAL(20)) ASC";
                 return _ctx.Database.SqlQuery<Cliente>(sql,
                     new SqlParameter("ultimoCliente", id))
                     .ToList();

@@ -134,11 +134,15 @@
     <Compile Include="Fisiotes\Repositories\PedidosRepository.cs" />
     <Compile Include="Fisiotes\Repositories\PuntosPendientesRepository.cs" />
     <Compile Include="Fisiotes\Repositories\SinonimosRepository.cs" />
+    <Compile Include="Helpers\Generador.cs" />
     <Compile Include="Models\ClienteDto.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Fisiotes\FisiotesService.cs" />
     <Compile Include="SincronizadorApplication.cs" />
+    <Compile Include="Sincronizadores\SuperTypes\BaseSincronizador.cs" />
+    <Compile Include="Sincronizadores\ClienteSincronizador.cs" />
+    <Compile Include="Sincronizadores\SuperTypes\ISincronizador.cs" />
     <Compile Include="Sincronizadores\PuntosPendientesSincronizador.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

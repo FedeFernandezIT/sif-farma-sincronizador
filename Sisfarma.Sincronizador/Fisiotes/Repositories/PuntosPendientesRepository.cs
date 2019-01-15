@@ -184,7 +184,55 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 .Resource(_config.Puntos.Insert)
                 .SendPost(new
                 {
-                    puntos = new { set, where }
+                    puntos = new[] { new { set, where } }
+                });
+        }
+
+        public void Insert(IEnumerable<PuntosPendientes> pps)
+        {
+            var puntos = pps.Select(pp => 
+            {
+                var set = new
+                {
+                    idventa = pp.idventa,
+                    idnlinea = pp.idnlinea,
+                    cod_barras = pp.cod_barras,
+                    cod_nacional = pp.cod_nacional,
+                    descripcion = pp.descripcion,
+                    familia = pp.familia,
+                    cantidad = pp.cantidad,
+                    precio = pp.precio,
+                    tipoPago = pp.tipoPago,
+                    fecha = pp.fecha,
+                    dni = pp.dni,
+                    cargado = pp.cargado,
+                    puesto = pp.puesto,
+                    trabajador = pp.trabajador,
+                    cod_laboratorio = pp.cod_laboratorio,
+                    laboratorio = pp.laboratorio,
+                    proveedor = pp.proveedor,
+                    receta = pp.receta,
+                    fechaVenta = pp.fechaVenta.ToIsoString(),
+                    superFamilia = pp.superFamilia,
+                    pvp = pp.pvp,
+                    puc = pp.puc,
+                    dtoLinea = pp.dtoLinea,
+                    dtoVenta = pp.dtoVenta,
+                    redencion = pp.redencion,
+                    recetaPendiente = pp.recetaPendiente
+                };
+
+                var where = new { idventa = pp.idventa, idnlinea = pp.idnlinea };
+
+                return new { set, where };
+            });
+            
+
+            _restClient
+                .Resource(_config.Puntos.Insert)
+                .SendPost(new
+                {
+                    puntos = puntos
                 });
         }
 

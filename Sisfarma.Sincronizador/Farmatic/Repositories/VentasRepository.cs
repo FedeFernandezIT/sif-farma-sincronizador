@@ -25,7 +25,7 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
 
         public List<Venta> GetByIdGreaterOrEqual(long value)
         {            
-            var sql = @"SELECT * FROM venta WHERE ejercicio >= 2015 AND IdVenta >= @value ORDER BY IdVenta ASC";
+            var sql = @"SELECT TOP 1000 * FROM venta WHERE ejercicio >= 1 AND IdVenta >= @value ORDER BY IdVenta ASC";
             return _ctx.Database.SqlQuery<Venta>(sql,
                 new SqlParameter("value", value))
                 .ToList();            
