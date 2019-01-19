@@ -28,7 +28,6 @@ namespace Sisfarma.Sincronizador
         private System.Timers.Timer timerActualizarEntregasClientes;
         private System.Timers.Timer timerActualizarProductosBorrados;
         private System.Timers.Timer timerActualizarPuntosPendientes;
-        private System.Timers.Timer timerSinonimos;
         private System.Timers.Timer timerControlSinStockInicial;
         private System.Timers.Timer timerControlStockFechasSalida;
         private System.Timers.Timer timerControlStockInicial;
@@ -91,16 +90,7 @@ namespace Sisfarma.Sincronizador
                 ProcessUpdatePuntosPendientes(farmatic, fisiotes);
                 timerActualizarPuntosPendientes.Start();
             };
-
-            timerSinonimos = new System.Timers.Timer(2500);//(50000);
-            timerSinonimos.Elapsed += (sender, @event) =>
-            {
-                timerSinonimos.Stop();
-                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
-                FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
-                ProcessSinonimos(farmatic, fisiotes);
-                timerSinonimos.Start();
-            };
+            
 
             timerControlSinStockInicial = new System.Timers.Timer(2500);//(10000)
             timerControlSinStockInicial.Elapsed += (sender, @event) =>
@@ -553,39 +543,7 @@ namespace Sisfarma.Sincronizador
             var proveedorDb = farmaticService.Proveedores.GetById(proveedor);
             return proveedorDb?.FIS_NOMBRE ?? byDefault;
         }
-
-        public void ProcessSinonimos(FarmaticService farmaticService, FisiotesService fisiotesService)
-        {
-            try
-            {
-                //fisiotesService.Sinonimos.CheckAndAlterFields(_remoteBase);
-
-                var isEmpty = fisiotesService.Sinonimos.IsEmpty();                
-                if (isEmpty || Array.Exists(new[] { "1230", "1730", "1930" }, x => x.Equals(DateTime.Now.ToString("HHmm"))))
-                {
-                    if (!isEmpty) fisiotesService.Sinonimos.Empty();
-
-                    var sinonimos = farmaticService.Sinonimos.Get();
-
-                    var take = 1000;
-                    for (int i = 0; i < sinonimos.Count; i += take)
-                    {
-                        var items = sinonimos.Skip(i).Take(1000).Select(x => new Sinonimo
-                        {
-                            cod_barras = x.Sinonimo.Strip(),
-                            cod_nacional = x.IdArticu.Strip()
-                        }).ToList();
-                        fisiotesService.Sinonimos.Insert(items);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                //Task.Delay(1500).Wait();
-                Console.WriteLine(e.Message);
-                throw;
-            }
-        }
+        
 
         public void ProcessControlSinStockInicial(FarmaticService farmaticService, ConsejoService consejoService, FisiotesService fisiotesService)
         {

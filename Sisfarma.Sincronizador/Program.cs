@@ -55,11 +55,12 @@ namespace Sisfarma.Sincronizador
 
 
             ConsejoService consejoService = new ConsejoService();
-            
+
             Task.Factory.StartNew(() => new ClienteSincronizador(NewFarmatic(), NewFisiotes()).Run());
             Task.Factory.StartNew(() => new HuecoSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            Task.Factory.StartNew(() => new PuntosPendientesSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());            
-            
+            Task.Factory.StartNew(() => new PuntosPendientesSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
+            Task.Factory.StartNew(() => new SinonimoSincronizador(NewFarmatic(), NewFisiotes()).Run());
+
 
             Application.ApplicationExit += (sender, @event) => notifyIcon.Visible = false;            
             Application.Run(new SincronizadorApplication());
