@@ -4,88 +4,50 @@ using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Farmatic.Models;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Fisiotes.Models;
-using Sisfarma.Sincronizador.Helpers;
-using Sisfarma.Sincronizador.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
     public class PuntosPendientesSincronizador : BaseSincronizador
-    {        
+    {
+        private readonly bool _hasSexo;
+
         private ConsejoService _consejo;
 
         public PuntosPendientesSincronizador(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
             : base(farmatic, fisiotes)
         {            
             _consejo = consejo ?? throw new ArgumentNullException(nameof(consejo));
+            _hasSexo = farmatic.Clientes.HasSexoField();
         }        
 
         public override void Process() => ProcessPuntosPendientes(_farmatic, _fisiotes, _consejo);
 
         void ProcessPuntosPendientes(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
-        {
-            try
-            {                
-                //fisiotes.PuntosPendientes.CheckAndCreateFields();                
-                //fisiotes.Entregas.CreateTable(_remoteBase);
-                //fisiotes.PuntosPendientes.CheckTipoPagoField(_remoteBase);
-                
-                var existFieldSexo = farmatic.Clientes.HasSexoField();
-
-                var puntosPendientes = new List<PuntosPendientes>();
-                var idVenta = fisiotes.PuntosPendientes.GetUltimaVenta();                
-                var ventas = farmatic.Ventas.GetByIdGreaterOrEqual(idVenta);                
-                foreach (var venta in ventas)
-                {
-                    //var dni = venta.XClie_IdCliente.Strip();
-                    //if (!string.IsNullOrEmpty(dni))
-                    //{
-                    //    var cliente = farmatic.Clientes.GetById(dni);
-                    //    //Extraemos los datos necesarios del cliente local para sincronizar con el remoto
-                    //    var clientData = Generator.FetchLocalClienteData(farmatic, cliente, existFieldSexo);
-                    //    fisiotes.Clientes.InsertOrUpdate(
-                    //            clientData.Trabajador, clientData.Tarjeta, cliente.IDCLIENTE, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
-                    //            clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, clientData.FechaAlta, clientData.Baja, clientData.Lopd);
-                    //}
-
-
-                    var vendedor = farmatic.Vendedores.GetById(venta.XVend_IdVendedor)?.NOMBRE ?? "NO";
-                    var detalleVenta = farmatic.Ventas.GetLineasVentaByVenta(venta.IdVenta);
-               
-                    foreach (var linea in detalleVenta)
-                    {
-                        if (!fisiotes.PuntosPendientes.Exists(venta.IdVenta, linea.IdNLinea))
-                        {                            
-                            fisiotes.PuntosPendientes.Insert(
-                                GenerarPuntoPendiente(venta, linea, vendedor, farmatic, consejo));                            
-                        }
-                        
-                        // Verificamos el idVenta
-                        if (venta.IdVenta > idVenta)
-                            idVenta = venta.IdVenta - 3;
-                    }
-
-                    // Recuperamos el detalle de ventas virtuales
-                    var virtuales = farmatic.Ventas.GetLineasVirtualesByVenta(venta.IdVenta);
-                    foreach (var lineaVirtual in virtuales)
-                    {
-                        // Verificamos la entrega del item de venta                        
-                        if (!fisiotes.Entregas.Exists(venta.IdVenta, lineaVirtual.IdNLinea))
-                        {
-                            var entrega = GenerarEntregaCliente(venta, lineaVirtual, vendedor);                            
-                            fisiotes.Entregas.Insert(entrega);
-                        }
-                    }
-                }
-                //fisiotes.PuntosPendientes.Insert(puntosPendientes);
-            }
-            catch (Exception e)
+        {                        
+            var idVenta = fisiotes.PuntosPendientes.GetUltimaVenta();
+            var ventas = farmatic.Ventas.GetByIdGreaterOrEqual(idVenta);
+            foreach (var venta in ventas)
             {
-                //Task.Delay(1500).Wait();
-                Console.WriteLine(e.Message);
-                throw;
+                var vendedor = farmatic.Vendedores.GetById(venta.XVend_IdVendedor)?.NOMBRE ?? "NO";
+                var detalleVenta = farmatic.Ventas.GetLineasVentaByVenta(venta.IdVenta);
+
+                foreach (var linea in detalleVenta)
+                {
+                    if (!fisiotes.PuntosPendientes.Exists(venta.IdVenta, linea.IdNLinea))                    
+                        fisiotes.PuntosPendientes.Insert(
+                            GenerarPuntoPendiente(venta, linea, vendedor, farmatic, consejo));                                        
+                }
+
+                // Recuperamos el detalle de ventas virtuales
+                var virtuales = farmatic.Ventas.GetLineasVirtualesByVenta(venta.IdVenta);
+                foreach (var lineaVirtual in virtuales)
+                {
+                    // Verificamos la entrega del item de venta                        
+                    if (!fisiotes.Entregas.Exists(venta.IdVenta, lineaVirtual.IdNLinea))                                            
+                        fisiotes.Entregas.Insert(
+                            GenerarEntregaCliente(venta, lineaVirtual, vendedor));                    
+                }
             }
         }
 
