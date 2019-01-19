@@ -1,5 +1,4 @@
-﻿using Sisfarma.RestClient;
-using Sisfarma.Sincronizador.Consejo;
+﻿using Sisfarma.Sincronizador.Consejo;
 using Sisfarma.Sincronizador.Extensions;
 using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Farmatic.Models;
@@ -12,7 +11,6 @@ using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
@@ -25,9 +23,7 @@ namespace Sisfarma.Sincronizador
         private string _remoteBase, _remoteServer, _remoteUsername, _remotePassword;
         private string _localBase, _localServer, _localUser, _localPass;
         private int _marketCodeList;
-
-        private System.Timers.Timer timerClientes;
-        private System.Timers.Timer timerClientesHuecos;
+        
         private System.Timers.Timer timerActualizarRecetasPendientes;
         private System.Timers.Timer timerActualizarEntregasClientes;
         private System.Timers.Timer timerActualizarProductosBorrados;
@@ -37,7 +33,6 @@ namespace Sisfarma.Sincronizador
         private System.Timers.Timer timerControlStockFechasSalida;
         private System.Timers.Timer timerControlStockInicial;
         private System.Timers.Timer timerControlStockFechasEntrada;
-        private System.Timers.Timer timerPuntosPendientes;
         private System.Timers.Timer timerPedidos;
         //private System.Timers.Timer timerListasTiendas;
         //private System.Timers.Timer timerCategorias;
@@ -55,29 +50,7 @@ namespace Sisfarma.Sincronizador
         }
 
         private void InitializeTimer()
-        {
-            timerClientes = new System.Timers.Timer(2500);
-            //timerClientes.AutoReset = false;
-            timerClientes.Elapsed += (sender, @event) =>
-            {
-                timerClientes.Stop();
-                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
-                FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
-                ProcessClientes(farmatic, fisiotes);
-                timerClientes.Start();
-            };
-
-            timerClientesHuecos = new System.Timers.Timer(630000);
-            //timerClientesHuecos.AutoReset = false;
-            timerClientesHuecos.Elapsed += (sender, @event) =>
-            {
-                timerClientesHuecos.Stop();
-                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
-                FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
-                ProcessClientesHuecos(farmatic, fisiotes);
-                timerClientesHuecos.Start();
-            };
-
+        {            
             timerActualizarRecetasPendientes = new System.Timers.Timer(2500);//(5000);
             //timerActualizarRecetasPendientes.AutoReset = false;
             timerActualizarRecetasPendientes.Elapsed += (sender, @event) =>
@@ -172,18 +145,7 @@ namespace Sisfarma.Sincronizador
                 ProcessControlStockFechasEntrada(farmatic, consejo, fisiotes);
                 timerControlStockFechasEntrada.Start();
             };
-
-            timerPuntosPendientes = new System.Timers.Timer(2500);//(3000);
-            timerPuntosPendientes.Elapsed += (sender, @event) =>
-            {
-                timerPuntosPendientes.Stop();
-                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
-                FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
-                ConsejoService consejo = new ConsejoService();
-                ProcessPuntosPendientes(farmatic, consejo, fisiotes);
-                timerPuntosPendientes.Start();
-            };
-
+            
             timerPedidos = new System.Timers.Timer(3100);
             timerPedidos.Elapsed += (sender, @event) =>
             {
@@ -268,8 +230,7 @@ namespace Sisfarma.Sincronizador
             //    timerProductosCriticos.Start();
             //};
 
-            timerClientes.Start();
-            timerClientesHuecos.Start();
+            
             //timerActualizarRecetasPendientes.Start();
             //timerActualizarEntregasClientes.Start();
             //timerActualizarProductosBorrados.Start();
@@ -279,7 +240,7 @@ namespace Sisfarma.Sincronizador
             //timerControlStockFechasSalida.Start();
             //timerControlStockInicial.Start();
             //timerControlStockFechasEntrada.Start();
-            //timerPuntosPendientes.Start();
+            
 
             //timerPedidos.Start();
             //timerListasTiendas.Start();
@@ -329,61 +290,7 @@ namespace Sisfarma.Sincronizador
             }
         }
 
-        public void ProcessClientes(FarmaticService farmaticService, FisiotesService fisiotesService)
-        {
-            try
-            {
-                // Validamos los campos existentes en ClienteAux
-                var existFieldSexo = farmaticService.Clientes.HasSexoField();
-
-                //Recuperamos el DNI del último cliente, lo utilizamos para recuperar luego
-                // un cliente remoto.
-                var lastCliente = fisiotesService.Clientes.GetDniTrackingLast();
-                
-                // Recuperamos los clientes locales mayores al DNI del último cliente remoto
-                var localClientes = new List<Farmatic.Models.Cliente>();
-                localClientes = farmaticService.Clientes.GetGreatThanId(Convert.ToInt32(lastCliente));
-
-                // Sincronizamos los clientes locales con la BD remota
-                var contadorHuecos = -1;
-                foreach (var cliente in localClientes)
-                {
-                    if (contadorHuecos == -1)
-                        //Guardamos el Id del cliente local
-                        contadorHuecos = Convert.ToInt32(cliente.IDCLIENTE);
-
-                    //Extraemos los datos necesarios del cliente local para sincronizar con el remoto
-                    var clientData = FetchLocalClienteData(farmaticService, cliente, false);
-
-                    //Recuperamos el último cliente remoto
-                    fisiotesService.Clientes.ResetDniTracking();
-                    fisiotesService.Clientes.InsertOrUpdate(
-                                clientData.Trabajador, clientData.Tarjeta, cliente.IDCLIENTE, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
-                                clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, clientData.FechaAlta, clientData.Baja, clientData.Lopd,
-                                withTrack: true);
-                    
-
-                    //Almacenamos todos los huecos de clientes que hayan.
-                    var intIdCliente = Convert.ToInt32(cliente.IDCLIENTE);
-                    if (intIdCliente != contadorHuecos)
-                    {
-                        for (int i = contadorHuecos; i < intIdCliente; i++)
-                        {
-                            if (!fisiotesService.Huecos.Any(i))                            
-                                fisiotesService.Huecos.Insert(i.ToString());                            
-                        }
-                        contadorHuecos = intIdCliente;
-                    }
-                    contadorHuecos++;
-                }
-            }
-            catch (Exception e)
-            {
-                //Task.Delay(1500).Wait();
-                Console.WriteLine(e.Message);
-                throw;
-            }
-        }
+        
 
         private ClienteDto FetchLocalClienteData(FarmaticService farmaticService, Farmatic.Models.Cliente cliente, bool hasSexField)
         {
@@ -514,184 +421,7 @@ namespace Sisfarma.Sincronizador
             var vendedorDb = farmaticService.Vendedores.GetById(Convert.ToInt16(vendedor));
             return vendedorDb?.NOMBRE ?? byDefault;
         }
-
-        private void ProcessClientesHuecos(FarmaticService farmaticService, FisiotesService fisiotesService)
-        {
-            try
-            {
-                // Validamos los campos existentes en ClienteAux
-                var existFieldSexo = farmaticService.Clientes.HasSexoField();
-
-                // Recuperamos los huecos de clientes en forma ascendente
-                var remoteHuecos = fisiotesService.Huecos.GetByOrderAsc();
-
-                // Sincronizamos los clientes con huecos con la BD remota
-                foreach (var hueco in remoteHuecos)
-                {
-                    var cliente = farmaticService.Clientes.GetById(hueco);
-                    if (cliente != null)
-                    {
-                        // Extraemos los datos necesarios del cliente local para sincronizar con el remoto
-                        var clientData = FetchLocalClienteData(farmaticService, cliente, existFieldSexo);
-                        fisiotesService.Clientes.InsertOrUpdate(
-                                clientData.Trabajador, clientData.Tarjeta, cliente.IDCLIENTE, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
-                                clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, clientData.FechaAlta, clientData.Baja, clientData.Lopd);                        
-
-                        // Eliminamos el hueco del cliente.
-                        fisiotesService.Huecos.Delete(hueco);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                //Task.Delay(1500).Wait();
-                Console.WriteLine(e.Message);
-                throw;
-            }
-        }
-
-        public void ProcessPuntosPendientes(FarmaticService farmatic, ConsejoService consejo, FisiotesService fisiotes)
-        {
-            try
-            {
-                // Validamos los campos existentes en puntos_pendientes
-                //fisiotes.PuntosPendientes.CheckAndCreateFields();
-
-                // Creamos la tabla entregas_clientes en la BD remota, si no existe
-                //fisiotes.Entregas.CreateTable(_remoteBase);
-
-                // Validamos los campos existentes en ClienteAux
-                var existFieldSexo = farmatic.Clientes.HasSexoField();
-
-                // Verificamos el campo tipoPago en pendientes_puntos en la BD remota
-                //fisiotes.PuntosPendientes.CheckTipoPagoField(_remoteBase);
-
-                // Recuperamos los puntos pendientes de la última venta y establecemos el ID de venta
-                var idVenta = fisiotes.PuntosPendientes.GetLastOfYear(DateTime.Now.Year);
-
-                // Recuperamos las ventas locales
-                var ventas = farmatic.Ventas.GetByIdGreaterOrEqual(idVenta);
-                foreach (var venta in ventas)
-                {
-                    // Establecemos los valores que necesitamos desde la venta extrída de
-                    // la BD local.
-                    var puesto = venta.Maquina;
-                    var tipoPago = venta.TipoVenta;
-                    var fechaVenta = venta.FechaHora;
-                    var dni = venta.XClie_IdCliente.Strip();
-                    if (!string.IsNullOrEmpty(dni))
-                    {
-                        var cliente = farmatic.Clientes.GetById(dni);
-                        // Extraemos los datos necesarios del cliente local para sincronizar con el remoto
-                        var clientData = FetchLocalClienteData(farmatic, cliente, existFieldSexo);
-                        fisiotes.Clientes.InsertOrUpdate(
-                                clientData.Trabajador, clientData.Tarjeta, cliente.IDCLIENTE, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
-                                clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, clientData.FechaAlta, clientData.Baja, clientData.Lopd);
-                    }
-
-                    // TODO: dni = 0 pero no se usa
-
-                    // Recuramos el vendedor de la venta desde la BD local y establecemos
-                    // el trabajador
-                    var idVendendor = venta.XVend_IdVendedor;
-                    var vendedor = farmatic.Vendedores.GetById(idVendendor);
-                    var trabajador = vendedor?.NOMBRE ?? "NO";
-
-                    // Recuperamos la la datos de la venta y el detalle de la misma
-                    var fecha = Convert.ToInt32(venta.FechaHora.ToString("yyyyMMdd"));
-                    var descuentoVenta = false;
-                    var detalleVenta = farmatic.Ventas.GetLineasVentaByVenta(venta.IdVenta);
-                    foreach (var linea in detalleVenta)
-                    {
-                        var recetaPendiente = linea.RecetaPendiente;
-                        var receta = linea.TipoAportacion;
-                        var precioMed = linea.PVP;
-
-                        var dtoVta = 0d;
-                        if (!descuentoVenta)
-                        {
-                            dtoVta = (venta.DescuentoOpera ?? 0d);
-                            descuentoVenta = true;
-                        }
-                        var dtoLinea = venta.DescuentoLinea ?? 0d;
-
-                        // Establecemos redencion
-                        var redencionDb =
-                            farmatic.Ventas.GetLineaRedencionByKey(venta.IdVenta, linea.IdNLinea);
-                        var redencion = redencionDb?.Redencion ?? 0;
-
-                        var codigoBarra = GetCodidoBarrasFromLocalOrDefault(farmatic, linea.Codigo);
-
-                        // Recuperamos el artículo para establcer los siguientes datos
-                        var familia = string.Empty;
-                        var superFamilia = string.Empty;
-                        var codLaboratorio = string.Empty;
-                        var nombreLaboratorio = string.Empty;
-                        var proveedor = string.Empty;
-                        var pcoste = 0d;
-
-                        var articulo = farmatic.Articulos.GetById(linea.Codigo);
-                        if (articulo == null)
-                            nombreLaboratorio = "<Sin Laboratorio>";
-                        else
-                        {
-                            pcoste = articulo.Puc;
-                            familia = GetFamiliaFromLocalOrDefault(farmatic, articulo.XFam_IdFamilia, "<Sin Clasificar>");
-
-                            codLaboratorio = articulo.Laboratorio ?? string.Empty;
-
-                            superFamilia = familia.Equals("<Sin Clasificar>")
-                                ? superFamilia = familia
-                                : GetSuperFamiliaFromLocalOrDefault(farmatic, familia, "<Sin Clasificar>");
-
-                            proveedor = GetProveedorFromLocalOrDefault(farmatic, articulo.ProveedorHabitual);
-                            nombreLaboratorio = GetNombreLaboratorioFromLocalOrDefault(farmatic, consejo, codLaboratorio, "<Sin Laboratorio>");
-                        }
-
-                        // Verificamos si hay puntos pendientes desde la base remota, para el item de venta actual
-                        var puntos =
-                            fisiotes.PuntosPendientes.GetOneOrDefaultByItemVenta(venta.IdVenta, linea.IdNLinea);
-                        if (!fisiotes.PuntosPendientes.Exists(venta.IdVenta, linea.IdNLinea))
-                        {
-                            // Si no hay, lo insertamos
-                            var numero = linea.ImporteNeto;
-                            var cargado = "no";
-                            fisiotes.PuntosPendientes.Insert(venta.IdVenta, linea.IdNLinea, codigoBarra, linea.Codigo,
-                                linea.Descripcion.Strip(), familia.Strip(), linea.Cantidad, Convert.ToDecimal(numero),
-                                tipoPago, fecha, dni, cargado, puesto, trabajador, codLaboratorio.Strip(), nombreLaboratorio.Strip(),
-                                proveedor.Strip(), receta, fechaVenta, superFamilia.Strip(), Convert.ToSingle(precioMed),
-                                Convert.ToSingle(pcoste), Convert.ToSingle(dtoLinea), Convert.ToSingle(dtoVta), Convert.ToSingle(redencion), recetaPendiente);
-                        }
-
-                        // Verificamos el idVenta
-                        if (venta.IdVenta > idVenta)
-                            idVenta = venta.IdVenta - 3;
-                    }
-
-                    // Recuperamos el detalle de ventas virtuales
-                    var virtuales = farmatic.Ventas.GetLineasVirtualesByVenta(venta.IdVenta);
-                    foreach (var lineaVirtual in virtuales)
-                    {
-                        // Verificamos la entrega del item de venta                        
-                        if (!fisiotes.Entregas.Exists(venta.IdVenta, lineaVirtual.IdNLinea))
-                        {
-                            var numero = lineaVirtual.ImporteNeto;
-                            var pvp = lineaVirtual.Pvp;
-                            fisiotes.Entregas.Insert(venta.IdVenta, lineaVirtual.IdNLinea, lineaVirtual.Codigo.Strip(),
-                                lineaVirtual.Descripcion.Strip(), lineaVirtual.Cantidad, Convert.ToDecimal(numero), lineaVirtual.TipoLinea, fecha, dni, puesto,
-                                trabajador, fechaVenta, Convert.ToSingle(pvp));
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                //Task.Delay(1500).Wait();
-                Console.WriteLine(e.Message);
-                throw;
-            }
-        }
-
+        
         public void ProcessUpdateRecetasPendientes(FarmaticService farmaticService, FisiotesService fisiotesService)
         {
             try
