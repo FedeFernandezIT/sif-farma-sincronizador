@@ -23,8 +23,7 @@ namespace Sisfarma.Sincronizador
         private string _remoteBase, _remoteServer, _remoteUsername, _remotePassword;
         private string _localBase, _localServer, _localUser, _localPass;
         private int _marketCodeList;
-        
-        private System.Timers.Timer timerActualizarRecetasPendientes;
+                
         private System.Timers.Timer timerActualizarEntregasClientes;
         private System.Timers.Timer timerActualizarProductosBorrados;
         private System.Timers.Timer timerActualizarPuntosPendientes;
@@ -45,17 +44,7 @@ namespace Sisfarma.Sincronizador
         }
 
         private void InitializeTimer()
-        {            
-            timerActualizarRecetasPendientes = new System.Timers.Timer(2500);//(5000);
-            //timerActualizarRecetasPendientes.AutoReset = false;
-            timerActualizarRecetasPendientes.Elapsed += (sender, @event) =>
-            {
-                timerActualizarRecetasPendientes.Stop();
-                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
-                FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
-                ProcessUpdateRecetasPendientes(farmatic, fisiotes);                
-                timerActualizarRecetasPendientes.Start();
-            };
+        {                        
 
             timerActualizarEntregasClientes = new System.Timers.Timer(2500);//(30000);
             timerActualizarEntregasClientes.Elapsed += (sender, @event) =>
@@ -194,29 +183,7 @@ namespace Sisfarma.Sincronizador
             var vendedorDb = farmaticService.Vendedores.GetById(Convert.ToInt16(vendedor));
             return vendedorDb?.NOMBRE ?? byDefault;
         }
-        
-        public void ProcessUpdateRecetasPendientes(FarmaticService farmaticService, FisiotesService fisiotesService)
-        {
-            try
-            {
-                var puntos = fisiotesService.PuntosPendientes.GetOfRecetasPendientes();
-                foreach (var punto in puntos)
-                {
-                    var lineaVenta = farmaticService.Ventas.GetLineaVentaByKey(punto.idventa, punto.idnlinea);
-
-                    if (lineaVenta != null && (string.IsNullOrEmpty(punto.recetaPendiente) || lineaVenta.RecetaPendiente != "D"))
-                        fisiotesService.PuntosPendientes.Update(punto.idventa, punto.idnlinea, lineaVenta.RecetaPendiente);
-                    else if (string.IsNullOrEmpty(punto.recetaPendiente))
-                        fisiotesService.PuntosPendientes.Update(punto.idventa, punto.idnlinea);
-                }
-            }
-            catch (Exception e)
-            {
-                //Task.Delay(1500).Wait();
-                Console.WriteLine(e.Message);
-                throw;
-            }
-        }
+               
 
         public void ProcessUpdateEntregasClientes(FarmaticService farmaticService, FisiotesService fisiotesService)
         {

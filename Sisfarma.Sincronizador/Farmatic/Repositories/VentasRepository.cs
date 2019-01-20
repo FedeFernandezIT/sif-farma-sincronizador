@@ -14,7 +14,7 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
         {
         }
 
-        public LineaVenta GetLineaVentaByKey(long venta, long linea)
+        public LineaVenta GetLineaVentaOrDefaultByKey(long venta, long linea)
         {
             var sql = @"SELECT * FROM lineaventa WHERE IdVenta = @venta AND IdNLinea = @linea";
             return _ctx.Database.SqlQuery<LineaVenta>(sql,
