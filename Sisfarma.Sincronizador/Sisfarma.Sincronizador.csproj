@@ -145,6 +145,7 @@
     <Compile Include="Sincronizadores\FamiliaSincronizador.cs" />
     <Compile Include="Sincronizadores\HuecoSincronizador.cs" />
     <Compile Include="Sincronizadores\PedidoSincronizador.cs" />
+    <Compile Include="Sincronizadores\ProductoBorradoActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\ProductoCriticoSincronizador.cs" />
     <Compile Include="Sincronizadores\RecetaPendienteActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\SinonimoSincronizador.cs" />

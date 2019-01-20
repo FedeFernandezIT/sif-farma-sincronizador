@@ -25,7 +25,6 @@ namespace Sisfarma.Sincronizador
         private int _marketCodeList;
                 
 
-        private System.Timers.Timer timerActualizarProductosBorrados;
         private System.Timers.Timer timerActualizarPuntosPendientes;
         private System.Timers.Timer timerControlSinStockInicial;
         private System.Timers.Timer timerControlStockFechasSalida;
@@ -36,7 +35,7 @@ namespace Sisfarma.Sincronizador
         //private System.Timers.Timer timerCategorias;
         //private System.Timers.Timer timerListasFechas;
         //private System.Timers.Timer timerListas;
-        //private System.Timers.Timer timerEncargos;        
+    
 
 
         public SincronizadorApplication()
@@ -44,17 +43,7 @@ namespace Sisfarma.Sincronizador
         }
 
         private void InitializeTimer()
-        {                        
-            timerActualizarProductosBorrados = new System.Timers.Timer(2500);//(30000);
-            timerActualizarProductosBorrados.Elapsed += (sender, @event) =>
-            {
-                timerActualizarProductosBorrados.Stop();
-                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
-                FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
-                ProcessUpdateProductosBorrados(farmatic, fisiotes);
-                timerActualizarProductosBorrados.Start();
-            };
-
+        {                                    
             timerActualizarPuntosPendientes = new System.Timers.Timer(2500);//;(5000);
             timerActualizarPuntosPendientes.Elapsed += (sender, @event) =>
             {
@@ -160,33 +149,7 @@ namespace Sisfarma.Sincronizador
 
         
 
-        public void ProcessUpdateProductosBorrados(FarmaticService farmaticService, FisiotesService fisiotesService)
-        {
-            const string FIELD_POR_DONDE_VOY_BORRAR =
-                FieldsConfiguracion.FIELD_POR_DONDE_VOY_BORRAR;
-            try
-            {
-                var codArticulo = fisiotesService.Configuraciones.GetByCampo(FIELD_POR_DONDE_VOY_BORRAR);
-
-                //var exsitWebInMedicamentos = fisiotesService.Medicamentos.HasWebField();
-                var medicamentos = fisiotesService.Medicamentos
-                    .GetGreaterOrEqualCodigosNacionales(codArticulo);
-                
-                fisiotesService.Configuraciones.Update(FIELD_POR_DONDE_VOY_BORRAR, "0");
-                foreach (var med in medicamentos)
-                {
-                    if(!farmaticService.Articulos.Exists(med.cod_nacional.PadLeft(6, '0')))                    
-                        fisiotesService.Medicamentos.DeleteByCodigoNacional(med.cod_nacional);
-                    fisiotesService.Configuraciones.Update(FIELD_POR_DONDE_VOY_BORRAR, med.cod_nacional);
-                }
-            }
-            catch (Exception e)
-            {
-                //Task.Delay(1500).Wait();
-                Console.WriteLine(e.Message);
-                throw;
-            }
-        }
+        
 
         public void ProcessUpdatePuntosPendientes(FarmaticService farmaticService, FisiotesService fisiotesService)
         {
