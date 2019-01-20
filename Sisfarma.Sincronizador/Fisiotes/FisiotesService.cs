@@ -42,8 +42,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
         public FisiotesService(string host, string username, string password)
         {                        
             //Listas = new ListasRepository(_ctx);
-            //Categorias = new CategoriasRepository(_ctx);
-            //Encargos = new EncargosRepository(_ctx);            
+            //Categorias = new CategoriasRepository(_ctx);                      
             var restClient = new RestClient.RestSharp.RestClient();
             var config = FisiotesConfig.TestConfig(host, username, password);
             Clientes = new ClientesRepository(restClient, config);
@@ -56,6 +55,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
             Pedidos = new PedidosRepository(restClient, config);
             Faltas = new FaltasRepository(restClient, config);
             Familias = new FamiliasRepository(restClient, config);
+            Encargos = new EncargosRepository(restClient, config);
         }
     }
 }

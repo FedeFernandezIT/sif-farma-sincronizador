@@ -1,10 +1,10 @@
-﻿using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.RestClient;
+using Sisfarma.RestClient.Exceptions;
+using Sisfarma.Sincronizador.Extensions;
+using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sisfarma.Sincronizador.Fisiotes.Repositories
 {
@@ -12,6 +12,44 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
     {
         public EncargosRepository(FisiotesContext ctx) : base(ctx)
         {
+        }
+
+        public EncargosRepository(IRestClient restClient, FisiotesConfig config)
+            : base(restClient, config)
+        {
+        }
+
+        public Encargo LastOrDefault()
+        {
+            try
+            {
+                return _restClient
+                .Resource(_config.Encargos.Ultimo)
+                .SendGet<Encargo>();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return null;
+            }
+        }
+
+        public bool Exists(int encargo)
+        {
+            return GetByEncargoOrDefault(encargo) != null;
+        }
+
+        public Encargo GetByEncargoOrDefault(int encargo)
+        {
+            try
+            {
+                return _restClient
+                    .Resource(_config.Encargos.GetByEncargo.Replace("{encargo}", $"{encargo}"))
+                    .SendGet<Encargo>();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return null;
+            }
         }
 
         public void CheckAndCreateProveedorField()
@@ -23,16 +61,49 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 @"ALTER TABLE encargos ADD proveedor VARCHAR(255) DEFAULT NULL AFTER laboratorio;"
             };
             CheckAndCreateFieldsTemplate(table, fields, alters);
+        }        
+        
+        
+        public void Insert(Encargo ee)
+        {
+            var encargo =  new
+            {
+                idEncargo = ee.idEncargo,
+                cod_nacional = ee.cod_nacional,
+                nombre = ee.nombre,
+                familia = ee.familia,
+                superFamilia = ee.superFamilia,
+                cod_laboratorio = ee.cod_laboratorio,
+                laboratorio = ee.laboratorio,
+                proveedor = ee.proveedor,
+                pvp = ee.pvp,
+                puc = ee.puc,
+                dni = ee.dni,
+                fecha = ee.fecha.ToIsoString(),
+                trabajador = ee.trabajador,
+                unidades = ee.unidades,
+                fechaEntrega = ee.fechaEntrega.ToIsoString(),
+                observaciones = ee.observaciones
+            };
+
+            _restClient
+                .Resource(_config.Encargos.Insert)
+                .SendPost(new
+                {
+                    bulk = new[] { encargo }
+                });
         }
 
-        public Encargo Last()
+        #region SQL Methods
+
+        public Encargo LastSql()
         {
             var sql = @"select * from encargos order by idEncargo Desc Limit 0,1";
             return _ctx.Database.SqlQuery<Encargo>(sql)
                 .FirstOrDefault();
         }
 
-        public Encargo Get(int encargo)
+        public Encargo GetSql(int encargo)
         {
             var sql = @"select * from encargos where IdEncargo = @encargo";
             return _ctx.Database.SqlQuery<Encargo>(sql,
@@ -40,7 +111,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 .FirstOrDefault();
         }
 
-        public void Insert(long? encargo, string codNacional, string nombre, string superFamilia, string familia, string codLaboratorio,
+        public void InsertSql(long? encargo, string codNacional, string nombre, string superFamilia, string familia, string codLaboratorio,
             string laboratorio, string proveedor, float? pvp, float? puc, string dni, DateTime? fecha, string trabajador, int? unidades, DateTime? fechaEntrega,
             string observaciones)
         {
@@ -66,5 +137,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("fechaEntrega", fechaEntrega),
                 new SqlParameter("observaciones", observaciones));
         }
+
+        #endregion
     }
 }

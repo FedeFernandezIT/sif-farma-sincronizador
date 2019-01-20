@@ -27,6 +27,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
         public PedidoResource Pedidos { get; set; }
         public FaltaResource Faltas { get; set; }
         public FamiliaResource Familias { get; internal set; }
+        public EncargoResource Encargos { get; internal set; }
 
         public static FisiotesConfig TestConfig(string remoteServer, string username, string password)
         {
@@ -117,6 +118,13 @@ namespace Sisfarma.Sincronizador.Fisiotes
                 {
                     GetByFamilia = "/api/familia/cod/familia/{familia}",
                     Insert = "/api/familia/createUpdate"
+                },
+
+                Encargos = new EncargoResource
+                {
+                    Ultimo = "/api/encargo/ultimo",
+                    GetByEncargo = "/api/encargo/index/encargo/{encargo}",
+                    Insert = "api/encargo/createUpdate"
                 }
 
             };
@@ -215,6 +223,13 @@ public class FamiliaResource
     public string Insert { get; set; }
 }
 
+
+public class EncargoResource
+{
+    public string Ultimo { get; set; }
+    public string GetByEncargo { get; set; }
+    public string Insert { get; set; }
+}
 
 public class Credential
 {

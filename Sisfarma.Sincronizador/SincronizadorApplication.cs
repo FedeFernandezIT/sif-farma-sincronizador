@@ -24,7 +24,7 @@ namespace Sisfarma.Sincronizador
         private string _localBase, _localServer, _localUser, _localPass;
         private int _marketCodeList;
                 
-        private System.Timers.Timer timerActualizarEntregasClientes;
+
         private System.Timers.Timer timerActualizarProductosBorrados;
         private System.Timers.Timer timerActualizarPuntosPendientes;
         private System.Timers.Timer timerControlSinStockInicial;
@@ -45,17 +45,6 @@ namespace Sisfarma.Sincronizador
 
         private void InitializeTimer()
         {                        
-
-            timerActualizarEntregasClientes = new System.Timers.Timer(2500);//(30000);
-            timerActualizarEntregasClientes.Elapsed += (sender, @event) =>
-            {
-                timerActualizarEntregasClientes.Stop();
-                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
-                FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
-                ProcessUpdateEntregasClientes(farmatic, fisiotes);
-                timerActualizarEntregasClientes.Start();
-            };
-
             timerActualizarProductosBorrados = new System.Timers.Timer(2500);//(30000);
             timerActualizarProductosBorrados.Elapsed += (sender, @event) =>
             {
@@ -162,66 +151,14 @@ namespace Sisfarma.Sincronizador
             //    ProcessListas(farmatic, fisiotes);
             //    timerListas.Start();
             //};
-
-            //timerEncargos = new System.Timers.Timer(4000);
-            //timerEncargos.Elapsed += (sender, @event) =>
-            //{
-            //    timerEncargos.Stop();
-            //    FarmaticService farmatic = new FarmaticService();
-            //    FisiotesService fisiotes = new FisiotesService();
-            //    ConsejoService consejo = new ConsejoService();
-            //    ProcessEncargos(farmatic, consejo, fisiotes);
-            //    timerEncargos.Start();
-            //};
-
             
+
+
         }
                 
+              
 
-        private string GetNombreVendedorOrDefault(FarmaticService farmaticService, int? vendedor, string byDefault = "")
-        {
-            var vendedorDb = farmaticService.Vendedores.GetById(Convert.ToInt16(vendedor));
-            return vendedorDb?.NOMBRE ?? byDefault;
-        }
-               
-
-        public void ProcessUpdateEntregasClientes(FarmaticService farmaticService, FisiotesService fisiotesService)
-        {
-            const string FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES =
-                FieldsConfiguracion.FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES;
-            try
-            {
-                var valor = fisiotesService.Configuraciones
-                        .GetByCampo(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES);
-                var venta = Convert.ToInt64(!string.IsNullOrEmpty(valor)
-                    ? valor
-                    : "0");
-
-                var ventasVirtuales = farmaticService.Ventas.GetVirtualesLessThanId(venta);
-                foreach (var vtaVirtual in ventasVirtuales)
-                {
-                    fisiotesService.Configuraciones.Update(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES, vtaVirtual.IdVenta.ToString());
-                    var dni = vtaVirtual.XClie_IdCliente.Strip();
-                    
-                    var trabajador = GetNombreVendedorOrDefault(farmaticService, vtaVirtual.XVend_IdVendedor, "NO");
-                    var lineas = farmaticService.Ventas.GetLineasVirtualesByVenta(vtaVirtual.IdVenta);
-                    foreach (var linea in lineas)
-                    {
-                        if(!fisiotesService.Entregas.Exists(linea.IdVenta, linea.IdNLinea))                        
-                            fisiotesService.Entregas.Insert(linea.IdVenta, linea.IdNLinea, linea.Codigo.Strip(),
-                                linea.Descripcion.Strip(), linea.Cantidad, Convert.ToDecimal(linea.ImporteNeto), linea.TipoLinea,
-                                Convert.ToInt32(vtaVirtual.FechaHora.ToString("yyyyMMdd")), dni, vtaVirtual.Maquina, trabajador,
-                                vtaVirtual.FechaHora, Convert.ToSingle(linea.Pvp));
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                //Task.Delay(1500).Wait();
-                Console.WriteLine(e.Message);
-                throw;
-            }
-        }
+        
 
         public void ProcessUpdateProductosBorrados(FarmaticService farmaticService, FisiotesService fisiotesService)
         {
@@ -707,67 +644,6 @@ namespace Sisfarma.Sincronizador
         //    {
         //        Task.Delay(1500).Wait();
         //    }
-        //}
-
-        //public void ProcessEncargos(FarmaticService farmatic, ConsejoService consejo, FisiotesService fisiotes)
-        //{
-        //    try
-        //    {
-        //        fisiotes.Encargos.CheckAndCreateProveedorField();
-        //        var encargoRemote = fisiotes.Encargos.Last();
-        //        var idEncargo = encargoRemote != null ? encargoRemote.idEncargo : 1;
-
-        //        var encargos = farmatic.Encargos.GetByContadorGreaterOrEqual(idEncargo);
-        //        foreach (var encargo in encargos)
-        //        {
-        //            var codNacional = encargo.XArt_IdArticu?.Trim();
-        //            var cliente = !string.IsNullOrEmpty(encargo.XCli_IdCliente)
-        //                ? encargo.XCli_IdCliente.Trim()
-        //                : "0";
-
-        //            // Recuperamos el artículo para establcer los siguientes datos
-        //            var nombre = string.Empty;
-        //            var familia = string.Empty;
-        //            var superFamilia = string.Empty;
-        //            var codLaboratorio = string.Empty;
-        //            var nombreLaboratorio = string.Empty;
-        //            var proveedor = string.Empty;
-        //            var pcoste = 0d;
-        //            var precioMed = 0d;
-
-        //            var articulo = farmatic.Articulos.GetById(encargo.XArt_IdArticu);
-        //            if (articulo == null)
-        //                nombreLaboratorio = "<Sin Laboratorio>";
-        //            else
-        //            {
-        //                nombre = articulo.Descripcion.Strip();
-        //                pcoste = articulo.Puc;
-        //                precioMed = articulo.Pvp;
-        //                familia = GetFamiliaFromLocalOrDefault(farmatic, articulo.XFam_IdFamilia, "<Sin Clasificar>");
-        //                superFamilia = familia.Equals("<Sin Clasificar>")
-        //                    ? familia
-        //                    : GetSuperFamiliaFromLocalOrDefault(farmatic, familia, "<Sin Clasificar>");
-        //                proveedor = GetProveedorFromLocalOrDefault(farmatic, articulo.ProveedorHabitual);
-        //                codLaboratorio = articulo.Laboratorio ?? string.Empty;
-        //                nombreLaboratorio = GetNombreLaboratorioFromLocalOrDefault(farmatic, consejo, codLaboratorio, "<Sin Laboratorio>");
-        //            }
-
-        //            var trabajador = GetNombreVendedorOrDefault(farmatic, encargo.Vendedor);
-        //            encargoRemote = fisiotes.Encargos.Get(encargo.IdContador);
-
-        //            if (encargoRemote == null)
-        //                fisiotes.Encargos.Insert(encargo.IdContador, codNacional, nombre, superFamilia.Strip(),
-        //                    familia, codLaboratorio.Strip(), nombreLaboratorio.Strip(), proveedor.Strip(),
-        //                    Convert.ToSingle(precioMed), Convert.ToSingle(pcoste), cliente, encargo.IdFecha, trabajador, encargo.Unidades,
-        //                    encargo.FechaEntrega, encargo.Observaciones.Strip());
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Task.Delay(1500).Wait();
-        //    }
-        //}
-
-        
+        //}       
     }
 }
