@@ -9,7 +9,7 @@ using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesReposit
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class PuntosPendientesSincronizador : BaseSincronizador
+    public class PuntoPendienteSincronizador : BaseSincronizador
     {
         const string FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES = FieldsConfiguracion.FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES;
 
@@ -17,7 +17,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private ConsejoService _consejo;
 
-        public PuntosPendientesSincronizador(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
+        public PuntoPendienteSincronizador(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
             : base(farmatic, fisiotes)
         {            
             _consejo = consejo ?? throw new ArgumentNullException(nameof(consejo));

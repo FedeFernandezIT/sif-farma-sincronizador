@@ -24,8 +24,7 @@ namespace Sisfarma.Sincronizador
         private string _localBase, _localServer, _localUser, _localPass;
         private int _marketCodeList;
                 
-
-        private System.Timers.Timer timerActualizarPuntosPendientes;
+        
         private System.Timers.Timer timerControlSinStockInicial;
         private System.Timers.Timer timerControlStockFechasSalida;
         private System.Timers.Timer timerControlStockInicial;
@@ -44,17 +43,6 @@ namespace Sisfarma.Sincronizador
 
         private void InitializeTimer()
         {                                    
-            timerActualizarPuntosPendientes = new System.Timers.Timer(2500);//;(5000);
-            timerActualizarPuntosPendientes.Elapsed += (sender, @event) =>
-            {
-                timerActualizarPuntosPendientes.Stop();
-                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
-                FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
-                ProcessUpdatePuntosPendientes(farmatic, fisiotes);
-                timerActualizarPuntosPendientes.Start();
-            };
-            
-
             timerControlSinStockInicial = new System.Timers.Timer(2500);//(10000)
             timerControlSinStockInicial.Elapsed += (sender, @event) =>
             {
@@ -143,49 +131,6 @@ namespace Sisfarma.Sincronizador
             
 
 
-        }
-                
-              
-
-        
-
-        
-
-        public void ProcessUpdatePuntosPendientes(FarmaticService farmaticService, FisiotesService fisiotesService)
-        {
-            try
-            {
-                var puntos = fisiotesService.PuntosPendientes.GetWithoutRedencion();
-                foreach (var pto in puntos)
-                {
-                    var venta = farmaticService.Ventas.GetById(pto.idventa);
-                    if (venta != null)
-                    {
-                        var lineas = farmaticService.Ventas.GetLineasVentaByVenta(venta.IdVenta);
-                        foreach (var linea in lineas)
-                        {
-                            var lineaRedencion =
-                                farmaticService.Ventas.GetLineaRedencionByKey(linea.IdVenta, linea.IdNLinea);
-                            var redencion = lineaRedencion?.Redencion ?? 0;
-                            var articulo = farmaticService.Articulos.GetById(linea.Codigo);
-                            var proveedor = articulo != null
-                                ? GetProveedorFromLocalOrDefault(farmaticService, articulo.ProveedorHabitual)
-                                : string.Empty;
-                            fisiotesService.PuntosPendientes.Update(venta.TipoVenta, proveedor,
-                                Convert.ToSingle(linea.DescuentoLinea), Convert.ToSingle(venta.DescuentoOpera),
-                                Convert.ToSingle(redencion), linea.IdVenta, linea.IdNLinea);
-                        }
-                    }
-                    else                    
-                        fisiotesService.PuntosPendientes.Update(pto.idventa);                    
-                }
-            }
-            catch (Exception e)
-            {
-                //Task.Delay(1500).Wait();
-                Console.WriteLine(e.Message);
-                throw;
-            }
         }
 
         private string GetProveedorFromLocalOrDefault(FarmaticService farmaticService, string proveedor, string byDefault = "")

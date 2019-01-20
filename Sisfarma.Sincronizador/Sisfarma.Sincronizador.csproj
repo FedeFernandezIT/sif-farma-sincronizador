@@ -147,12 +147,13 @@
     <Compile Include="Sincronizadores\PedidoSincronizador.cs" />
     <Compile Include="Sincronizadores\ProductoBorradoActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\ProductoCriticoSincronizador.cs" />
+    <Compile Include="Sincronizadores\PuntoPendienteActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\RecetaPendienteActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\SinonimoSincronizador.cs" />
     <Compile Include="Sincronizadores\SuperTypes\BaseSincronizador.cs" />
     <Compile Include="Sincronizadores\ClienteSincronizador.cs" />
     <Compile Include="Sincronizadores\SuperTypes\ISincronizador.cs" />
-    <Compile Include="Sincronizadores\PuntosPendientesSincronizador.cs" />
+    <Compile Include="Sincronizadores\PuntoPendienteSincronizador.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
