@@ -1,10 +1,4 @@
-﻿using Sisfarma.Sincronizador.Fisiotes.Models;
-using Sisfarma.Sincronizador.Fisiotes.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
+﻿using Sisfarma.Sincronizador.Fisiotes.Repositories;
 
 namespace Sisfarma.Sincronizador.Fisiotes
 {
@@ -41,8 +35,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
 
         public FisiotesService(string host, string username, string password)
         {                        
-            //Listas = new ListasRepository(_ctx);
-            //Categorias = new CategoriasRepository(_ctx);                      
+            //Listas = new ListasRepository(_ctx);            
             var restClient = new RestClient.RestSharp.RestClient();
             var config = FisiotesConfig.TestConfig(host, username, password);
             Clientes = new ClientesRepository(restClient, config);
@@ -56,6 +49,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
             Faltas = new FaltasRepository(restClient, config);
             Familias = new FamiliasRepository(restClient, config);
             Encargos = new EncargosRepository(restClient, config);
+            Categorias = new CategoriasRepository(restClient, config);
         }
     }
 }

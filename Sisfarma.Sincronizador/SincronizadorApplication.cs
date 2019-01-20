@@ -31,7 +31,6 @@ namespace Sisfarma.Sincronizador
         private System.Timers.Timer timerControlStockFechasEntrada;
         
         //private System.Timers.Timer timerListasTiendas;
-        //private System.Timers.Timer timerCategorias;
         //private System.Timers.Timer timerListasFechas;
         //private System.Timers.Timer timerListas;
     
@@ -99,16 +98,6 @@ namespace Sisfarma.Sincronizador
             //    timerListasTiendas.Start();
             //};
 
-            //timerCategorias = new System.Timers.Timer(64000);
-            //timerCategorias.Elapsed += (sender, @event) =>
-            //{
-            //    timerCategorias.Stop();
-            //    FarmaticService farmatic = new FarmaticService();
-            //    FisiotesService fisiotes = new FisiotesService();
-            //    ProcessCategorias(farmatic, fisiotes);
-            //    timerCategorias.Start();
-            //};
-
             //timerListasFechas = new System.Timers.Timer(62000);
             //timerListasFechas.Elapsed += (sender, @event) =>
             //{
@@ -128,7 +117,7 @@ namespace Sisfarma.Sincronizador
             //    ProcessListas(farmatic, fisiotes);
             //    timerListas.Start();
             //};
-            
+
 
 
         }
@@ -446,29 +435,7 @@ namespace Sisfarma.Sincronizador
         //        Task.Delay(1500).Wait();
         //    }
         //}
-
-        //public void ProcessCategorias(FarmaticService farmatic, FisiotesService fisiotes)
-        //{
-        //    try
-        //    {
-        //        var familias = farmatic.Familias.GetByDescripcion();
-        //        foreach (var familia in familias)
-        //        {
-        //            var padre = GetPadreFromLocalOrDefault(farmatic, familia.IdFamilia, @"<SIN PADRE>");
-        //            var categoria = fisiotes.Categorias.GetByCategoriaAndPadre(familia.Descripcion.Strip(), padre.Strip());
-        //            if (categoria == null)
-        //            {
-        //                var categoriaOnlyPadre = fisiotes.Categorias.GetByPadre(padre.Strip());
-        //                var padreId = categoriaOnlyPadre?.prestashopPadreId;
-        //                fisiotes.Categorias.Insert(familia.Descripcion.Strip(), padre.Strip(), padreId);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Task.Delay(1500).Wait();
-        //    }
-        //}
+        
 
         //private string GetPadreFromLocalOrDefault(FarmaticService farmatic, short familia, string byDefault = "")
         //{

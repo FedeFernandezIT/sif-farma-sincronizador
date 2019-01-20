@@ -125,6 +125,13 @@ namespace Sisfarma.Sincronizador.Fisiotes
                     Ultimo = "/api/encargo/ultimo",
                     GetByEncargo = "/api/encargo/index/encargo/{encargo}",
                     Insert = "api/encargo/createUpdate"
+                },
+
+                Categorias = new CategoriaResource
+                {
+                    GetByCategoriaAndPadre = "/api/categoria/index/categoria/{categoria}/padre/{padre}",
+                    GetByPadre = "/api/categoria/index/padre/{padre}",
+                    Insert = "api/categoria/createUpdate"
                 }
 
             };
@@ -134,6 +141,9 @@ namespace Sisfarma.Sincronizador.Fisiotes
 
 public class CategoriaResource
 {
+    public string GetByCategoriaAndPadre { get; set; }
+    public string GetByPadre { get; set; }
+    public string Insert { get; internal set; }
 }
 
 public class ClienteResource

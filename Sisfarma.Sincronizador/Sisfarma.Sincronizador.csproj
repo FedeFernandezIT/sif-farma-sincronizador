@@ -140,6 +140,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Fisiotes\FisiotesService.cs" />
     <Compile Include="SincronizadorApplication.cs" />
+    <Compile Include="Sincronizadores\CategoriaSincronizador.cs" />
     <Compile Include="Sincronizadores\EncargoSincronizador.cs" />
     <Compile Include="Sincronizadores\EntregaClienteActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\FamiliaSincronizador.cs" />
