@@ -5,11 +5,14 @@ using Sisfarma.Sincronizador.Farmatic.Models;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
+using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
     public class PuntosPendientesSincronizador : BaseSincronizador
     {
+        const string FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES = FieldsConfiguracion.FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES;
+
         private readonly bool _hasSexo;
 
         private ConsejoService _consejo;
@@ -41,12 +44,18 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
                 // Recuperamos el detalle de ventas virtuales
                 var virtuales = farmatic.Ventas.GetLineasVirtualesByVenta(venta.IdVenta);
-                foreach (var lineaVirtual in virtuales)
+                foreach (var @virtual in virtuales)
                 {
+
                     // Verificamos la entrega del item de venta                        
-                    if (!fisiotes.Entregas.Exists(venta.IdVenta, lineaVirtual.IdNLinea))                                            
+                    if (!fisiotes.Entregas.Exists(venta.IdVenta, @virtual.IdNLinea))
+                    {                        
                         fisiotes.Entregas.Insert(
-                            GenerarEntregaCliente(venta, lineaVirtual, vendedor));                    
+                            GenerarEntregaCliente(venta, @virtual, vendedor));
+
+                        fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES, @virtual.IdVenta.ToString());
+                    }
+                        
                 }
             }
         }
