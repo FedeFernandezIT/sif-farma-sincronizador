@@ -16,24 +16,21 @@ namespace Sisfarma.RestClient.RestSharp
         {
             _restClient = new RSharp.RestClient();
             _restClient.ClearHandlers();
-            _restClient.AddHandler("application/json", new RSharp.Serialization.Json.JsonDeserializer());            
-            //_request.RequestFormat = RSharp.DataFormat.Json;
+            _restClient.AddHandler("application/json", new RSharp.Serialization.Json.JsonDeserializer());                        
         }
 
         public RestClient(Uri baseAddress) : base(baseAddress)
         {
             _restClient = new RSharp.RestClient(baseAddress);
             _restClient.ClearHandlers();
-            _restClient.AddHandler("application/json", new RSharp.Serialization.Json.JsonDeserializer());            
-            //_request.RequestFormat = RSharp.DataFormat.Json;
+            _restClient.AddHandler("application/json", new RSharp.Serialization.Json.JsonDeserializer());                        
         }
 
         public RestClient(Uri baseAddress, Uri resource) : base(baseAddress, resource)
         {
             _restClient = new RSharp.RestClient(baseAddress);
             _restClient.ClearHandlers();
-            _restClient.AddHandler("application/json", new RSharp.Serialization.Json.JsonDeserializer());            
-            //_request.RequestFormat = RSharp.DataFormat.Json;
+            _restClient.AddHandler("application/json", new RSharp.Serialization.Json.JsonDeserializer());                        
         }
 
         public IRestClient BaseAddress(string url)
@@ -51,13 +48,13 @@ namespace Sisfarma.RestClient.RestSharp
             if (string.IsNullOrEmpty(resource))
                 throw new ArgumentNullException(nameof(resource));
 
-            _resource = new Uri(resource, UriKind.Relative);
-
+            var resourceEscape = Uri.EscapeUriString(resource);
+            _resource = new Uri(resourceEscape, UriKind.Relative);            
             if (_resource.IsAbsoluteUri)
                 throw new ArgumentException("No es una ruta relativa", nameof(resource));
 
             _request = new RSharp.RestRequest();
-            _request.Resource = resource;            
+            _request.Resource = resourceEscape;            
             return this;
         }
 

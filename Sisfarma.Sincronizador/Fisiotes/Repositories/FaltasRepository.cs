@@ -96,12 +96,27 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             };
             CheckAndCreateFieldsTemplate(table, fields, alters);
         }
-
         
-
         
+        #region SQL Methods
 
-        public void Insert(int pedido, int linea, string codNacional, string descripcion, string familia, string superFamilia, int cantidad,
+        public Falta LastSql()
+        {
+            var sql = "select * from faltas order by idPedido Desc Limit 0,1";
+            return _ctx.Database.SqlQuery<Falta>(sql)
+                .FirstOrDefault();
+        }
+
+        public Falta GetByLineaPedidoSql(int pedido, int linea)
+        {
+            var sql = @"select * from faltas where idPedido = @pedido AND idLinea= @linea";
+            return _ctx.Database.SqlQuery<Falta>(sql,
+                new SqlParameter("pedido", pedido),
+                new SqlParameter("linea", linea))
+                .FirstOrDefault();
+        }
+
+        public void InsertSql(int pedido, int linea, string codNacional, string descripcion, string familia, string superFamilia, int cantidad,
             DateTime fechaFalta, string codLaboratorio, string nombreLaboratorio, string proveedor, DateTime? fechaPedido, float pvp, float puc)
         {
             var sql = @"INSERT IGNORE INTO faltas (idPedido, idLinea, cod_nacional, descripcion, familia, superFamilia, cantidadPedida, fechaFalta, " +
@@ -123,25 +138,6 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("fechaPedido", fechaPedido),
                 new SqlParameter("pvp", pvp),
                 new SqlParameter("puc", puc));
-        }
-
-        
-        #region SQL Methods
-
-        public Falta LastSql()
-        {
-            var sql = "select * from faltas order by idPedido Desc Limit 0,1";
-            return _ctx.Database.SqlQuery<Falta>(sql)
-                .FirstOrDefault();
-        }
-
-        public Falta GetByLineaPedidoSql(int pedido, int linea)
-        {
-            var sql = @"select * from faltas where idPedido = @pedido AND idLinea= @linea";
-            return _ctx.Database.SqlQuery<Falta>(sql,
-                new SqlParameter("pedido", pedido),
-                new SqlParameter("linea", linea))
-                .FirstOrDefault();
         }
 
         #endregion

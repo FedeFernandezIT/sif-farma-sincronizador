@@ -37,8 +37,7 @@ namespace Sisfarma.Sincronizador
         //private System.Timers.Timer timerCategorias;
         //private System.Timers.Timer timerListasFechas;
         //private System.Timers.Timer timerListas;
-        //private System.Timers.Timer timerEncargos;
-        //private System.Timers.Timer timerFamilias;
+        //private System.Timers.Timer timerEncargos;        
 
 
         public SincronizadorApplication()
@@ -186,17 +185,7 @@ namespace Sisfarma.Sincronizador
             //    timerEncargos.Start();
             //};
 
-            //timerFamilias = new System.Timers.Timer(65000);
-            //timerFamilias.Elapsed += (sender, @event) =>
-            //{
-            //    timerFamilias.Stop();
-            //    FarmaticService farmatic = new FarmaticService();
-            //    FisiotesService fisiotes = new FisiotesService();
-            //    ProcessFamilia(farmatic, fisiotes);
-            //    timerFamilias.Start();
-            //};
-
-                               
+            
         }
                 
 
@@ -812,22 +801,6 @@ namespace Sisfarma.Sincronizador
         //    }
         //}
 
-        //public void ProcessFamilia(FarmaticService farmatic, FisiotesService fisiotes)
-        //{
-        //    try
-        //    {
-        //        var familias = farmatic.Familias.Get();
-        //        foreach (var familia in familias)
-        //        {
-        //            var familiaRemote = fisiotes.Familias.GetByFamilia(familia.Descripcion);
-        //            if (familiaRemote == null)
-        //                fisiotes.Familias.Insert(familia.Descripcion);
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Task.Delay(1500).Wait();
-        //    }
-        //}        
+        
     }
 }
