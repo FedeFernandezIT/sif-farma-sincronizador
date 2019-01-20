@@ -3,7 +3,7 @@ using Sisfarma.Sincronizador.Fisiotes;
 using System;
 using System.Threading.Tasks;
 
-namespace Sisfarma.Sincronizador.Sincronizadores
+namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
 {
     public abstract class BaseSincronizador : ISincronizador
     {

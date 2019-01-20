@@ -3,6 +3,7 @@ using Sisfarma.Sincronizador.Consejo;
 using Sisfarma.Sincronizador.Extensions;
 using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
+using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {

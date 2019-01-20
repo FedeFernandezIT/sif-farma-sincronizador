@@ -4,6 +4,7 @@ using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Farmatic.Models;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Fisiotes.Models;
+using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 using System;
 using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 

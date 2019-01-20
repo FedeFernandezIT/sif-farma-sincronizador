@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Sisfarma.Sincronizador.Sincronizadores
+namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
 {
     public interface ISincronizador
     {

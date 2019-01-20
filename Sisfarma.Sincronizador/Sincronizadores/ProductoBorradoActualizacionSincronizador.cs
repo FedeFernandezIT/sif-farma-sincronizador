@@ -1,5 +1,6 @@
 ﻿using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
+using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 
 namespace Sisfarma.Sincronizador.Sincronizadores

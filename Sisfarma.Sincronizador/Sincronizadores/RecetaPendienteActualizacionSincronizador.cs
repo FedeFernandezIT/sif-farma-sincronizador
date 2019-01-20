@@ -1,5 +1,6 @@
 ﻿using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
+using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 using System.Linq;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
