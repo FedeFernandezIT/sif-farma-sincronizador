@@ -142,6 +142,7 @@
     <Compile Include="SincronizadorApplication.cs" />
     <Compile Include="Sincronizadores\CategoriaSincronizador.cs" />
     <Compile Include="Sincronizadores\ControlSinStockSincronizador.cs" />
+    <Compile Include="Sincronizadores\ControlStockSincronizador.cs" />
     <Compile Include="Sincronizadores\EncargoSincronizador.cs" />
     <Compile Include="Sincronizadores\EntregaClienteActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\FamiliaSincronizador.cs" />
@@ -154,6 +155,7 @@
     <Compile Include="Sincronizadores\SinonimoSincronizador.cs" />
     <Compile Include="Sincronizadores\SuperTypes\BaseSincronizador.cs" />
     <Compile Include="Sincronizadores\ClienteSincronizador.cs" />
+    <Compile Include="Sincronizadores\SuperTypes\ControlSincronizador.cs" />
     <Compile Include="Sincronizadores\SuperTypes\ISincronizador.cs" />
     <Compile Include="Sincronizadores\PuntoPendienteSincronizador.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

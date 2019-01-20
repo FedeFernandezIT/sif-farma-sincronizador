@@ -21,7 +21,6 @@ namespace Sisfarma.Sincronizador
                 
                 
         private System.Timers.Timer timerControlStockFechasSalida;
-        private System.Timers.Timer timerControlStockInicial;
         private System.Timers.Timer timerControlStockFechasEntrada;
         
         //private System.Timers.Timer timerListasTiendas;
@@ -45,18 +44,7 @@ namespace Sisfarma.Sincronizador
                 ConsejoService consejo = new ConsejoService();
                 ProcessControlStockFechasSalida(farmatic, consejo, fisiotes);
                 timerControlStockFechasSalida.Start();
-            };
-
-            timerControlStockInicial = new System.Timers.Timer(2500);//(5000);
-            timerControlStockInicial.Elapsed += (sender, @event) =>
-            {
-                timerControlStockInicial.Stop();
-                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
-                FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
-                ConsejoService consejo = new ConsejoService();
-                ProcessControlStockInicial(farmatic, consejo, fisiotes);
-                timerControlStockInicial.Start();
-            };
+            };            
 
             timerControlStockFechasEntrada = new System.Timers.Timer(2500);//(60000);
             timerControlStockFechasEntrada.Elapsed += (sender, @event) =>
@@ -248,37 +236,7 @@ namespace Sisfarma.Sincronizador
             {
                 return DateTime.ParseExact(fecha, "yyyy-dd-MM", CultureInfo.InvariantCulture);
             }
-        }
-
-        public void ProcessControlStockInicial(FarmaticService farmaticService, ConsejoService consejoService, FisiotesService fisiotesService)
-        {
-            const string FIELD_STOCK_ENTRADA = FieldsConfiguracion.FIELD_STOCK_ENTRADA;
-            const string FIELD_STOCK_SALIDA = FieldsConfiguracion.FIELD_STOCK_SALIDA;
-            const string FIELD_POR_DONDE_VOY_CON_STOCK = FieldsConfiguracion.FIELD_POR_DONDE_VOY_CON_STOCK;
-            const string FIELD_POR_DONDE_VOY_SIN_STOCK = FieldsConfiguracion.FIELD_POR_DONDE_VOY_SIN_STOCK;
-            try
-            {
-                //fisiotesService.Medicamentos.CheckAndCreateFields();                
-                var configuracion = fisiotesService.Configuraciones.GetByCampo(FIELD_POR_DONDE_VOY_CON_STOCK);                
-                var codArticulo = !string.IsNullOrEmpty(configuracion)
-                    ? configuracion 
-                    : "0";
-
-                var articulos = farmaticService.Articulos.GetWithStockByIdGreaterOrEqual(codArticulo);
-                foreach (var articulo in articulos)
-                {
-                    SyncUpArticuloWithIva(farmaticService, consejoService, fisiotesService, articulo, FIELD_POR_DONDE_VOY_CON_STOCK, articulo.IdArticu);
-                }
-                fisiotesService.Configuraciones.Update(FIELD_POR_DONDE_VOY_CON_STOCK, "0");
-                fisiotesService.Medicamentos.ResetPorDondeVoy();
-            }
-            catch (Exception e)
-            {
-                //Task.Delay(1500).Wait();
-                Console.WriteLine(e.Message);
-                throw;
-            }
-        }
+        }        
 
         public void ProcessControlStockFechasEntrada(FarmaticService farmaticService, ConsejoService consejoService, FisiotesService fisiotesService)
         {
