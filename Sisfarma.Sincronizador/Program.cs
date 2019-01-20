@@ -1,16 +1,11 @@
 ﻿using Sisfarma.Sincronizador.Consejo;
-using Sisfarma.Sincronizador.Extensions;
 using Sisfarma.Sincronizador.Farmatic;
-using Sisfarma.Sincronizador.Farmatic.Models;
 using Sisfarma.Sincronizador.Fisiotes;
-using Sisfarma.Sincronizador.Models;
 using Sisfarma.Sincronizador.Properties;
 using Sisfarma.Sincronizador.Sincronizadores;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -60,6 +55,7 @@ namespace Sisfarma.Sincronizador
             Task.Factory.StartNew(() => new HuecoSincronizador(NewFarmatic(), NewFisiotes()).Run());
             Task.Factory.StartNew(() => new PuntosPendientesSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
             Task.Factory.StartNew(() => new SinonimoSincronizador(NewFarmatic(), NewFisiotes()).Run());
+            Task.Factory.StartNew(() => new PedidoSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
 
 
             Application.ApplicationExit += (sender, @event) => notifyIcon.Visible = false;            

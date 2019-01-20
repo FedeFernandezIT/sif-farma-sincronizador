@@ -32,7 +32,7 @@ namespace Sisfarma.Sincronizador
         private System.Timers.Timer timerControlStockFechasSalida;
         private System.Timers.Timer timerControlStockInicial;
         private System.Timers.Timer timerControlStockFechasEntrada;
-        private System.Timers.Timer timerPedidos;
+        
         //private System.Timers.Timer timerListasTiendas;
         //private System.Timers.Timer timerCategorias;
         //private System.Timers.Timer timerListasFechas;
@@ -135,17 +135,7 @@ namespace Sisfarma.Sincronizador
                 ProcessControlStockFechasEntrada(farmatic, consejo, fisiotes);
                 timerControlStockFechasEntrada.Start();
             };
-            
-            timerPedidos = new System.Timers.Timer(3100);
-            timerPedidos.Elapsed += (sender, @event) =>
-            {
-                timerPedidos.Stop();
-                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
-                FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
-                ConsejoService consejo = new ConsejoService();
-                ProcessPedidos(farmatic, consejo, fisiotes);
-                timerPedidos.Start();
-            };
+                        
 
             //timerListasTiendas = new System.Timers.Timer(4500);
             //timerListasTiendas.Elapsed += (sender, @event) =>
@@ -225,14 +215,14 @@ namespace Sisfarma.Sincronizador
             //timerActualizarEntregasClientes.Start();
             //timerActualizarProductosBorrados.Start();
             //timerActualizarPuntosPendientes.Start();
-            //timerSinonimos.Start();
+            
             //timerControlSinStockInicial.Start();
             //timerControlStockFechasSalida.Start();
             //timerControlStockInicial.Start();
             //timerControlStockFechasEntrada.Start();
             
 
-            //timerPedidos.Start();
+            
             //timerListasTiendas.Start();
             //timerCategorias.Start();
             //timerListasFechas.Start();
@@ -280,131 +270,7 @@ namespace Sisfarma.Sincronizador
             }
         }
 
-        
-
-        private ClienteDto FetchLocalClienteData(FarmaticService farmaticService, Farmatic.Models.Cliente cliente, bool hasSexField)
-        {
-            try
-            {
-                var localDestinatarios = farmaticService.Destinatarios.GetByCliente(cliente.IDCLIENTE);
-                // Establecemos móvil y email
-                var movil = string.Empty;
-                var email = string.Empty;
-                if (localDestinatarios.Count != 0)
-                {
-                    movil = localDestinatarios.First().TlfMovil == null
-                            ? string.Empty
-                            : localDestinatarios.First().TlfMovil.Trim();
-
-                    email = localDestinatarios.First().Email == null
-                            ? string.Empty
-                            : localDestinatarios.First().Email.Trim();
-                }
-                else
-                {
-                    movil = string.Empty;
-                    email = string.Empty;
-                }
-
-                // Establecemos fecha de nacimiento y sexo
-                var fechaNacimiento = 0L;   // Long
-                var sexo = string.Empty;
-                if (hasSexField)
-                {
-                    var localAuxiliar = farmaticService.Clientes.GetAuxiliarById<ClienteAuxWithSexo>(cliente.IDCLIENTE);
-                    if (localAuxiliar != null)
-                    {
-                        fechaNacimiento = Convert.ToInt64(localAuxiliar.FechaNac?.ToString("yyyyMMdd"));
-                        sexo = localAuxiliar.Sexo == 'V' ? "Hombre"
-                            : localAuxiliar.Sexo == 'M' ? "Mujer"
-                            : string.Empty;
-                    }
-                }
-                else
-                {
-                    var localAuxiliar = farmaticService.Clientes.GetAuxiliarById<ClienteAux>(cliente.IDCLIENTE);
-                    if (localAuxiliar != null)
-                        fechaNacimiento = Convert.ToInt64(localAuxiliar.FechaNac?.ToString("yyyyMMdd"));
-                }
-
-                // Establecemos baja
-                var baja = 0;
-                baja = string.IsNullOrEmpty(cliente.FIS_NIF) || cliente.FIS_NIF.Trim().Equals("No") || cliente.FIS_NIF.Trim().Equals("N")
-                        ? 0
-                        : 1;
-
-                // Establecemos lopd
-                var lopd = string.IsNullOrEmpty(cliente.TIPOTARIFA) || cliente.TIPOTARIFA.Trim().Equals("No") || cliente.XCLIE_IDCLIENTEFACT.Trim().Equals("Si")
-                        ? 0
-                        : 1;
-
-                // Si sexo aún no tiene valor, le establecemos uno.
-                if (!string.IsNullOrEmpty(sexo))
-                    sexo = cliente.FIS_NOMBRE ?? string.Empty;
-
-                // Establecemos fechaAlta, para ello parseamos la fecha desde FIS_PROVINCIA
-                DateTime? fechaAlta = null;
-                DateTime fechaAux;
-                if (DateTime.TryParse(cliente.FIS_PROVINCIA, out fechaAux))
-                    fechaAlta = new DateTime(fechaAux.Year, fechaAux.Month, fechaAux.Day);
-
-                // Establecemos tarjeta
-                var tarjeta = cliente.FIS_FAX ?? string.Empty;
-
-                // Establecemos telefono
-                var telefono = cliente.PER_TELEFONO != null
-                    ? cliente.PER_TELEFONO.Trim()
-                    : cliente.FIS_TELEFONO != null
-                    ? cliente.FIS_TELEFONO.Trim()
-                    : string.Empty;
-
-                // Establecemos direccion
-                var direccion = string.Empty;
-                if (!string.IsNullOrEmpty(cliente.PER_DIRECCION) && !string.IsNullOrWhiteSpace(cliente.PER_DIRECCION))
-                {
-                    direccion = cliente.PER_DIRECCION.Trim();
-                    if (!string.IsNullOrEmpty(cliente.PER_CODPOSTAL) && !string.IsNullOrWhiteSpace(cliente.PER_CODPOSTAL))
-                        direccion += $" - {cliente.PER_CODPOSTAL.Trim()}";
-                    if (!string.IsNullOrEmpty(cliente.PER_POBLACION) && !string.IsNullOrWhiteSpace(cliente.PER_POBLACION))
-                        direccion += $" - {cliente.PER_POBLACION.Trim()}";
-                    if (!string.IsNullOrEmpty(cliente.PER_PROVINCIA) && !string.IsNullOrWhiteSpace(cliente.PER_PROVINCIA))
-                        direccion += $" ({cliente.PER_PROVINCIA.Trim()})";
-                }
-
-                // Establecemos nombre
-                var nombre = string.Empty;
-                if (!string.IsNullOrEmpty(cliente.PER_NOMBRE) && !string.IsNullOrWhiteSpace(cliente.PER_NOMBRE))
-                    // eliminamos caracacteres inválidos
-                    nombre = cliente.PER_NOMBRE.Trim().Strip();
-
-                // Buscamos el vendedor y lo establecemos como trabajador
-                var trabajador = GetNombreVendedorOrDefault(farmaticService, cliente.XVEND_IDVENDEDOR);
-
-                // Recuperamos los puntos acumulados del cliente
-                var puntos = farmaticService.Clientes.GetTotalPuntosById(cliente.IDCLIENTE);
-
-                return new ClienteDto
-                {
-                    FechaNacimiento = fechaNacimiento,
-                    FechaAlta = fechaAlta,
-                    Email = email,
-                    Movil = movil,
-                    Direccion = direccion,
-                    Nombre = nombre,
-                    Sexo = sexo,
-                    Telefono = telefono,
-                    Tarjeta = tarjeta,
-                    Trabajador = trabajador,
-                    Puntos = puntos,
-                    Baja = baja,
-                    Lopd = lopd
-                };
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
+                
 
         private string GetNombreVendedorOrDefault(FarmaticService farmaticService, int? vendedor, string byDefault = "")
         {
@@ -767,89 +633,8 @@ namespace Sisfarma.Sincronizador
                 throw;
             }
         }
-
+                
         
-
-        private string GetFamiliaFromLocalOrDefault(FarmaticService farmatic, short id, string byDefault = "")
-        {
-            var familiaDb = farmatic.Familias.GetById(id);
-            return !string.IsNullOrEmpty(familiaDb?.Descripcion)
-                ? familiaDb.Descripcion
-                : byDefault;
-        }
-
-        public void ProcessPedidos(FarmaticService farmatic, ConsejoService consejo, FisiotesService fisiotes)
-        {
-            try
-            {
-                //fisiotes.Pedidos.CreateTable(_remoteBase);
-                //fisiotes.Pedidos.CheckAndCreateFechaPedidoField();
-
-                var anyPedido = fisiotes.Pedidos.LastOrDefault();
-                var recepciones = anyPedido == null
-                    ? farmatic.Recepciones.GetByYear()
-                    : farmatic.Recepciones.GetByIdAndYear(anyPedido.idPedido);
-
-                foreach (var recepcion in recepciones)
-                {
-                    var proveedor = GetProveedorFromLocalOrDefault(farmatic, recepcion.XProv_IdProveedor);
-                    var trabajador = GetNombreVendedorOrDefault(farmatic, recepcion.XVend_IdVendedor);
-
-                    var resume = farmatic.Recepciones.GetResumeById(recepcion.IdRecepcion);
-                    var pedido = fisiotes.Pedidos.Get(recepcion.IdRecepcion);
-
-                    if (pedido == null && resume.numLineas > 0)
-                        fisiotes.Pedidos.Insert(recepcion.IdRecepcion, recepcion.Hora, DateTime.Now,
-                            resume.numLineas, Convert.ToSingle(resume.importePvp), Convert.ToSingle(resume.importePuc),
-                            recepcion.XProv_IdProveedor, proveedor, trabajador);
-
-                    if (resume.numLineas > 0)
-                    {
-                        var lineas = farmatic.Recepciones.GetLineasById(recepcion.IdRecepcion);
-                        foreach (var linea in lineas)
-                        {
-                            if (!string.IsNullOrEmpty(linea.XArt_IdArticu?.Trim()))
-                            {
-                                var familia = string.Empty;
-                                var superFamilia = string.Empty;
-                                var codLaboratorio = string.Empty;
-                                var nombreLaboratorio = string.Empty;
-                                var pvp = 0d;
-                                var puc = 0d;
-
-                                var articulo = farmatic.Articulos.GetById(linea.XArt_IdArticu);
-                                if (articulo == null)
-                                    nombreLaboratorio = "<Sin Laboratorio>";
-                                else
-                                {
-                                    puc = articulo.Puc;
-                                    pvp = articulo.Pvp;
-
-                                    familia = GetFamiliaFromLocalOrDefault(farmatic, articulo.XFam_IdFamilia, "<Sin Clasificar>");
-                                    superFamilia = familia.Equals("<Sin Clasificar>")
-                                        ? superFamilia = familia
-                                        : GetSuperFamiliaFromLocalOrDefault(farmatic, familia, "<Sin Clasificar>");
-
-                                    codLaboratorio = articulo.Laboratorio ?? string.Empty;
-                                    nombreLaboratorio = GetNombreLaboratorioFromLocalOrDefault(farmatic, consejo, codLaboratorio, "<Sin Laboratorio>");
-                                }
-
-                                var lineaPedido = fisiotes.Pedidos.GetLineaByKey(linea.IdRecepcion, linea.IdNLinea);
-                                if (lineaPedido == null && articulo != null)
-                                    fisiotes.Pedidos.InsertLinea(recepcion.Hora, linea.IdRecepcion, linea.IdNLinea,
-                                        articulo.IdArticu.Strip(), articulo.Descripcion.Strip(), familia.Strip(),
-                                        superFamilia.Strip(), linea.Recibidas, Convert.ToSingle(pvp), Convert.ToSingle(puc),
-                                        codLaboratorio.Strip(), nombreLaboratorio.Strip());
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Task.Delay(1500).Wait();
-            }
-        }
 
         //public void ProcessListaTienda(FarmaticService farmatic, ConsejoService consejo, FisiotesService fisiotes)
         //{

@@ -40,16 +40,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
         public FaltasRepository Faltas { get; set; }
 
         public FisiotesService(string host, string username, string password)
-        {
-            //_ctx = new FisiotesContext();
-            //Clientes = new ClientesRepository(_ctx);
-            //Huecos = new HuecosRepository(_ctx);
-            //PuntosPendientes = new PuntosPendientesRepository(_ctx);
-            //Configuraciones = new ConfiguracionesRepository(_ctx);
-            //Entregas = new EntregasRepository(_ctx);
-            //Medicamentos = new MedicamentosRepository(_ctx);
-            //Sinonimos = new SinonimosRepository(_ctx);
-            //Pedidos = new PedidosRepository(_ctx);
+        {                        
             //Listas = new ListasRepository(_ctx);
             //Categorias = new CategoriasRepository(_ctx);
             //Encargos = new EncargosRepository(_ctx);
@@ -64,6 +55,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
             Entregas = new EntregasRepository(restClient, config);
             Medicamentos = new MedicamentosRepository(restClient, config);
             Sinonimos = new SinonimosRepository(restClient, config);
+            Pedidos = new PedidosRepository(restClient, config);
         }
     }
 }

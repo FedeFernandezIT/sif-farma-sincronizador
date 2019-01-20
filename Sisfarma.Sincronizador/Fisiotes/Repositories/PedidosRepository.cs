@@ -1,4 +1,6 @@
 ﻿using Sisfarma.RestClient;
+using Sisfarma.RestClient.Exceptions;
+using Sisfarma.Sincronizador.Extensions;
 using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
@@ -36,10 +38,111 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
 
         public Pedido LastOrDefault()
         {
-            var sql = @"select * from pedidos order by idPedido Desc Limit 0,1";
-            return _ctx.Database.SqlQuery<Pedido>(sql)
-                .FirstOrDefault();
+            try
+            {
+                return _restClient
+                .Resource(_config.Pedidos.Ultimo)
+                .SendGet<Pedido>();                    
+            }
+            catch (RestClientNotFoundException)
+            {
+                return null;
+            }            
         }
+
+
+        public bool Exists(int pedido)
+        {
+            return Get(pedido) != null;
+        }
+
+        public Pedido Get(int pedido)
+        {
+            try
+            {
+                return _restClient
+                .Resource(_config.Pedidos.GetByPedido.Replace("{pedido}", $"{pedido}"))
+                .SendGet<Pedido>();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return null;
+            }
+        }
+
+        public void Insert(Pedido pp)
+        {
+            var pedido = new
+            {
+                idPedido = pp.idPedido,
+                fechaPedido = pp.fechaPedido.ToIsoString(),
+                hora = pp.hora.ToIsoString(),
+                numLineas = pp.numLineas,
+                importePvp = pp.importePvp,
+                importePuc = pp.importePuc,
+                idProveedor = pp.idProveedor,
+                proveedor = pp.proveedor,
+                trabajador = pp.trabajador
+            };
+
+            _restClient
+                .Resource(_config.Pedidos.Insert)
+                .SendPost(new
+                {
+                    bulk = new[] { pedido }
+                });            
+        }
+
+
+        public bool ExistsLinea(int pedido, int linea)
+        {
+            return GetLineaByKey(pedido, linea) != null;
+        }
+
+        public LineaPedido GetLineaByKey(int pedido, int linea)
+        {
+            try
+            {
+                return _restClient
+                .Resource(_config.Pedidos.GetByLineaDePedido
+                    .Replace("{pedido}", $"{pedido}")
+                    .Replace("{linea}", $"{linea}"))
+                .SendGet<LineaPedido>();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return null;
+            }            
+        }
+
+
+        public void InsertLinea(LineaPedido ll)
+        {
+            var linea = new
+            {
+                fechaPedido = ll.fechaPedido.ToIsoString(),
+                idPedido = ll.idPedido,
+                idLinea = ll.idLinea,
+                cod_nacional = ll.cod_nacional,
+                descripcion = ll.descripcion,
+                familia = ll.familia,
+                superFamilia = ll.superFamilia,
+                cantidad = ll.cantidad,
+                pvp = ll.pvp,
+                puc = ll.puc,
+                cod_laboratorio = ll.cod_laboratorio,
+                laboratorio = ll.laboratorio
+            };
+
+            _restClient
+                .Resource(_config.Pedidos.InsertLineaDePedido)
+                .SendPost(new
+                {
+                    bulk = new[] { linea }
+                });
+        }
+
+        
 
         public void CreateTable(string remote)
         {
@@ -96,10 +199,18 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             };
             CheckAndCreateFieldsTemplate(table, fields, alters);
         }
-
         
+        
+        #region SQL Methods
+        
+        public Pedido LastOrDefaultSql()
+        {
+            var sql = @"select * from pedidos order by idPedido Desc Limit 0,1";
+            return _ctx.Database.SqlQuery<Pedido>(sql)
+                .FirstOrDefault();
+        }
 
-        public Pedido Get(int pedido)
+        public Pedido GetSql(int pedido)
         {
             var sql = @"select * from pedidos where idPedido = @pedido";
             return _ctx.Database.SqlQuery<Pedido>(sql,
@@ -107,16 +218,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 .FirstOrDefault();
         }
 
-        public LineaPedido GetLineaByKey(int pedido, int linea)
-        {
-            var sql = @"select * from lineas_pedidos where idPedido = @pedido AND idLinea= @linea";
-            return _ctx.Database.SqlQuery<LineaPedido>(sql,
-                new SqlParameter("pedido", pedido),
-                new SqlParameter("linea", linea))
-                .FirstOrDefault();
-        }
-
-        public void Insert(int idPedido, DateTime fechaPedido, DateTime hora, int numLineas, float importePvp, float importePuc, string idProveedor, string proveedor, string trabajador)
+        public void InsertSql(int idPedido, DateTime fechaPedido, DateTime hora, int numLineas, float importePvp, float importePuc, string idProveedor, string proveedor, string trabajador)
         {
             var sql = @"INSERT IGNORE INTO pedidos (idPedido,fechaPedido,hora,numLineas,importePvp,importePuc,idProveedor,proveedor,trabajador) VALUES(" +
                             @"@idPedido, @fechaPedido, @hora, @numLineas, @importePvp, @importePuc, @idProveedor, @proveedor, @trabajador)";
@@ -132,7 +234,16 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("trabajador", trabajador));
         }
 
-        public void InsertLinea(DateTime fechaPedido, int idPedido, int idLinea, string codNacional, string descripcion, string familia,
+        public LineaPedido GetLineaByKeySql(int pedido, int linea)
+        {
+            var sql = @"select * from lineas_pedidos where idPedido = @pedido AND idLinea= @linea";
+            return _ctx.Database.SqlQuery<LineaPedido>(sql,
+                new SqlParameter("pedido", pedido),
+                new SqlParameter("linea", linea))
+                .FirstOrDefault();
+        }
+
+        public void InsertLineaSql(DateTime fechaPedido, int idPedido, int idLinea, string codNacional, string descripcion, string familia,
             string superFamilia, int cantidad, float pvp, float puc, string codLaboratorio, string laboratorio)
         {
             var sql = @"INSERT IGNORE INTO lineas_pedidos (fechaPedido, idPedido, idLinea, cod_nacional, descripcion, familia, superFamilia, cantidad, pvp, puc, cod_laboratorio, laboratorio) VALUES(" +
@@ -150,15 +261,6 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("puc", puc),
                 new SqlParameter("codLaboratorio", codLaboratorio),
                 new SqlParameter("laboratorio", laboratorio));
-        }
-
-        #region SQL Methods
-
-        public Pedido LastSql()
-        {
-            var sql = @"select * from pedidos order by idPedido Desc Limit 0,1";
-            return _ctx.Database.SqlQuery<Pedido>(sql)
-                .FirstOrDefault();
         }
         #endregion
     }

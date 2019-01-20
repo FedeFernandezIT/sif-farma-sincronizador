@@ -15,18 +15,20 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
         {
         }
 
-        public IEnumerable<Recepcion> GetByYear()
+        public IEnumerable<Recepcion> GetByYear(int year)
         {            
-            var sql = @"SELECT * From Recep WHERE YEAR(Fecha) >= 2015 Order by IdRecepcion ASC";
-            return _ctx.Database.SqlQuery<Recepcion>(sql)
+            var sql = @"SELECT * From Recep WHERE YEAR(Fecha) >= @year Order by IdRecepcion ASC";
+            return _ctx.Database.SqlQuery<Recepcion>(sql,
+                new SqlParameter("year", year))
                 .ToList();         
         }
 
-        public IEnumerable<Recepcion> GetByIdAndYear(long? pedido)
+        public IEnumerable<Recepcion> GetByIdAndYear(int year, long? pedido)
         {            
             var sql =
-                @"SELECT * From Recep WHERE IdRecepcion >= @pedido AND YEAR(Fecha) >= 2015 Order by IdRecepcion ASC";
+                @"SELECT * From Recep WHERE IdRecepcion >= @pedido AND YEAR(Fecha) >= @year Order by IdRecepcion ASC";
             return _ctx.Database.SqlQuery<Recepcion>(sql,
+                new SqlParameter("year", year),
                 new SqlParameter("pedido", pedido ?? SqlInt64.Null))
                 .ToList();            
         }
