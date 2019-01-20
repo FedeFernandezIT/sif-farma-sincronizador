@@ -1,4 +1,7 @@
-﻿using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.RestClient;
+using Sisfarma.RestClient.Exceptions;
+using Sisfarma.Sincronizador.Extensions;
+using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -14,6 +17,75 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
         }
 
+        public FaltasRepository(IRestClient restClient, FisiotesConfig config)
+            : base(restClient, config)
+        {
+        }
+
+        public Falta LastOrDefault()
+        {
+            try
+            {
+                return _restClient
+                .Resource(_config.Faltas.Ultima)
+                .SendGet<Falta>();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return null;
+            }
+        }
+
+        public Falta GetByLineaDePedido(int pedido, int linea)
+        {
+            try
+            {
+                return _restClient
+                .Resource(_config.Faltas.GetByLineaDePedido
+                    .Replace("{pedido}", $"{pedido}")
+                    .Replace("{linea}", $"{linea}"))
+                .SendGet<Falta>();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return null;
+            }
+        }
+
+        public bool ExistsLineaDePedido(int idPedido, int idLinea)
+        {
+            return GetByLineaDePedido(idPedido, idLinea) != null;
+        }
+
+        public void Insert(Falta ff)
+        {
+            var falta = new
+            {
+                idPedido = ff.idPedido,
+                idLinea = ff.idLinea,
+                cod_nacional = ff.cod_nacional,
+                descripcion = ff.descripcion,
+                familia = ff.familia,
+                superFamilia = ff.superFamilia,
+                cantidadPedida = ff.cantidadPedida,
+                fechaFalta = ff.fechaFalta.ToIsoString(),
+                cod_laboratorio = ff.cod_laboratorio,
+                laboratorio = ff.laboratorio,
+                proveedor = ff.proveedor,
+                fechaPedido = ff.fechaPedido.ToIsoString(),
+                pvp = ff.pvp,
+                puc = ff.puc                
+            };
+
+            _restClient
+                .Resource(_config.Faltas.InsertLineaDePedido)
+                .SendPost(new
+                {
+                    bulk = new[] { falta }
+                });
+        }
+
+
         public void CheckAndCreateProveedorField()
         {
             const string table = @"SELECT * from faltas LIMIT 0,1;";
@@ -25,21 +97,9 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             CheckAndCreateFieldsTemplate(table, fields, alters);
         }
 
-        public Falta Last()
-        {
-            var sql = "select * from faltas order by idPedido Desc Limit 0,1";
-            return _ctx.Database.SqlQuery<Falta>(sql)
-                .FirstOrDefault();
-        }
+        
 
-        public Falta GetByLineaPedido(int pedido, int linea)
-        {
-            var sql = @"select * from faltas where idPedido = @pedido AND idLinea= @linea";
-            return _ctx.Database.SqlQuery<Falta>(sql,
-                new SqlParameter("pedido", pedido),
-                new SqlParameter("linea", linea))
-                .FirstOrDefault();
-        }
+        
 
         public void Insert(int pedido, int linea, string codNacional, string descripcion, string familia, string superFamilia, int cantidad,
             DateTime fechaFalta, string codLaboratorio, string nombreLaboratorio, string proveedor, DateTime? fechaPedido, float pvp, float puc)
@@ -64,5 +124,26 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("pvp", pvp),
                 new SqlParameter("puc", puc));
         }
+
+        
+        #region SQL Methods
+
+        public Falta LastSql()
+        {
+            var sql = "select * from faltas order by idPedido Desc Limit 0,1";
+            return _ctx.Database.SqlQuery<Falta>(sql)
+                .FirstOrDefault();
+        }
+
+        public Falta GetByLineaPedidoSql(int pedido, int linea)
+        {
+            var sql = @"select * from faltas where idPedido = @pedido AND idLinea= @linea";
+            return _ctx.Database.SqlQuery<Falta>(sql,
+                new SqlParameter("pedido", pedido),
+                new SqlParameter("linea", linea))
+                .FirstOrDefault();
+        }
+
+        #endregion
     }
 }

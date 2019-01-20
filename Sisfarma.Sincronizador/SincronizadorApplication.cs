@@ -39,13 +39,10 @@ namespace Sisfarma.Sincronizador
         //private System.Timers.Timer timerListas;
         //private System.Timers.Timer timerEncargos;
         //private System.Timers.Timer timerFamilias;
-        //private System.Timers.Timer timerProductosCriticos;
+
 
         public SincronizadorApplication()
-        {
-            
-            //LeerFicherosConfiguracion();
-            //InitializeTimer();
+        {                        
         }
 
         private void InitializeTimer()
@@ -135,7 +132,7 @@ namespace Sisfarma.Sincronizador
                 ProcessControlStockFechasEntrada(farmatic, consejo, fisiotes);
                 timerControlStockFechasEntrada.Start();
             };
-                        
+
 
             //timerListasTiendas = new System.Timers.Timer(4500);
             //timerListasTiendas.Elapsed += (sender, @event) =>
@@ -199,77 +196,8 @@ namespace Sisfarma.Sincronizador
             //    timerFamilias.Start();
             //};
 
-            //timerProductosCriticos = new System.Timers.Timer(3500);
-            //timerProductosCriticos.Elapsed += (sender, @event) =>
-            //{
-            //    timerProductosCriticos.Stop();
-            //    FarmaticService farmatic = new FarmaticService();
-            //    FisiotesService fisiotes = new FisiotesService();
-            //    ConsejoService consejo = new ConsejoService();
-            //    ProcessProductosCrticos(farmatic, consejo, fisiotes);
-            //    timerProductosCriticos.Start();
-            //};
-
-            
-            //timerActualizarRecetasPendientes.Start();
-            //timerActualizarEntregasClientes.Start();
-            //timerActualizarProductosBorrados.Start();
-            //timerActualizarPuntosPendientes.Start();
-            
-            //timerControlSinStockInicial.Start();
-            //timerControlStockFechasSalida.Start();
-            //timerControlStockInicial.Start();
-            //timerControlStockFechasEntrada.Start();
-            
-
-            
-            //timerListasTiendas.Start();
-            //timerCategorias.Start();
-            //timerListasFechas.Start();
-            //timerListas.Start();
-            //timerEncargos.Start();
-            //timerFamilias.Start();
-            //timerProductosCriticos.Start();
+                               
         }
-
-        private void LeerFicherosConfiguracion()
-        {
-            try
-            {
-                var dir = ConfigurationManager.AppSettings["Directory.Setup"];
-
-                // Configuramos el acceso a el servidor remoto de MySql
-                var path = ConfigurationManager.AppSettings["File.Remote.Base"];
-                _remoteBase = new StreamReader(Path.Combine(dir, path)).ReadLine();
-
-                path = ConfigurationManager.AppSettings["File.Remote.Server"];
-                var stream = new StreamReader(Path.Combine(dir, path));
-                _remoteServer = stream.ReadLine();
-                _remoteUsername = stream.ReadLine();
-                _remotePassword = stream.ReadLine();
-
-                // Servidor Local
-                path = ConfigurationManager.AppSettings["File.Local.Server"];
-                _localServer = new StreamReader(Path.Combine(dir, path)).ReadLine();
-                path = ConfigurationManager.AppSettings["File.Local.Base"];
-                _localBase = new StreamReader(Path.Combine(dir, path)).ReadLine();
-                path = ConfigurationManager.AppSettings["File.Local.User"];
-                _localUser = new StreamReader(Path.Combine(dir, path)).ReadLine();
-                path = ConfigurationManager.AppSettings["File.Local.Pass"];
-                _localPass = new StreamReader(Path.Combine(dir, path)).ReadLine();
-
-                // Único archivo que puede no existir
-                path = ConfigurationManager.AppSettings["File.Market.Code.List"];
-                _marketCodeList = File.Exists(Path.Combine(dir, path))
-                    ? Convert.ToInt32(new StreamReader(Path.Combine(dir, path)).ReadLine())
-                    : -1;
-            }
-            catch (IOException)
-            {
-                throw new IOException("Ha habido un error en la lectura de algún fichero de configuración. Compruebe que existen dichos ficheros de configuración.");
-            }
-        }
-
                 
 
         private string GetNombreVendedorOrDefault(FarmaticService farmaticService, int? vendedor, string byDefault = "")
@@ -633,8 +561,8 @@ namespace Sisfarma.Sincronizador
                 throw;
             }
         }
-                
-        
+
+
 
         //public void ProcessListaTienda(FarmaticService farmatic, ConsejoService consejo, FisiotesService fisiotes)
         //{
@@ -900,69 +828,6 @@ namespace Sisfarma.Sincronizador
         //    {
         //        Task.Delay(1500).Wait();
         //    }
-        //}
-
-        //public void ProcessProductosCrticos(FarmaticService farmatic, ConsejoService consejo, FisiotesService fisiotes)
-        //{
-        //    try
-        //    {
-        //        fisiotes.Faltas.CheckAndCreateProveedorField();
-        //        var falta = fisiotes.Faltas.Last();
-        //        var pedidos = falta == null
-        //            ? farmatic.Pedidos.GetByFechaGreaterOrEqual(DateTime.Now)
-        //            : farmatic.Pedidos.GetByIdGreaterOrEqual(falta.idPedido);
-
-        //        foreach (var pedido in pedidos)
-        //        {
-        //            var fechaPedido = pedido.Hora;
-        //            var fechaActual = DateTime.Now;
-
-        //            var detallePedido = farmatic.Pedidos.GetLineasByPedido(pedido.IdPedido);
-        //            foreach (var linea in detallePedido)
-        //            {
-        //                if (!string.IsNullOrEmpty(linea.XArt_IdArticu?.Trim()))
-        //                {
-        //                    var familia = string.Empty;
-        //                    var superFamilia = string.Empty;
-        //                    var codLaboratorio = string.Empty;
-        //                    var nombreLaboratorio = string.Empty;
-        //                    var proveedor = string.Empty;
-        //                    var pcoste = 0d;
-        //                    var precioMed = 0d;
-
-        //                    var articulo = farmatic.Articulos.GetById(linea.XArt_IdArticu);
-        //                    if (articulo == null)
-        //                        nombreLaboratorio = "<Sin Laboratorio>";
-        //                    else
-        //                    {
-        //                        pcoste = articulo.Puc;
-        //                        precioMed = articulo.Pvp;
-
-        //                        familia = GetFamiliaFromLocalOrDefault(farmatic, articulo.XFam_IdFamilia, "<Sin Clasificar>");
-        //                        superFamilia = familia.Equals("<Sin Clasificar>")
-        //                            ? superFamilia = familia
-        //                            : GetSuperFamiliaFromLocalOrDefault(farmatic, familia, "<Sin Clasificar>");
-
-        //                        proveedor = GetProveedorFromLocalOrDefault(farmatic, articulo.ProveedorHabitual);
-
-        //                        codLaboratorio = articulo.Laboratorio ?? string.Empty;
-        //                        nombreLaboratorio = GetNombreLaboratorioFromLocalOrDefault(farmatic, consejo, codLaboratorio, "<Sin Laboratorio>");
-        //                    }
-
-        //                    var faltaLineaActual = fisiotes.Faltas.GetByLineaPedido(linea.IdPedido, linea.IdLinea);
-        //                    if (faltaLineaActual == null && articulo.StockActual == 0)
-        //                        fisiotes.Faltas.Insert(linea.IdPedido, linea.IdLinea, articulo.IdArticu.Strip(),
-        //                            articulo.Descripcion.Strip(), familia.Strip(), superFamilia.Strip(), linea.Unidades,
-        //                            fechaActual, codLaboratorio.Strip(), nombreLaboratorio.Strip(), proveedor.Strip(),
-        //                            fechaPedido, Convert.ToSingle(precioMed), Convert.ToSingle(pcoste));
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Task.Delay(1500).Wait();
-        //    }
-        //}
+        //}        
     }
 }

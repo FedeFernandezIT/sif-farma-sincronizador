@@ -142,6 +142,7 @@
     <Compile Include="SincronizadorApplication.cs" />
     <Compile Include="Sincronizadores\HuecoSincronizador.cs" />
     <Compile Include="Sincronizadores\PedidoSincronizador.cs" />
+    <Compile Include="Sincronizadores\ProductoCriticoSincronizador.cs" />
     <Compile Include="Sincronizadores\SinonimoSincronizador.cs" />
     <Compile Include="Sincronizadores\SuperTypes\BaseSincronizador.cs" />
     <Compile Include="Sincronizadores\ClienteSincronizador.cs" />

@@ -22,20 +22,6 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
         }
 
-        //public bool IsEmpty()
-        //{
-        //    return _restClient
-        //        .Resource(_config.Pedidos.IsEmpty)
-        //        .SendGet<IsEmptyResponse>()
-        //            .isEmpty;
-        //}
-
-        internal class IsEmptyResponse
-        {
-            public int count { get; set; }
-            public bool isEmpty { get; set; }
-        }
-
         public Pedido LastOrDefault()
         {
             try
