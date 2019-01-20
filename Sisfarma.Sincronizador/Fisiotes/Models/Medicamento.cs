@@ -12,7 +12,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Models
 
         public string familia { get; set; }
 
-        public string superfamilia { get; set; }
+        public string superFamilia { get; set; }
 
         public float precio { get; set; }
 

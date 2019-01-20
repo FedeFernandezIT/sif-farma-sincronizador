@@ -3,14 +3,9 @@ using Sisfarma.Sincronizador.Extensions;
 using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Farmatic.Models;
 using Sisfarma.Sincronizador.Fisiotes;
-using Sisfarma.Sincronizador.Fisiotes.Models;
-using Sisfarma.Sincronizador.Models;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
@@ -24,8 +19,7 @@ namespace Sisfarma.Sincronizador
         private string _localBase, _localServer, _localUser, _localPass;
         private int _marketCodeList;
                 
-        
-        private System.Timers.Timer timerControlSinStockInicial;
+                
         private System.Timers.Timer timerControlStockFechasSalida;
         private System.Timers.Timer timerControlStockInicial;
         private System.Timers.Timer timerControlStockFechasEntrada;
@@ -41,18 +35,7 @@ namespace Sisfarma.Sincronizador
         }
 
         private void InitializeTimer()
-        {                                    
-            timerControlSinStockInicial = new System.Timers.Timer(2500);//(10000)
-            timerControlSinStockInicial.Elapsed += (sender, @event) =>
-            {
-                timerControlSinStockInicial.Stop();
-                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
-                FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
-                ConsejoService consejo = new ConsejoService();
-                ProcessControlSinStockInicial(farmatic, consejo, fisiotes);
-                timerControlSinStockInicial.Start();
-            };
-
+        {                                                
             timerControlStockFechasSalida = new System.Timers.Timer(2500);//(60000);
             timerControlStockFechasSalida.Elapsed += (sender, @event) =>
             {
@@ -127,35 +110,7 @@ namespace Sisfarma.Sincronizador
             var proveedorDb = farmaticService.Proveedores.GetById(proveedor);
             return proveedorDb?.FIS_NOMBRE ?? byDefault;
         }
-        
-
-        public void ProcessControlSinStockInicial(FarmaticService farmaticService, ConsejoService consejoService, FisiotesService fisiotesService)
-        {
-            const string FIELD_POR_DONDE_VOY_SIN_STOCK = FieldsConfiguracion.FIELD_POR_DONDE_VOY_SIN_STOCK;
-            try
-            {
-                var valorConfiguracion = fisiotesService.Configuraciones.GetByCampo(FIELD_POR_DONDE_VOY_SIN_STOCK);
-
-                var codArticulo = !string.IsNullOrEmpty(valorConfiguracion)
-                    ? valorConfiguracion
-                    : "0";                
-                                    
-                var articulos = farmaticService.Articulos.GetWithoutStockByIdGreaterOrEqual(codArticulo);
-                foreach (var articulo in articulos)
-                {
-                    SyncUpArticuloWithIva(farmaticService, consejoService, fisiotesService, articulo, FIELD_POR_DONDE_VOY_SIN_STOCK, articulo.IdArticu);
-                }
-
-                fisiotesService.Configuraciones.Update(FIELD_POR_DONDE_VOY_SIN_STOCK, "0");
-                fisiotesService.Medicamentos.ResetPorDondeVoySinStock();
-            }
-            catch (Exception e)
-            {
-                //Task.Delay(1500).Wait();
-                Console.WriteLine(e.Message);
-                throw;
-            }
-        }
+                
 
         private void SyncUpArticuloWithIva(FarmaticService farmaticService, ConsejoService consejoService, FisiotesService fisiotesService, ArticuloWithIva articulo, string updatefield, string updateValue)
         {

@@ -81,6 +81,41 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             }
         }
 
+        public void Insert(Medicamento mm)
+        {
+            var medicamento = new[] { new
+                {
+                    actualizadoPS = 1,
+                    cod_barras = mm.cod_barras,
+                    cod_nacional = mm.cod_nacional,
+                    nombre = mm.nombre,
+                    superFamilia = mm.superFamilia,
+                    familia = mm.familia,
+                    precio = mm.precio,
+                    descripcion = mm.descripcion,
+                    laboratorio = mm.laboratorio,
+                    nombre_laboratorio = mm.nombre_laboratorio,
+                    proveedor = mm.proveedor,
+                    pvpSinIva = mm.pvpSinIva,
+                    iva = mm.iva,
+                    stock = mm.stock,
+                    puc = mm.puc,
+                    stockMinimo = mm.stockMinimo,
+                    stockMaximo = mm.stockMaximo,
+                    presentacion = mm.presentacion,
+                    descripcionTienda = mm.descripcionTienda,
+                    activoPrestashop = mm.activoPrestashop.ToInteger(),
+                    fechaCaducidad = mm.fechaCaducidad.ToIsoString(),
+                    fechaUltimaCompra = mm.fechaUltimaCompra.ToIsoString(),
+                    fechaUltimaVenta = mm.fechaUltimaVenta.ToIsoString(),
+                    baja = mm.baja.ToInteger()
+                }};
+
+            _restClient.
+                Resource(_config.Medicamentos.Insert)
+                .SendPost(new { bulk = medicamento });
+        }
+
         public void Insert(string codigoBarras, string codNacional, string nombre, string superFamilia, string familia,
             float precio, string descripcion, string laboratorio, string nombreLaboratorio, string proveedor, float pvpSinIva, int iva,
             int stock, float puc, int stockMinimo, int stockMaximo, string presentacion, string descripcionTienda, bool activo, DateTime? caducidad,
@@ -117,6 +152,80 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             _restClient.
                 Resource(_config.Medicamentos.Insert)
                 .SendPost(new { bulk = medicamento });            
+        }
+
+
+        public void Update(Medicamento mm, bool withSqlExtra = false)
+        {
+            var medicamento = (withSqlExtra) 
+                ? GenerarMedicamentoAnonymusWhithoutExta(mm)
+                : GenerarMedicamentoAnonymusWithExtra(mm);
+            
+            _restClient.
+                Resource(_config.Medicamentos.Update)
+                .SendPost(new { bulk = new[] { medicamento } });
+        }
+
+        private object GenerarMedicamentoAnonymusWithExtra(Medicamento mm)
+        {
+            return new
+                {
+                    cargadoPS = 0,
+                    actualizadoPS = 1,
+                    cod_barras = mm.cod_barras,
+                    cod_nacional = mm.cod_nacional,
+                    nombre = mm.nombre,
+                    superFamilia = mm.superFamilia,
+                    familia = mm.familia,
+                    precio = mm.precio,
+                    descripcion = mm.descripcion,
+                    laboratorio = mm.laboratorio,
+                    nombre_laboratorio = mm.nombre_laboratorio,
+                    proveedor = mm.proveedor,
+                    pvpSinIva = mm.pvpSinIva,
+                    iva = mm.iva,
+                    stock = mm.stock,
+                    puc = mm.puc,
+                    stockMinimo = mm.stockMinimo,
+                    stockMaximo = mm.stockMaximo,
+                    presentacion = mm.presentacion,
+                    descripcionTienda = mm.descripcionTienda,
+                    activoPrestashop = mm.activoPrestashop.ToInteger(),
+                    fechaCaducidad = mm.fechaCaducidad.ToIsoString(),
+                    fechaUltimaCompra = mm.fechaUltimaCompra.ToIsoString(),
+                    fechaUltimaVenta = mm.fechaUltimaVenta.ToIsoString(),
+                    baja = mm.baja.ToInteger()
+                };
+        }
+
+        private object GenerarMedicamentoAnonymusWhithoutExta(Medicamento mm)
+        {
+            return new
+                {
+                    cod_barras = mm.cod_barras,
+                    cod_nacional = mm.cod_nacional,
+                    nombre = mm.nombre,
+                    superFamilia = mm.superFamilia,
+                    familia = mm.familia,
+                    precio = mm.precio,
+                    descripcion = mm.descripcion,
+                    laboratorio = mm.laboratorio,
+                    nombre_laboratorio = mm.nombre_laboratorio,
+                    proveedor = mm.proveedor,
+                    pvpSinIva = mm.pvpSinIva,
+                    iva = mm.iva,
+                    stock = mm.stock,
+                    puc = mm.puc,
+                    stockMinimo = mm.stockMinimo,
+                    stockMaximo = mm.stockMaximo,
+                    presentacion = mm.presentacion,
+                    descripcionTienda = mm.descripcionTienda,
+                    activoPrestashop = mm.activoPrestashop.ToInteger(),
+                    fechaCaducidad = mm.fechaCaducidad.ToIsoString(),
+                    fechaUltimaCompra = mm.fechaUltimaCompra.ToIsoString(),
+                    fechaUltimaVenta = mm.fechaUltimaVenta.ToIsoString(),
+                    baja = mm.baja.ToInteger()
+                };
         }
 
         public void Update(string codigoBarras, string nombre, string superFamilia, string familia,

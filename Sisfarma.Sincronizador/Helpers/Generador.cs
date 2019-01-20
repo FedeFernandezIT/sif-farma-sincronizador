@@ -1,4 +1,5 @@
-﻿using Sisfarma.Sincronizador.Extensions;
+﻿using Sisfarma.Sincronizador.Consejo;
+using Sisfarma.Sincronizador.Extensions;
 using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Farmatic.Models;
 using Sisfarma.Sincronizador.Models;
@@ -12,6 +13,10 @@ namespace Sisfarma.Sincronizador.Helpers
 {
     public static class Generator
     {
+        private static readonly string COD_BARRAS_DEFAULT = "847000";
+        private static readonly string LABORATORIO_DEAFULT = "<Sin Laboratorio>";
+
+
         public static ClienteDto FetchLocalClienteData(FarmaticService farmaticService, Cliente cliente, bool hasSexo)
         {
             try
@@ -140,6 +145,98 @@ namespace Sisfarma.Sincronizador.Helpers
         {
             var vendedorDb = farmaticService.Vendedores.GetById(Convert.ToInt16(vendedor));
             return vendedorDb?.NOMBRE ?? byDefault;
+        }
+
+        public static Fisiotes.Models.Medicamento GenerarMedicamento(FarmaticService farmatic, ConsejoService consejo, ArticuloWithIva articulo)
+        {            
+            var familia = farmatic.Familias.GetById(articulo.XFam_IdFamilia)?.Descripcion
+                ?? string.Empty;
+
+            var superFamilia = !string.IsNullOrEmpty(familia)
+                    ? farmatic.Familias.GetSuperFamiliaDescripcionByFamilia(familia) ?? string.Empty
+                    : string.Empty;
+
+            var fechaUltimaCompra = articulo.FechaUltimaEntrada;
+            var fechaUltimaVenta = articulo.FechaUltimaSalida;
+            var precio = articulo.Pvp;
+            var pcoste = articulo.Puc;
+            var pvpsIva = Math.Round(articulo.Pvp * 100 / (articulo.Iva + 100), 2);
+            var stock = articulo.StockActual;
+            var stockMinimo = articulo.StockMinimo;
+            var stockMaximo = articulo.StockMaximo;
+            var descripcion = articulo.Descripcion.Strip();
+            var baja = articulo.Baja;
+            var activo = !baja;
+            var fechaCaducidad = articulo.FechaCaducidad;
+
+            var codigoBarra = farmatic.Sinonimos.GetByArticulo(articulo.IdArticu)?.Sinonimo
+                ?? COD_BARRAS_DEFAULT;
+
+            var proveedor = farmatic.Proveedores.GetById(articulo.ProveedorHabitual)?.FIS_NOMBRE
+                ?? string.Empty;
+
+            var nombreLaboratorio = GetNombreLaboratorioFromLocalOrDefault(
+                farmatic, consejo, articulo.Laboratorio, LABORATORIO_DEAFULT);
+
+            var esperara = default(Consejo.Models.Esperara); // consejoService.Esperas.Get(articulo.IdArticu);
+            var presentacion = esperara?.PRESENTACION ?? string.Empty;
+
+            var descripcionHtml = string.Empty;
+            var textos = new List<string>(); //consejoService.Esperas.GetTextos(articulo.IdArticu);
+            foreach (var texto in textos)
+            {
+                if (string.IsNullOrEmpty(descripcionHtml))
+                    descripcionHtml = texto;
+                descripcionHtml += $@" <br> {texto}";
+            }
+            descripcionHtml = descripcionHtml.Length < 30000
+                ? descripcionHtml.Replace(Environment.NewLine, "<br>").Replace("\0", string.Empty).Strip()
+                : string.Empty;
+
+            return new Fisiotes.Models.Medicamento
+            {
+                cod_barras = codigoBarra.Strip(),
+                cod_nacional = articulo.IdArticu.Strip(),
+                familia = familia.Strip(),
+                superFamilia = superFamilia.Strip(),
+                nombre = descripcion.Strip(),
+                precio = Convert.ToSingle(precio),
+                nombre_laboratorio = nombreLaboratorio.Strip(),
+                laboratorio = articulo.Laboratorio.Strip(),
+                proveedor = proveedor.Strip(),
+                pvpSinIva = Convert.ToSingle(pvpsIva),
+                iva = Convert.ToInt32(articulo.Iva),
+                stock = stock,
+                puc = Convert.ToSingle(pcoste),
+                stockMinimo = stockMinimo,
+                stockMaximo = stockMaximo,
+                presentacion = presentacion.Strip(),
+                descripcion = descripcion.Strip(),
+                descripcionTienda = descripcionHtml.Strip(),
+                activoPrestashop = activo,
+                fechaCaducidad = fechaCaducidad,
+                fechaUltimaCompra = fechaUltimaCompra,
+                fechaUltimaVenta = fechaUltimaVenta,
+                baja = baja
+            };
+        }
+
+        public static string GetNombreLaboratorioFromLocalOrDefault(FarmaticService farmaticService, ConsejoService consejoService, string codigo, string byDefault = "")
+        {
+            var nombreLaboratorio = byDefault;
+            if (!string.IsNullOrEmpty(codigo?.Trim()) && !string.IsNullOrWhiteSpace(codigo))
+            {
+                var laboratorioDb = default(Consejo.Models.Labor); //consejoService.Laboratorios.Get(codigo);
+                if (laboratorioDb == null)
+                {
+                    var laboratorioLocal =
+                        farmaticService.Laboratorios.GetById(codigo);
+                    nombreLaboratorio = laboratorioLocal?.Nombre ?? byDefault;
+                }
+                else nombreLaboratorio = laboratorioDb.NOMBRE;
+            }
+            else nombreLaboratorio = byDefault;
+            return nombreLaboratorio;
         }
     }
 }
