@@ -41,6 +41,11 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 });
         }
 
+        public void Insert(ListaArticulo la)
+        {
+            Insert(new List<ListaArticulo> { la });
+        }
+
 
         public void Insert(int lista, int articulo)
         {

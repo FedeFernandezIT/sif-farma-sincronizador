@@ -1,10 +1,7 @@
 ﻿using Sisfarma.Sincronizador.Farmatic.Models;
-using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sisfarma.Sincronizador.Farmatic.Repositories
 {
@@ -14,7 +11,7 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
         {
         }
 
-        public ListaArticulo Get(int lista)
+        public ListaArticulo GetOneOrDefault(int lista)
         {            
             var sql = @"SELECT * FROM ListaArticu WHERE fecha >= DATEADD(dd, 0, DATEDIFF(dd, 0, GETDATE())) AND idLista = @lista";
             return _ctx.Database.SqlQuery<ListaArticulo>(sql,

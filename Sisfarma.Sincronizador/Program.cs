@@ -69,7 +69,7 @@ namespace Sisfarma.Sincronizador
             //Task.Factory.StartNew(() => new EncargoSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
             //Task.Factory.StartNew(() => new CategoriaSincronizador(NewFarmatic(), NewFisiotes()).Run());
             //Task.Factory.StartNew(() => new ListaSincronizador(NewFarmatic(), NewFisiotes()).Run());
-
+            Task.Factory.StartNew(() => new ListaTiendaSincronizador(NewFarmatic(), NewFisiotes(), consejoService, _marketCodeList).Run());
 
             Application.ApplicationExit += (sender, @event) => notifyIcon.Visible = false;            
             Application.Run(new SincronizadorApplication());
