@@ -21,7 +21,7 @@ namespace Sisfarma.Sincronizador
                 
                 
         private System.Timers.Timer timerControlStockFechasSalida;
-        private System.Timers.Timer timerControlStockFechasEntrada;
+
         
         //private System.Timers.Timer timerListasTiendas;
         //private System.Timers.Timer timerListasFechas;
@@ -45,19 +45,7 @@ namespace Sisfarma.Sincronizador
                 ProcessControlStockFechasSalida(farmatic, consejo, fisiotes);
                 timerControlStockFechasSalida.Start();
             };            
-
-            timerControlStockFechasEntrada = new System.Timers.Timer(2500);//(60000);
-            timerControlStockFechasEntrada.Elapsed += (sender, @event) =>
-            {
-                timerControlStockFechasEntrada.Stop();
-                FarmaticService farmatic = new FarmaticService(_localServer, _localBase, _localUser, _localPass);
-                FisiotesService fisiotes = new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
-                ConsejoService consejo = new ConsejoService();
-                ProcessControlStockFechasEntrada(farmatic, consejo, fisiotes);
-                timerControlStockFechasEntrada.Start();
-            };
-
-
+            
             //timerListasTiendas = new System.Timers.Timer(4500);
             //timerListasTiendas.Elapsed += (sender, @event) =>
             //{
@@ -226,34 +214,7 @@ namespace Sisfarma.Sincronizador
             {
                 return DateTime.ParseExact(fecha, "yyyy-dd-MM", CultureInfo.InvariantCulture);
             }
-        }        
-
-        public void ProcessControlStockFechasEntrada(FarmaticService farmaticService, ConsejoService consejoService, FisiotesService fisiotesService)
-        {
-            const string FIELD_NAME = FieldsConfiguracion.FIELD_STOCK_ENTRADA;
-            try
-            {
-                // Estblecemos la fecha de actualización del stock
-                DateTime? fechaActualizacionStock = null;
-                var configuracion = fisiotesService.Configuraciones.GetByCampo(FIELD_NAME);                
-                fechaActualizacionStock = CalculateFechaActualizacion(configuracion);
-
-                // Recuperamos artículos de la base local junto al iva
-                var articulosWithIva = farmaticService.Articulos.GetByFechaUltimaEntradaGreaterOrEqual(fechaActualizacionStock);
-                foreach (var articulo in articulosWithIva)
-                {
-                    var strFecha = articulo.FechaUltimaEntrada?.ToString("yyyy-MM-dd");
-                    SyncUpArticuloWithIva(farmaticService, consejoService, fisiotesService, articulo, FIELD_NAME, strFecha);
-                }
-            }
-            catch (Exception e)
-            {
-                Task.Delay(1500).Wait();
-                //Task.Delay(1500).Wait();
-                Console.WriteLine(e.Message);
-                throw;
-            }
-        }
+        }                
 
 
 

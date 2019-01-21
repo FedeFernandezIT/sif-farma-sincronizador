@@ -134,7 +134,8 @@
     <Compile Include="Fisiotes\Repositories\PedidosRepository.cs" />
     <Compile Include="Fisiotes\Repositories\PuntosPendientesRepository.cs" />
     <Compile Include="Fisiotes\Repositories\SinonimosRepository.cs" />
-    <Compile Include="Helpers\Generador.cs" />
+    <Compile Include="Helpers\Calculator.cs" />
+    <Compile Include="Helpers\Generator.cs" />
     <Compile Include="Models\ClienteDto.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="SincronizadorApplication.cs" />
     <Compile Include="Sincronizadores\CategoriaSincronizador.cs" />
     <Compile Include="Sincronizadores\ControlSinStockSincronizador.cs" />
+    <Compile Include="Sincronizadores\ControlStockFechaEntradaSincronizador.cs" />
     <Compile Include="Sincronizadores\ControlStockSincronizador.cs" />
     <Compile Include="Sincronizadores\EncargoSincronizador.cs" />
     <Compile Include="Sincronizadores\EntregaClienteActualizacionSincronizador.cs" />
