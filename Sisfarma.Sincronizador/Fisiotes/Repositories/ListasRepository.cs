@@ -1,4 +1,6 @@
-﻿using Sisfarma.Sincronizador.Fisiotes.Models;
+﻿using Sisfarma.RestClient;
+using Sisfarma.RestClient.Exceptions;
+using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -17,6 +19,72 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             DeArticulos = new ListasArticulosRepository(ctx);
         }
 
+        public ListasRepository(IRestClient restClient, FisiotesConfig config) 
+            : base(restClient, config)
+        {
+            DeArticulos = new ListasArticulosRepository(restClient, config);
+        }
+
+        public Lista GetCodPorDondeVoyOrDefault()
+        {
+            try
+            {
+                return _restClient
+                    .Resource(_config.Listas.PorDondeVoyActual)
+                    .SendGet<Lista>();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return null;
+            }         
+        }
+
+        public void InsertOrUpdate(Lista ll)
+        {
+            var lista = new
+            {
+                cod = ll.cod,
+                lista = ll.lista,
+                porDondeVoy = 1
+            };
+
+            _restClient
+                .Resource(_config.Listas.InsertOrUpdate)
+                .SendPost(new
+                {
+                    bulk = new[] { lista }
+                });
+        }
+
+        public Lista GetOneOrDefault(int codigo)
+        {
+            try
+            {
+                return _restClient
+                    .Resource(_config.Listas.GetByCodigo
+                        .Replace("{codigo}", $"{codigo}"))
+                    .SendGet<Lista>();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return null;
+            }
+        }
+
+        public void ResetPorDondeVoy()
+        {
+            try
+            {
+                _restClient
+                    .Resource(_config.Listas.ResetPorDondeVoy)
+                    .SendPost();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return;
+            }
+        }
+
         public void CheckAndCreatePorDondeVoyField()
         {
             const string table = @"SELECT * from listas LIMIT 0,1;";
@@ -28,7 +96,15 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             CheckAndCreateFieldsTemplate(table, fields, alters);
         }
 
-        public int GetCodPorDondeVoy()
+                
+
+        
+
+        
+
+        #region SQL Methods
+
+        public int GetCodPorDondeVoySql()
         {
             var sql = @"SELECT cod FROM listas WHERE porDondeVoy = 1 LIMIT 0,1";
             var result = _ctx.Database.SqlQuery<int>(sql).ToList();
@@ -37,7 +113,13 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 : -1;
         }
 
-        public Lista Get(int codigo)
+        public void ResetPorDondeVoySql()
+        {
+            var sql = @"UPDATE IGNORE listas SET porDondeVoy = 0";
+            _ctx.Database.ExecuteSqlCommand(sql);
+        }
+
+        public Lista GetSql(int codigo)
         {
             var sql = @"SELECT * FROM listas WHERE cod = @codigo";
             return _ctx.Database.SqlQuery<Lista>(sql,
@@ -45,7 +127,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 .FirstOrDefault();
         }
 
-        public void UpdateWithPorDondeVoy(int codigo, string lista)
+        public void UpdateWithPorDondeVoySql(int codigo, string lista)
         {
             var sql = @"UPDATE IGNORE listas SET lista = @lista, porDondeVoy = 1 WHERE cod = @codigo";
             _ctx.Database.ExecuteSqlCommand(sql,
@@ -53,7 +135,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("lista", lista));
         }
 
-        public void Update(int codigo, string lista)
+        public void UpdateSql(int codigo, string lista)
         {
             var sql = @"UPDATE IGNORE listas SET lista = @lista WHERE cod = @codigo";
             _ctx.Database.ExecuteSqlCommand(sql,
@@ -61,7 +143,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("lista", lista));
         }
 
-        public void InsertWithPorDondeVoy(int codigo, string lista)
+        public void InsertWithPorDondeVoySql(int codigo, string lista)
         {
             var sql = @"INSERT IGNORE INTO listas (cod, lista, porDondeVoy) VALUES(@codigo, @lista, 1)";
             _ctx.Database.ExecuteSqlCommand(sql,
@@ -69,18 +151,13 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("lista", lista));
         }
 
-        public void Insert(int codigo, string lista)
+        public void InsertSql(int codigo, string lista)
         {
             var sql = @"INSERT IGNORE INTO listas (cod, lista) VALUES(@codigo, @lista)";
             _ctx.Database.ExecuteSqlCommand(sql,
                 new SqlParameter("codigo", codigo),
                 new SqlParameter("lista", lista));
         }
-
-        public void ResetPorDondeVoy()
-        {
-            var sql = @"UPDATE IGNORE listas SET porDondeVoy = 0";
-            _ctx.Database.ExecuteSqlCommand(sql);
-        }
+        #endregion
     }
 }

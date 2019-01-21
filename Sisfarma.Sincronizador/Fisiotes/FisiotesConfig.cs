@@ -25,9 +25,16 @@ namespace Sisfarma.Sincronizador.Fisiotes
         public SinonimoResource Sinonimos { get; set; }
 
         public PedidoResource Pedidos { get; set; }
+
         public FaltaResource Faltas { get; set; }
-        public FamiliaResource Familias { get; internal set; }
-        public EncargoResource Encargos { get; internal set; }
+
+        public FamiliaResource Familias { get; set; }
+
+        public EncargoResource Encargos { get; set; }
+
+        public ListaResource Listas { get; set; }
+
+        public ListaArticuloResource ListaDeArticulos { get; set; }
 
         public static FisiotesConfig TestConfig(string remoteServer, string username, string password)
         {
@@ -132,6 +139,20 @@ namespace Sisfarma.Sincronizador.Fisiotes
                     GetByCategoriaAndPadre = "/api/categoria/index/categoria/{categoria}/padre/{padre}",
                     GetByPadre = "/api/categoria/index/padre/{padre}",
                     Insert = "api/categoria/createUpdate"
+                },
+
+                Listas = new ListaResource
+                {
+                    PorDondeVoyActual = "/api/lista/iteracion",
+                    GetByCodigo = "/api/lista/index/codigo/{codigo}",
+                    ResetPorDondeVoy = "/api/lista/iteracion_reset",
+                    InsertOrUpdate = "/api/lista/createUpdate"
+                },
+
+                ListaDeArticulos = new ListaArticuloResource
+                {
+                    Eliminar = "/api/lista/articulo_eliminar",
+                    Insert = "api/lista/articulo_createUpdate"
                 }
 
             };
@@ -238,6 +259,20 @@ public class EncargoResource
 {
     public string Ultimo { get; set; }
     public string GetByEncargo { get; set; }
+    public string Insert { get; set; }
+}
+
+public class ListaResource
+{
+    public string PorDondeVoyActual { get; set; }
+    public string GetByCodigo { get; set; }
+    public string ResetPorDondeVoy { get; set; }
+    public string InsertOrUpdate { get; set; }
+}
+
+public class ListaArticuloResource
+{
+    public string Eliminar { get; set; }
     public string Insert { get; set; }
 }
 

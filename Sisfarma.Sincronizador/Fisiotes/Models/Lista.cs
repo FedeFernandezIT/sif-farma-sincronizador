@@ -8,6 +8,6 @@ namespace Sisfarma.Sincronizador.Fisiotes.Models
 
         public int? numArticulos { get; set; }
 
-        public bool? porDondeVoy { get; set; }
+        public int? porDondeVoy { get; set; }
     }
 }

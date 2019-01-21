@@ -158,6 +158,7 @@
     <Compile Include="Sincronizadores\SuperTypes\ControlSincronizador.cs" />
     <Compile Include="Sincronizadores\SuperTypes\ISincronizador.cs" />
     <Compile Include="Sincronizadores\PuntoPendienteSincronizador.cs" />
+    <Compile Include="Sincronizadores\ListaSincronizador.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

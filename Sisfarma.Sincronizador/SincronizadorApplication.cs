@@ -25,7 +25,7 @@ namespace Sisfarma.Sincronizador
         
         //private System.Timers.Timer timerListasTiendas;
         //private System.Timers.Timer timerListasFechas;
-        private System.Timers.Timer timerListas;
+
     
 
 
@@ -78,16 +78,6 @@ namespace Sisfarma.Sincronizador
             //    ProcessListasFechas(farmatic, fisiotes);
             //    timerListasFechas.Start();
             //};
-
-            timerListas = new System.Timers.Timer(61000);
-            timerListas.Elapsed += (sender, @event) =>
-            {
-                timerListas.Stop();
-                FarmaticService farmatic = new FarmaticService();
-                FisiotesService fisiotes = new FisiotesService();
-                ProcessListas(farmatic, fisiotes);
-                timerListas.Start();
-            };
 
 
 
@@ -394,44 +384,6 @@ namespace Sisfarma.Sincronizador
         //        Task.Delay(1500).Wait();
         //    }
         //}
-
-        public void ProcessListas(FarmaticService farmatic, FisiotesService fisiotes)
-        {
-            try
-            {
-                fisiotes.Listas.CheckAndCreatePorDondeVoyField();
-                var codLista = fisiotes.Listas.GetCodPorDondeVoy();
-                var listas = farmatic.ListasArticulos.GetByIdGreaterThan(codLista);
-                foreach (var lista in listas)
-                {
-                    var listaRemote = fisiotes.Listas.Get(lista.IdLista);
-                    fisiotes.Listas.ResetPorDondeVoy();
-                    if (listaRemote == null)
-                        fisiotes.Listas.InsertWithPorDondeVoy(lista.IdLista, lista.Descripcion.Strip());
-                    else
-                        fisiotes.Listas.UpdateWithPorDondeVoy(lista.IdLista, lista.Descripcion.Strip());
-
-                    var articulos = farmatic.ListasArticulos.GetArticulosByLista(lista.IdLista);
-                    if (articulos.Count != 0)
-                    {
-                        fisiotes.Listas.DeArticulos.Delete(lista.IdLista);
-                        var take = 1000;
-                        for (int i = 0; i < articulos.Count; i += take)
-                        {
-                            var items = articulos.Skip(i).Take(1000).Select(x => new Fisiotes.Models.ListaArticulo
-                            {
-                                cod_lista = x.XItem_IdLista,
-                                cod_articulo = Convert.ToInt32(x.XItem_IdArticu)
-                            }).ToList();
-                            fisiotes.Listas.DeArticulos.Insert(items);
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Task.Delay(1500).Wait();
-            }
-        }
+        
     }
 }
