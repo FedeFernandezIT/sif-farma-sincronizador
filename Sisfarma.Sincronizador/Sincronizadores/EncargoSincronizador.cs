@@ -54,6 +54,10 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var trabajador = farmatic.Vendedores.GetById(Convert.ToInt16(encargo.Vendedor))?.NOMBRE
                 ?? string.Empty;
 
+            var codNacional = encargo.XArt_IdArticu?.Trim();
+            if (string.IsNullOrWhiteSpace(codNacional))
+                codNacional = "0";
+
             var articulo = farmatic.Articulos.GetById(encargo.XArt_IdArticu);
             if (articulo != null)
             {
@@ -78,7 +82,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             return new Fisiotes.Models.Encargo
             {
                 idEncargo = encargo.IdContador,
-                cod_nacional = encargo.XArt_IdArticu?.Trim(),
+                cod_nacional = codNacional,
                 nombre = nombre,
                 familia = familia,
                 superFamilia = superFamilia,

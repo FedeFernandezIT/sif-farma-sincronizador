@@ -1,4 +1,5 @@
-﻿using Sisfarma.Sincronizador.Farmatic;
+﻿using Sisfarma.RestClient.Exceptions;
+using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
 using System;
 using System.Threading.Tasks;
@@ -26,6 +27,10 @@ namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
                 try
                 {
                     Process();
+                }
+                catch (RestClientException ex)
+                {
+                    Console.WriteLine(ex.Content);
                 }
                 catch (Exception ex)
                 {

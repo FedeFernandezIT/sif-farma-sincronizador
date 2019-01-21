@@ -9,6 +9,8 @@ namespace Sisfarma.RestClient.Exceptions
 {
     public class RestClientException : Exception
     {
+        public string Content { get; private set; }
+
         public HttpStatusCode HttpStatus { get; private set; }
 
         public string HttpStatusDescription { get; private set; }
@@ -21,9 +23,16 @@ namespace Sisfarma.RestClient.Exceptions
         {
             HttpStatus = httpStatus;
             HttpStatusDescription = httpStatusDescription ?? throw new ArgumentNullException(nameof(httpStatusDescription));
-        }        
+        }
 
-        public static RestClientException Create(HttpStatusCode statusCode, string statusDescription)
+        public RestClientException(HttpStatusCode httpStatus, string httpStatusDescription, string content)
+        {
+            HttpStatus = httpStatus;
+            HttpStatusDescription = httpStatusDescription ?? throw new ArgumentNullException(nameof(httpStatusDescription));
+            Content = content;
+        }
+
+        public static RestClientException Create(HttpStatusCode statusCode, string statusDescription, string content)
         {            
             switch (statusCode)
             {
@@ -31,7 +40,7 @@ namespace Sisfarma.RestClient.Exceptions
                     return new RestClientNotFoundException(statusDescription);
                 
                 default:
-                    return new RestClientException(statusCode, statusDescription);
+                    return new RestClientException(statusCode, statusDescription, content);
             }
         }
     }

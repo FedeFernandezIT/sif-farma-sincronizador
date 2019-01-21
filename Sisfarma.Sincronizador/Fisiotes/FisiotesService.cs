@@ -4,9 +4,6 @@ namespace Sisfarma.Sincronizador.Fisiotes
 {
     public class FisiotesService
     {
-        //private string _server, _database;
-        private readonly FisiotesContext _ctx;
-
         public ClientesRepository Clientes { get; private set; }
 
         public HuecosRepository Huecos { get; private set; }

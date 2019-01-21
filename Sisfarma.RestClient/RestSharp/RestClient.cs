@@ -89,12 +89,7 @@ namespace Sisfarma.RestClient.RestSharp
             var response = await _restClient.ExecutePostTaskAsync(_request.AddJsonBody(body));
             return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
         }
-
-
-
-        
-
-        
+       
         public T SendPut<T>(object body)
         {         
             var response = _restClient.Execute(_request.AddJsonBody(body), RSharp.Method.PUT);         
@@ -110,9 +105,9 @@ namespace Sisfarma.RestClient.RestSharp
                 return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
 
             if (response.ErrorException != null)            
-                throw new RestClientException(HttpStatusCode.InternalServerError, response.ErrorMessage);
+                throw new RestClientException(HttpStatusCode.InternalServerError, response.ErrorMessage, response.Content);
             
-            throw RestClientException.Create(response.StatusCode, response.StatusDescription);           
+            throw RestClientException.Create(response.StatusCode, response.StatusDescription, response.Content);           
         }
 
         private T DoSend<T>(RSharp.Method method, object body)
@@ -123,9 +118,9 @@ namespace Sisfarma.RestClient.RestSharp
                 return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
 
             if (response.ErrorException != null)
-                throw new RestClientException(HttpStatusCode.InternalServerError, response.ErrorMessage);
+                throw new RestClientException(HttpStatusCode.InternalServerError, response.ErrorMessage, response.Content);
 
-            throw RestClientException.Create(response.StatusCode, response.StatusDescription);
+            throw RestClientException.Create(response.StatusCode, response.StatusDescription, response.Content);
         }
 
         private void DoSend(RSharp.Method method, object body)
@@ -133,10 +128,10 @@ namespace Sisfarma.RestClient.RestSharp
             var response = _restClient.Execute(_request.AddJsonBody(body), method);         
             
             if (response.ErrorException != null)
-                throw new RestClientException(HttpStatusCode.InternalServerError, response.ErrorMessage);
-            
+                throw new RestClientException(HttpStatusCode.InternalServerError, response.ErrorMessage, response.Content);
+
             if (!response.IsSuccessful)
-                throw RestClientException.Create(response.StatusCode, response.StatusDescription);                                        
+                throw RestClientException.Create(response.StatusCode, response.StatusDescription, response.Content);                                        
         }
     }
 }
