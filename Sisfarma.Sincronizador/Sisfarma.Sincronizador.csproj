@@ -144,6 +144,7 @@
     <Compile Include="Sincronizadores\CategoriaSincronizador.cs" />
     <Compile Include="Sincronizadores\ControlSinStockSincronizador.cs" />
     <Compile Include="Sincronizadores\ControlStockFechaEntradaSincronizador.cs" />
+    <Compile Include="Sincronizadores\ControlStockFechaSalidaSincronizador.cs" />
     <Compile Include="Sincronizadores\ControlStockSincronizador.cs" />
     <Compile Include="Sincronizadores\EncargoSincronizador.cs" />
     <Compile Include="Sincronizadores\EntregaClienteActualizacionSincronizador.cs" />

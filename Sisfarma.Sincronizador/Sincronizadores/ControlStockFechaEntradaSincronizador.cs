@@ -25,7 +25,6 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var fechaActualizacionStock = Calculator.CalculateFechaActualizacion(configuracion);
 
             var articulosWithIva = farmatic.Articulos.GetByFechaUltimaEntradaGreaterOrEqual(fechaActualizacionStock);
-
             foreach (var articulo in articulosWithIva)
             {
                 var strFecha = articulo.FechaUltimaEntrada?.ToString("yyyy-MM-dd");
