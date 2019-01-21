@@ -12,11 +12,7 @@ using System.Windows.Forms;
 namespace Sisfarma.Sincronizador
 {
     internal static class Program
-    {
-        /// <summary>
-        /// Punto de entrada principal para la aplicación.
-        /// </summary>
-        //[STAThread]
+    {       
         private static void Main()
         {
             string
@@ -51,25 +47,26 @@ namespace Sisfarma.Sincronizador
 
             ConsejoService consejoService = new ConsejoService();
 
-            //Task.Factory.StartNew(() => new ClienteSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            //Task.Factory.StartNew(() => new HuecoSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            //Task.Factory.StartNew(() => new PuntosPendientesSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            //Task.Factory.StartNew(() => new SinonimoSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            //Task.Factory.StartNew(() => new PedidoSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            //Task.Factory.StartNew(() => new ProductoCriticoSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            //Task.Factory.StartNew(() => new FamiliaSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            //Task.Factory.StartNew(() => new RecetaPendienteActualizacionSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            //Task.Factory.StartNew(() => new EntregaClienteActualizacionSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            //Task.Factory.StartNew(() => new ProductoBorradoActualizacionSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            //Task.Factory.StartNew(() => new PuntoPendienteActualizacionSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            //Task.Factory.StartNew(() => new ControlSinStockSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            //Task.Factory.StartNew(() => new ControlStockSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            //Task.Factory.StartNew(() => new ControlStockFechaEntradaSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            //Task.Factory.StartNew(() => new ControlStockFechaSalidaSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            //Task.Factory.StartNew(() => new EncargoSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            //Task.Factory.StartNew(() => new CategoriaSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            //Task.Factory.StartNew(() => new ListaSincronizador(NewFarmatic(), NewFisiotes()).Run());
+            Task.Factory.StartNew(() => new ClienteSincronizador(NewFarmatic(), NewFisiotes()).Run());
+            Task.Factory.StartNew(() => new HuecoSincronizador(NewFarmatic(), NewFisiotes()).Run());
+            Task.Factory.StartNew(() => new PuntoPendienteSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
+            Task.Factory.StartNew(() => new SinonimoSincronizador(NewFarmatic(), NewFisiotes()).Run());
+            Task.Factory.StartNew(() => new PedidoSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
+            Task.Factory.StartNew(() => new ProductoCriticoSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
+            Task.Factory.StartNew(() => new FamiliaSincronizador(NewFarmatic(), NewFisiotes()).Run());
+            Task.Factory.StartNew(() => new RecetaPendienteActualizacionSincronizador(NewFarmatic(), NewFisiotes()).Run());
+            Task.Factory.StartNew(() => new EntregaClienteActualizacionSincronizador(NewFarmatic(), NewFisiotes()).Run());
+            Task.Factory.StartNew(() => new ProductoBorradoActualizacionSincronizador(NewFarmatic(), NewFisiotes()).Run());
+            Task.Factory.StartNew(() => new PuntoPendienteActualizacionSincronizador(NewFarmatic(), NewFisiotes()).Run());
+            Task.Factory.StartNew(() => new ControlSinStockSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
+            Task.Factory.StartNew(() => new ControlStockSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
+            Task.Factory.StartNew(() => new ControlStockFechaEntradaSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
+            Task.Factory.StartNew(() => new ControlStockFechaSalidaSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
+            Task.Factory.StartNew(() => new EncargoSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
+            Task.Factory.StartNew(() => new CategoriaSincronizador(NewFarmatic(), NewFisiotes()).Run());
+            Task.Factory.StartNew(() => new ListaSincronizador(NewFarmatic(), NewFisiotes()).Run());
             Task.Factory.StartNew(() => new ListaTiendaSincronizador(NewFarmatic(), NewFisiotes(), consejoService, _marketCodeList).Run());
+            Task.Factory.StartNew(() => new ListaFechaSincronizador(NewFarmatic(), NewFisiotes(), _marketCodeList).Run());
 
             Application.ApplicationExit += (sender, @event) => notifyIcon.Visible = false;            
             Application.Run(new SincronizadorApplication());

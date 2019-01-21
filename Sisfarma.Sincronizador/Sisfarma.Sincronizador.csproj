@@ -150,6 +150,7 @@
     <Compile Include="Sincronizadores\EntregaClienteActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\FamiliaSincronizador.cs" />
     <Compile Include="Sincronizadores\HuecoSincronizador.cs" />
+    <Compile Include="Sincronizadores\ListaFechaSincronizador.cs" />
     <Compile Include="Sincronizadores\ListaTiendaSincronizador.cs" />
     <Compile Include="Sincronizadores\PedidoSincronizador.cs" />
     <Compile Include="Sincronizadores\ProductoBorradoActualizacionSincronizador.cs" />
