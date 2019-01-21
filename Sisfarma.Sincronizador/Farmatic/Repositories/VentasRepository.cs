@@ -23,10 +23,11 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
                 .FirstOrDefault();
         }
 
-        public List<Venta> GetByIdGreaterOrEqual(long value)
+        public List<Venta> GetByIdGreaterOrEqual(int year, long value)
         {            
-            var sql = @"SELECT TOP 100 * FROM venta WHERE ejercicio >= 1 AND IdVenta >= @value ORDER BY IdVenta ASC";
+            var sql = @"SELECT TOP 10000 * FROM venta WHERE ejercicio >= @year AND IdVenta >= @value ORDER BY IdVenta ASC";
             return _ctx.Database.SqlQuery<Venta>(sql,
+                new SqlParameter("year", year),
                 new SqlParameter("value", value))
                 .ToList();            
         }

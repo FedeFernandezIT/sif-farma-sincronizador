@@ -13,6 +13,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
     public class PuntoPendienteSincronizador : BaseSincronizador
     {
         const string FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES = FieldsConfiguracion.FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES;
+        const int YEAR_FOUND = 1;
 
         private readonly bool _hasSexo;
 
@@ -30,7 +31,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         void ProcessPuntosPendientes(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
         {                        
             var idVenta = fisiotes.PuntosPendientes.GetUltimaVenta();
-            var ventas = farmatic.Ventas.GetByIdGreaterOrEqual(idVenta);
+            var ventas = farmatic.Ventas.GetByIdGreaterOrEqual(YEAR_FOUND, idVenta);
             foreach (var venta in ventas)
             {
                 var vendedor = farmatic.Vendedores.GetById(venta.XVend_IdVendedor)?.NOMBRE ?? "NO";
