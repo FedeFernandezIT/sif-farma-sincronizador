@@ -51,6 +51,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                     }
                 }
             }
+
+            fisiotes.Listas.ResetPorDondeVoy();
         }
     }
 }
