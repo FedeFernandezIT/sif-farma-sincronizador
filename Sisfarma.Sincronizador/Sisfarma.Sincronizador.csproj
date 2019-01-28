@@ -123,6 +123,7 @@
     <Compile Include="Fisiotes\Models\ListaArticulo.cs" />
     <Compile Include="Fisiotes\Models\Medicamento.cs" />
     <Compile Include="Fisiotes\Models\Pedido.cs" />
+    <Compile Include="Fisiotes\Models\Proveedor.cs" />
     <Compile Include="Fisiotes\Models\ProveedorHistorial.cs" />
     <Compile Include="Fisiotes\Models\PuntosPendientes.cs" />
     <Compile Include="Fisiotes\Models\Sinonimo.cs" />
@@ -165,6 +166,7 @@
     <Compile Include="Sincronizadores\ProductoBorradoActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\ProductoCriticoSincronizador.cs" />
     <Compile Include="Sincronizadores\ProveedorHistorialSincronizador.cs" />
+    <Compile Include="Sincronizadores\ProveedorSincronizador.cs" />
     <Compile Include="Sincronizadores\PuntoPendienteActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\RecetaPendienteActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\SinonimoSincronizador.cs" />

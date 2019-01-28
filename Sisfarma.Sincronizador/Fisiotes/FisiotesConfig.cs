@@ -166,7 +166,10 @@ namespace Sisfarma.Sincronizador.Fisiotes
                 Proveedores = new ProveedorResource
                 {
                     GetFechaMaximaHistorial = "api/proveedor/historial",
-                    InsertHistorico = "api/proveedor/historial_createUpdate"
+                    InsertHistorico = "api/proveedor/historial_createUpdate",
+                    GetOneByProveedor = "api/proveedor/index/proveedor/{proveedor}/nombre/{nombre}",
+                    Insert = "api/proveedor/createUpdate",
+                    Update = "api/proveedor/createUpdate"
                 }
 
             };
@@ -300,6 +303,9 @@ public class ProveedorResource
 {
     public string GetFechaMaximaHistorial { get; set; }
     public string InsertHistorico { get; set; }
+    public string GetOneByProveedor { get; set; }
+    public string Insert { get; set; }
+    public string Update { get; set; }
 }
 
 public class Credential
