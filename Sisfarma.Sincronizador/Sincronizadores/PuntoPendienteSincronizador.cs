@@ -34,7 +34,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var ventas = farmatic.Ventas.GetByIdGreaterOrEqual(YEAR_FOUND, idVenta);
             foreach (var venta in ventas)
             {
-                var vendedor = farmatic.Vendedores.GetById(venta.XVend_IdVendedor)?.NOMBRE ?? "NO";
+                var vendedor = farmatic.Vendedores.GetOneOrDefaultById(venta.XVend_IdVendedor)?.NOMBRE ?? "NO";
                 var detalleVenta = farmatic.Ventas.GetLineasVentaByVenta(venta.IdVenta);
 
                 foreach (var linea in detalleVenta)
@@ -84,9 +84,9 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private PuntosPendientes GenerarPuntoPendiente(Venta venta, LineaVenta linea, string vendedor, FarmaticService farmatic, ConsejoService consejo)
         {                        
-            var redencion = (farmatic.Ventas.GetLineaRedencionByKey(venta.IdVenta, linea.IdNLinea)?
+            var redencion = (farmatic.Ventas.GetOneOrDefaultLineaRedencionByKey(venta.IdVenta, linea.IdNLinea)?
                 .Redencion) ?? 0;
-            var articulo = farmatic.Articulos.GetById(linea.Codigo);
+            var articulo = farmatic.Articulos.GetOneOrDefaultById(linea.Codigo);
 
             var pp = new PuntosPendientes();
             pp.idventa = venta.IdVenta;
@@ -137,7 +137,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         string GetCodidoBarrasFromLocalOrDefault(FarmaticService farmaticService, string articulo)
         {
-            var sinonimo = farmaticService.Sinonimos.GetByArticulo(articulo);
+            var sinonimo = farmaticService.Sinonimos.GetOneOrDefaultByArticulo(articulo);
             return sinonimo?.Sinonimo ?? "847000".PadLeft(6, '0');
         }
 

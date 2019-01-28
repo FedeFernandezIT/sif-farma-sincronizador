@@ -15,9 +15,9 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
         {
         }
 
-        public bool Exists(string codigo) => this.GetById(codigo) != null;
+        public bool Exists(string codigo) => this.GetOneOrDefaultById(codigo) != null;
 
-        public Articulo GetById(string codigo)
+        public Articulo GetOneOrDefaultById(string codigo)
         {
             var sql = @"SELECT * FROM articu WHERE IdArticu = @codigo";
             return _ctx.Database.SqlQuery<Articulo>(sql,

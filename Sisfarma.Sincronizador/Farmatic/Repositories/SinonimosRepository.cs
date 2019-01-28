@@ -14,14 +14,14 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
         {
         }
 
-        public List<Sinonimos> Get()
+        public List<Sinonimos> GetAll()
         {
             var sql = @"SELECT * FROM Sinonimo";
             return _ctx.Database.SqlQuery<Sinonimos>(sql)
                 .ToList();
         }
 
-        public Sinonimos GetByArticulo(string codigo)
+        public Sinonimos GetOneOrDefaultByArticulo(string codigo)
         {
             var sql = @"SELECT * FROM sinonimo WHERE IdArticu = @codigo";
             return _ctx.Database.SqlQuery<Sinonimos>(sql,

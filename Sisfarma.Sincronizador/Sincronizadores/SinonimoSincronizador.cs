@@ -29,7 +29,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             {
                 if (!isEmpty) fisiotesService.Sinonimos.Empty();
 
-                var sinonimos = farmaticService.Sinonimos.Get();
+                var sinonimos = farmaticService.Sinonimos.GetAll();
                 
                 for (int i = 0; i < sinonimos.Count; i += _batchSize)
                 {

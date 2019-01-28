@@ -19,18 +19,18 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var puntos = fisiotes.PuntosPendientes.GetWithoutRedencion();
             foreach (var pto in puntos)
             {
-                var venta = farmatic.Ventas.GetById(pto.idventa);
+                var venta = farmatic.Ventas.GetOneOrDefaultById(pto.idventa);
                 if (venta != null)
                 {
                     var lineas = farmatic.Ventas.GetLineasVentaByVenta(venta.IdVenta);
                     foreach (var linea in lineas)
                     {
                         var lineaRedencion =
-                            farmatic.Ventas.GetLineaRedencionByKey(linea.IdVenta, linea.IdNLinea);
+                            farmatic.Ventas.GetOneOrDefaultLineaRedencionByKey(linea.IdVenta, linea.IdNLinea);
 
                         var redencion = lineaRedencion?.Redencion ?? 0;
 
-                        var articulo = farmatic.Articulos.GetById(linea.Codigo);
+                        var articulo = farmatic.Articulos.GetOneOrDefaultById(linea.Codigo);
 
                         var proveedor = (articulo != null)
                             ? farmatic.Proveedores.GetById(articulo.ProveedorHabitual)?.FIS_NOMBRE ?? string.Empty

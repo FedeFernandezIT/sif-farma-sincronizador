@@ -11,7 +11,7 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
         {
         }
 
-        public Vendedor GetById(short? idVendedor)
+        public Vendedor GetOneOrDefaultById(short? idVendedor)
         {
             var sql = @"SELECT * FROM vendedor WHERE IdVendedor = @idVendedor";
             return _ctx.Database.SqlQuery<Vendedor>(sql,

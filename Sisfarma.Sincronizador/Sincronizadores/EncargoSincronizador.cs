@@ -51,14 +51,14 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 ? encargo.XCli_IdCliente.Trim()
                 : "0";
 
-            var trabajador = farmatic.Vendedores.GetById(Convert.ToInt16(encargo.Vendedor))?.NOMBRE
+            var trabajador = farmatic.Vendedores.GetOneOrDefaultById(Convert.ToInt16(encargo.Vendedor))?.NOMBRE
                 ?? string.Empty;
 
             var codNacional = encargo.XArt_IdArticu?.Trim();
             if (string.IsNullOrWhiteSpace(codNacional))
                 codNacional = "0";
 
-            var articulo = farmatic.Articulos.GetById(encargo.XArt_IdArticu);
+            var articulo = farmatic.Articulos.GetOneOrDefaultById(encargo.XArt_IdArticu);
             if (articulo != null)
             {
                 nombre = articulo.Descripcion.Strip();

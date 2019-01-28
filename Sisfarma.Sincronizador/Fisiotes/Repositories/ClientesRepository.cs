@@ -1,6 +1,7 @@
 ﻿using Sisfarma.RestClient;
 using Sisfarma.RestClient.Exceptions;
 using Sisfarma.Sincronizador.Extensions;
+using Sisfarma.Sincronizador.Fisiotes.DTO.Clientes;
 using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
@@ -75,6 +76,57 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 });
         }
 
+        public void InsertOrUpdate(string trabajador, string tarjeta, string idCliente, string dniCliente, string nombre,
+            string telefono, string direccion, string movil, string email, decimal puntos, long fechaNacimiento,
+            string sexo, DateTime? fechaAlta, int baja, int lopd, bool withTrack = false)
+        {
+            _restClient
+                .Resource(_config.Clientes.Insert.Replace("{dni}", $"{idCliente}"))
+                .SendPut(new
+                {
+                    dni_tra = withTrack ? "1" : "0",
+                    nombre_tra = trabajador,
+                    tarjeta = tarjeta,
+                    apellidos = nombre,
+                    telefono = telefono,
+                    direccion = direccion,
+                    movil = movil,
+                    email = email,
+                    fecha_nacimiento = fechaNacimiento,
+                    puntos = puntos,
+                    sexo = sexo,
+                    fechaAlta = fechaAlta.ToIsoString(),
+                    baja = baja,
+                    lopd = lopd,
+                    dniCliente = dniCliente
+                });
+        }
+
+        public void InsertOrUpdateBeBlue(string trabajador, string tarjeta, string idCliente, string dniCliente, string nombre,
+            string telefono, string direccion, string movil, string email, decimal puntos, long fechaNacimiento,
+            string sexo, DateTime? fechaAlta, int baja, int lopd, int esBeBlue)
+        {
+            _restClient
+                .Resource(_config.Clientes.Insert.Replace("{dni}", $"{idCliente}"))
+                .SendPut(new
+                {
+                    dni_tra = "0",
+                    nombre_tra = trabajador,
+                    tarjeta = tarjeta,
+                    apellidos = nombre,
+                    telefono = telefono,
+                    direccion = direccion,
+                    movil = movil,
+                    email = email,
+                    fecha_nacimiento = fechaNacimiento,
+                    puntos = puntos,
+                    sexo = sexo,
+                    fechaAlta = fechaAlta.ToIsoString(),
+                    baja = baja,
+                    lopd = lopd
+                });
+        }
+
         public void Insert(string trabajador, string tarjeta, string idCliente, string nombre,
             string telefono, string direccion, string movil, string email, decimal puntos, long fechaNacimiento,
             string sexo, string tipo, DateTime? fechaAlta, int baja, int lopd, bool withTrack = false)
@@ -96,7 +148,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             string movil, string email, decimal puntos, long fechaNacimiento, string sexo, DateTime? fechaAlta, int baja, int lopd, string idCliente,
             bool withTrack = false)
         {
-            var clientes = new List<Cliente> { new Cliente
+            var clientes = new[] { new
             {
                 dni = idCliente,
                 nombre = nombre,
@@ -111,6 +163,24 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                     bulk = clientes
                 });
         }
+
+        public void UpdatePuntos(UpdatePuntaje pp)
+        {
+            var clientes = new[] { new 
+            {
+                dni = pp.dni,
+                puntos = pp.puntos
+            } };
+
+            _restClient
+                .Resource(_config.Clientes.Update)
+                .SendPut(new
+                {
+                    bulk = clientes
+                });
+        }
+
+
 
         public void CheckAndCreateFields()
         {

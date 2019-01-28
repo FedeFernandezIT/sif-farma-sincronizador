@@ -141,7 +141,7 @@ namespace Sisfarma.Sincronizador.Helpers
 
         public static string GetNombreVendedorOrDefault(FarmaticService farmaticService, int? vendedor, string byDefault = "")
         {
-            var vendedorDb = farmaticService.Vendedores.GetById(Convert.ToInt16(vendedor));
+            var vendedorDb = farmaticService.Vendedores.GetOneOrDefaultById(Convert.ToInt16(vendedor));
             return vendedorDb?.NOMBRE ?? byDefault;
         }
 
@@ -167,7 +167,7 @@ namespace Sisfarma.Sincronizador.Helpers
             var activo = !baja;
             var fechaCaducidad = articulo.FechaCaducidad;
 
-            var codigoBarra = farmatic.Sinonimos.GetByArticulo(articulo.IdArticu)?.Sinonimo
+            var codigoBarra = farmatic.Sinonimos.GetOneOrDefaultByArticulo(articulo.IdArticu)?.Sinonimo
                 ?? COD_BARRAS_DEFAULT;
 
             var proveedor = farmatic.Proveedores.GetById(articulo.ProveedorHabitual)?.FIS_NOMBRE

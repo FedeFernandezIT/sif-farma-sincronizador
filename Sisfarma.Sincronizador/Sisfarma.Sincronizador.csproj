@@ -87,6 +87,7 @@
     <Compile Include="Farmatic\Models\Recepcion.cs" />
     <Compile Include="Farmatic\Models\RecepcionResume.cs" />
     <Compile Include="Farmatic\Models\Sinonimos.cs" />
+    <Compile Include="Farmatic\Models\TipoCliente.cs" />
     <Compile Include="Farmatic\Models\Vendedor.cs" />
     <Compile Include="Farmatic\Models\Venta.cs" />
     <Compile Include="Farmatic\Repositories\ArticulosRepository.cs" />
@@ -103,8 +104,12 @@
     <Compile Include="Farmatic\Repositories\SinonimosRepository.cs" />
     <Compile Include="Farmatic\Repositories\VendedoresRepository.cs" />
     <Compile Include="Farmatic\Repositories\VentasRepository.cs" />
+    <Compile Include="Fisiotes\DTO\Clientes\UpdatePuntaje.cs" />
+    <Compile Include="Fisiotes\DTO\PuntosPendientes\InsertPuntuacion.cs" />
+    <Compile Include="Fisiotes\DTO\PuntosPendientes\UpdatePuntacion.cs" />
     <Compile Include="Fisiotes\FisiotesConfig.cs" />
     <Compile Include="Fisiotes\FisiotesContext.cs" />
+    <Compile Include="Fisiotes\Models\CanjeoPuntos.cs" />
     <Compile Include="Fisiotes\Models\Categoria.cs" />
     <Compile Include="Fisiotes\Models\Cliente.cs" />
     <Compile Include="Fisiotes\Models\Configuracion.cs" />
@@ -164,6 +169,7 @@
     <Compile Include="Sincronizadores\SuperTypes\ISincronizador.cs" />
     <Compile Include="Sincronizadores\PuntoPendienteSincronizador.cs" />
     <Compile Include="Sincronizadores\ListaSincronizador.cs" />
+    <Compile Include="Sincronizadores\VentaMensualActualizacionSincronizador.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -202,8 +208,6 @@
       <Name>Sisfarma.RestClient</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Fisiotes\DTO\Clientes\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

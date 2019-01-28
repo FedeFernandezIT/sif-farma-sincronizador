@@ -1,6 +1,8 @@
 ﻿using Sisfarma.RestClient;
 using Sisfarma.RestClient.Exceptions;
 using Sisfarma.Sincronizador.Extensions;
+using Sisfarma.Sincronizador.Fisiotes.DTO;
+using Sisfarma.Sincronizador.Fisiotes.DTO.PuntosPendientes;
 using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
@@ -86,6 +88,25 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             catch (RestClientNotFoundException)
             {
                 return new List<PuntosPendientes>();
+            }            
+        }
+
+        public bool ExistsGreatThanOrEqual(DateTime fecha)
+        {
+            var year = fecha.Year;
+            var fechaVenta = fecha.Date.ToIsoString();
+
+            try
+            {
+                return _restClient
+                    .Resource(_config.Puntos.ExistsByFechaGreatThanOrEqual
+                        .Replace("{year}", $"{year}")
+                        .Replace("{fecha}", $"{fechaVenta})"))
+                    .SendGet<bool>();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return false;
             }            
         }
 
@@ -278,6 +299,88 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 {
                     puntos = new { set, where }
                 });
+        }
+
+
+        public void UpdatePuntacion(UpdatePuntacion pp)
+        {
+            var set = new
+            {
+                pp.cantidad,
+                pp.dtoLinea,
+                pp.dtoVenta,
+                pp.dni,                
+                pp.precio,
+                pp.receta,
+                pp.tipoPago,
+                pp.trabajador
+            };
+
+            var where = new { idventa = pp.idventa, idnlinea = pp.idnlinea };
+
+            _restClient
+               .Resource(_config.Puntos.Update)
+               .SendPut(new
+               {
+                   puntos = new { set, where }
+               });
+        }
+    
+
+        public void InsertPuntuacion(InsertPuntuacion pp)
+        {
+            var set = new
+            {
+                idventa = pp.idventa,
+                idnlinea = pp.idnlinea,
+                cod_barras = pp.cod_barras,
+                cod_nacional = pp.cod_nacional,
+                descripcion = pp.descripcion,
+                familia = pp.familia,
+                cantidad = pp.cantidad,
+                precio = pp.precio,
+                tipoPago = pp.tipoPago,
+                fecha = pp.fecha,
+                dni = pp.dni,
+                cargado = pp.cargado,
+                puesto = pp.puesto,
+                trabajador = pp.trabajador,
+                cod_laboratorio = pp.cod_laboratorio,
+                laboratorio = pp.laboratorio,
+                proveedor = pp.proveedor,
+                receta = pp.receta,
+                fechaVenta = pp.fechaVenta.ToIsoString(),
+                superFamilia = pp.superFamilia,
+                pvp = pp.pvp,
+                puc = pp.puc,
+                dtoLinea = pp.dtoLinea,
+                dtoVenta = pp.dtoVenta,
+                redencion = pp.redencion,
+                recetaPendiente = pp.recetaPendiente
+            };
+
+            var where = new { idventa = pp.idventa, idnlinea = pp.idnlinea };
+
+            _restClient
+                .Resource(_config.Puntos.Insert)
+                .SendPost(new
+                {
+                    puntos = new[] { new { set, where } }
+                });
+        }
+
+        public decimal GetPuntosByDni(int dni)
+        {
+            return _restClient
+                .Resource(_config.Puntos.GetPuntosByDni.Replace("{dni}", $"{dni}"))
+                .SendGet<decimal>();
+        }        
+
+        public decimal GetPuntosCanjeadosByDni(int dni)
+        {
+            return _restClient
+                .Resource(_config.Puntos.GetPuntosCanjeadosByDni.Replace("{dni}", $"{dni}"))
+                .SendGet<decimal>();
         }
 
         public void CheckAndCreateFields()

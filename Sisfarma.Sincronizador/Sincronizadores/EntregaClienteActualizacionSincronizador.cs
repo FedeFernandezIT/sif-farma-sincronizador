@@ -48,7 +48,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         private EntregaCliente GenerarEntregaCliente(FarmaticService farmatic, Venta @virtual, LineaVentaVirtual linea)
         {            
             var trabajador = farmatic.Vendedores
-                .GetById(Convert.ToInt16(@virtual.XVend_IdVendedor))?.NOMBRE
+                .GetOneOrDefaultById(Convert.ToInt16(@virtual.XVend_IdVendedor))?.NOMBRE
                     ?? TRABAJADOR_DEFAULT;            
 
             return new EntregaCliente

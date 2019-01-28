@@ -71,6 +71,9 @@ namespace Sisfarma.Sincronizador.Fisiotes
                     GetLastOfYear = "api/puntos/ultimo/year/{year}",
                     GetByItemVenta = "api/puntos/item/venta/{venta}/linea/{linea}",
                     GetUltimaVenta = "api/puntos/ultimo",
+                    GetPuntosByDni = "api/puntos/index/dni/{dni}",
+                    GetPuntosCanjeadosByDni = "api/puntos/canjeados/dni/{dni}",
+                    ExistsByFechaGreatThanOrEqual = "api/puntos/exists_greater_equal/ejercicio/{year}/fechaVenta/{fecha}",
                     Update = "api/puntos/update",
                     Insert = "api/puntos/createUpdate"
                 },
@@ -79,6 +82,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
                 {
                     GetValorByCampo = "/api/configuracion/index/campo/{campo}",
                     UpdateValorByCampo = "/api/configuracion/campo",
+                    PerteneceFarmazul = "/api/configuracion/esfarmazul"
                 },
 
                 Entregas = new EntregaResource
@@ -124,6 +128,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
                 Familias = new FamiliaResource
                 {
                     GetByFamilia = "/api/familia/cod/familia/{familia}",
+                    GetPuntosByFamilia = "/api/familia/puntos/familia/{familia}",
                     Insert = "/api/familia/createUpdate"
                 },
 
@@ -200,12 +205,16 @@ public class PuntoResource
     public string GetByItemVenta { get; set; }
     public string Insert { get; internal set; }
     public string GetUltimaVenta { get; set; }
+    public string ExistsByFechaGreatThanOrEqual { get; internal set; }
+    public string GetPuntosByDni { get; internal set; }
+    public string GetPuntosCanjeadosByDni { get; set; }
 }
 
 public class ConfiguracionResource
 {
     public string GetValorByCampo { get; set; }
     public string UpdateValorByCampo { get; set; }
+    public string PerteneceFarmazul { get; set; }
 }
 
 public class EntregaResource
@@ -252,6 +261,7 @@ public class FamiliaResource
 {
     public string GetByFamilia { get; set; }
     public string Insert { get; set; }
+    public string GetPuntosByFamilia { get; set; }
 }
 
 

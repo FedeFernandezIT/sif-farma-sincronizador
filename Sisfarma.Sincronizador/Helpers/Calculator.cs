@@ -9,11 +9,11 @@ namespace Sisfarma.Sincronizador.Helpers
         {
             try
             {
-                return string.IsNullOrEmpty(fecha) || string.IsNullOrWhiteSpace(fecha)
+                return string.IsNullOrWhiteSpace(fecha)
                     ? DateTime.Now.AddDays(-7)
-                    : (DateTime.Now - DateTime.ParseExact(fecha, "yyyy-dd-MM", CultureInfo.InvariantCulture)).TotalDays > 7
-                    ? DateTime.Now.AddDays(-7)
-                    : DateTime.ParseExact(fecha, "yyyy-dd-MM", CultureInfo.InvariantCulture);
+                        : (DateTime.Now - DateTime.ParseExact(fecha, "yyyy-dd-MM", CultureInfo.InvariantCulture)).TotalDays > 7
+                            ? DateTime.Now.AddDays(-7)
+                            : DateTime.ParseExact(fecha, "yyyy-dd-MM", CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {

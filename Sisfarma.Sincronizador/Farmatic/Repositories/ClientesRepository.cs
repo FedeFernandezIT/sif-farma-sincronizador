@@ -65,12 +65,28 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
             return existFieldSexo;
         }
 
-        public Cliente GetById(string id)
+        public Cliente GetOneOrDefaulById(int dni)
         {
             var sql = @"SELECT * FROM Cliente WHERE Idcliente = @dni";
             return _ctx.Database.SqlQuery<Cliente>(sql,
-                new SqlParameter("dni", id))
+                new SqlParameter("dni", dni))
                 .FirstOrDefault();
+        }
+
+        public bool Exists(int id) 
+            => GetOneOrDefaulById(id) != null;
+
+        public bool EsBeBlue(string tipoCliente)
+        {
+            var sql = @"SELECT descripcion FROM tipocliente WHERE idtipocliente = @tipoCliente";
+            var tipo = _ctx.Database.SqlQuery<TipoCliente>(sql,
+                new SqlParameter("tipoCliente", tipoCliente))
+                .FirstOrDefault();
+
+            if (tipo == null)
+                return false;
+
+            return tipo.Descripcion.Trim().ToLower() == "farmazul";
         }
     }
 }

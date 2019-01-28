@@ -29,6 +29,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
         public FamiliasRepository Familias { get; set; }
 
         public FaltasRepository Faltas { get; set; }
+        
 
         public FisiotesService(string host, string username, string password)
         {                                    
@@ -46,7 +47,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
             Familias = new FamiliasRepository(restClient, config);
             Encargos = new EncargosRepository(restClient, config);
             Categorias = new CategoriasRepository(restClient, config);
-            Listas = new ListasRepository(restClient, config);
+            Listas = new ListasRepository(restClient, config);            
         }
     }
 }

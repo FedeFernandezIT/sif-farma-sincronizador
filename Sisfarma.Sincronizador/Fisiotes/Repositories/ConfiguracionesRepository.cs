@@ -34,6 +34,13 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 .SendPut(new { campo = field, valor = value });            
         }
 
+        public bool PerteneceFarmazul()
+        {
+            return _restClient
+               .Resource(_config.Configuraciones.PerteneceFarmazul)
+               .SendGet<bool>();
+        }
+
         public void Insert(string field)
         {
             var sql = string.Empty;
@@ -53,9 +60,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             }
             _ctx.Database.ExecuteSqlCommand(sql,
                 new SqlParameter("field", field));
-        }
-
-        
+        }        
 
         public static class FieldsConfiguracion
         {
@@ -65,6 +70,13 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             public const string FIELD_POR_DONDE_VOY_SIN_STOCK = "porDondeVoySinStock";
             public const string FIELD_POR_DONDE_VOY_BORRAR = "porDondeVoyBorrar";
             public const string FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES = "porDondeEntregasClientes";
+            public const string FIELD_POR_DONDE_VOY_VENTA_MES = "porDondeVoyActualizarVentasMes";
+            public const string FIELD_POR_DONDE_VOY_VENTA_MES_ID = "porDondeVoyActualizarVentasMesIdVenta";
+            public const string FIELD_REVISAR_VENTA_MES_DESDE = "revisarVentasDesdeMeses";
+            public const string FIELD_FECHA_PUNTOS = "fechaPuntos";
+            public const string FIELD_CARGAR_PUNTOS = "cargarPuntos";
+            public const string FIELD_SOLO_PUNTOS_CON_TARJETA = "soloPuntosConTarjeta";
+            public const string FIELD_CANJEO_PUNTOS = "canjeoPuntos";
         }
 
         #region SQL Methods
@@ -84,6 +96,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("value", value),
                 new SqlParameter("field", field));
         }
+        
         #endregion
     }
 }

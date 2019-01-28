@@ -39,7 +39,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
                 foreach (var linea in detallePedido)
                 {                    
-                    var articulo = farmatic.Articulos.GetById(linea.XArt_IdArticu);
+                    var articulo = farmatic.Articulos.GetOneOrDefaultById(linea.XArt_IdArticu);
                     if (articulo != null && articulo.StockActual == STOCK_CRITICO)
                     {
                         if(!fisiotes.Faltas.ExistsLineaDePedido(linea.IdPedido, linea.IdLinea))

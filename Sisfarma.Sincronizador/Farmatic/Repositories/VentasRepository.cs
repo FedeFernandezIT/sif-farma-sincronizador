@@ -50,13 +50,26 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
                 .ToList();
         }
 
-        public Venta GetById(long venta)
+        public Venta GetOneOrDefaultById(long venta)
         {
             var sql = @"SELECT * FROM venta WHERE IdVenta = @venta ORDER BY IdVenta ASC";
             return _ctx.Database.SqlQuery<Venta>(sql,
                 new SqlParameter("venta", venta))
                 .FirstOrDefault();
         }
+
+        public List<Venta> GetGreatThanOrEqual(int venta, DateTime fecha)
+        {
+            var year = fecha.Year;
+            var sql = "SELECT * FROM venta WHERE IdVenta >= @venta AND  ejercicio = @year AND FechaHora >= @fecha ORDER BY IdVenta ASC";
+
+            return _ctx.Database.SqlQuery<Venta>(sql,
+                new SqlParameter("venta", venta),
+                new SqlParameter("year", year),
+                new SqlParameter("fecha", fecha))
+                .ToList();
+        }
+
 
         public List<LineaVenta> GetLineasVentaByVenta(int venta)
         {
@@ -66,7 +79,8 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
                 .ToList();
         }
 
-        public LineaVentaRedencion GetLineaRedencionByKey(int venta, int linea)
+        
+        public LineaVentaRedencion GetOneOrDefaultLineaRedencionByKey(int venta, int linea)
         {
             var sql = @"SELECT * FROM LineaVentaReden WHERE IdVenta = @venta AND IdNLinea = @linea";
             return _ctx.Database.SqlQuery<LineaVentaRedencion>(sql,

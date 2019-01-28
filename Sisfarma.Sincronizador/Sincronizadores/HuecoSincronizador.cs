@@ -24,7 +24,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             
             foreach (var hueco in remoteHuecos)
             {
-                var cliente = farmaticService.Clientes.GetById(hueco);
+                var cliente = farmaticService.Clientes.GetOneOrDefaulById(hueco.ToIntegerOrDefault());
                 if (cliente != null)
                 {
                     // Extraemos los datos necesarios del cliente local para sincronizar con el remoto

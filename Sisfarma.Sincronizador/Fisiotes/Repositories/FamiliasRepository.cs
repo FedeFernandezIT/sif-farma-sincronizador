@@ -58,7 +58,21 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 {
                     bulk = new[] { familia }
                 });
-        }        
+        }
+
+        public decimal GetPuntosByFamiliaTipoVerificado(string familia)
+        {
+            try
+            {
+                return _restClient
+                    .Resource(_config.Familias.GetPuntosByFamilia.Replace("{familia}", familia))
+                    .SendGet<decimal>();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return 0m;
+            }
+        }
 
         #region SQL Methods
         public Familia GetByFamiliaSql(string familia)
@@ -74,7 +88,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             var sql = @"INSERT IGNORE INTO familia (familia) VALUES(@familia)";
             _ctx.Database.ExecuteSqlCommand(sql,
                 new SqlParameter("familia", familia));
-        }
+        }        
 
         #endregion
     }

@@ -45,7 +45,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
                     foreach (var linea in lineas)
                     {                        
-                        var articulo = farmatic.Articulos.GetById(linea.XArt_IdArticu);
+                        var articulo = farmatic.Articulos.GetOneOrDefaultById(linea.XArt_IdArticu);
                         if (articulo != null)
                         {                            
                             if (!fisiotes.Pedidos.ExistsLinea(linea.IdRecepcion, linea.IdNLinea))                                
@@ -95,7 +95,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var proveedor = farmatic.Proveedores.GetById(recepcion.XProv_IdProveedor)?.FIS_NOMBRE
                             ?? string.Empty;
 
-            var trabajador = farmatic.Vendedores.GetById(Convert.ToInt16(recepcion.XVend_IdVendedor))?.NOMBRE
+            var trabajador = farmatic.Vendedores.GetOneOrDefaultById(Convert.ToInt16(recepcion.XVend_IdVendedor))?.NOMBRE
                 ?? string.Empty;            
 
             return new Fisiotes.Models.Pedido
