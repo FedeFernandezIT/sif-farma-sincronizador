@@ -52,18 +52,39 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             }
         }
 
-        public void CheckAndCreateProveedorField()
+        public void UpdateFechaDeRecepcion(DateTime fechaRecepcion, long idEncargo)
         {
-            const string table = @"SELECT * from encargos LIMIT 0,1;";
-            var fields = new[] { "proveedor" };
-            var alters = new[]
+            var encargo = new
             {
-                @"ALTER TABLE encargos ADD proveedor VARCHAR(255) DEFAULT NULL AFTER laboratorio;"
+                idEncargo = idEncargo,
+                fechaRecepcion = fechaRecepcion.ToIsoString()                
             };
-            CheckAndCreateFieldsTemplate(table, fields, alters);
-        }        
-        
-        
+
+            _restClient
+                .Resource(_config.Encargos.Update)
+                .SendPost(new
+                {
+                    bulk = new[] { encargo }
+                });
+        }
+
+        public void UpdateFechaDeEntrega(DateTime fechaEntrega, long idEncargo)
+        {
+            var encargo = new
+            {
+                idEncargo = idEncargo,
+                fechaEntrega = fechaEntrega.ToIsoString()
+            };
+
+            _restClient
+                .Resource(_config.Encargos.Update)
+                .SendPost(new
+                {
+                    bulk = new[] { encargo }
+                });
+        }
+                
+                
         public void Insert(Encargo ee)
         {
             var encargo =  new
@@ -95,6 +116,16 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         }
 
         #region SQL Methods
+        public void CheckAndCreateProveedorField()
+        {
+            const string table = @"SELECT * from encargos LIMIT 0,1;";
+            var fields = new[] { "proveedor" };
+            var alters = new[]
+            {
+                @"ALTER TABLE encargos ADD proveedor VARCHAR(255) DEFAULT NULL AFTER laboratorio;"
+            };
+            CheckAndCreateFieldsTemplate(table, fields, alters);
+        }
 
         public Encargo LastSql()
         {

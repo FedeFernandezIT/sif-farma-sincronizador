@@ -136,7 +136,8 @@ namespace Sisfarma.Sincronizador.Fisiotes
                 {
                     Ultimo = "/api/encargo/ultimo",
                     GetByEncargo = "/api/encargo/index/encargo/{encargo}",
-                    Insert = "api/encargo/createUpdate"
+                    Insert = "api/encargo/createUpdate",
+                    Update = "api/encargo/update"
                 },
 
                 Categorias = new CategoriaResource
@@ -270,6 +271,7 @@ public class EncargoResource
     public string Ultimo { get; set; }
     public string GetByEncargo { get; set; }
     public string Insert { get; set; }
+    public string Update { get; set; }
 }
 
 public class ListaResource

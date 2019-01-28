@@ -28,7 +28,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var ultimo = fisiotes.Encargos.LastOrDefault();
             var idEncargo = ultimo?.idEncargo ?? 1;
 
-            var encargos = farmatic.Encargos.GetByContadorGreaterOrEqual(YEAR_FOUND, idEncargo);
+            var encargos = farmatic.Encargos.GetAllByContadorGreaterOrEqual(YEAR_FOUND, idEncargo);
             foreach (var encargo in encargos)
             {                
                 if (!fisiotes.Encargos.Exists(encargo.IdContador))                
