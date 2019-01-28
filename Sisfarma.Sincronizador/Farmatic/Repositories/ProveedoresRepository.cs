@@ -1,4 +1,5 @@
 ﻿using Sisfarma.Sincronizador.Farmatic.Models;
+using System;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -16,6 +17,6 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
             return _ctx.Database.SqlQuery<Proveedor>(sql,
                 new SqlParameter("id", id))
                 .FirstOrDefault();
-        }
+        }        
     }
 }

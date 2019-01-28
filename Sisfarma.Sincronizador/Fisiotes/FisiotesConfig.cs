@@ -36,6 +36,8 @@ namespace Sisfarma.Sincronizador.Fisiotes
 
         public ListaArticuloResource ListaDeArticulos { get; set; }
 
+        public ProveedorResource Proveedores { get; set; }
+
         public static FisiotesConfig TestConfig(string remoteServer, string username, string password)
         {
             return new FisiotesConfig
@@ -159,6 +161,12 @@ namespace Sisfarma.Sincronizador.Fisiotes
                 {
                     Eliminar = "/api/lista/articulo_eliminar",
                     Insert = "api/lista/articulo_createUpdate"
+                },
+
+                Proveedores = new ProveedorResource
+                {
+                    GetFechaMaximaHistorial = "api/proveedor/historial",
+                    InsertHistorico = "api/proveedor/historial_createUpdate"
                 }
 
             };
@@ -286,6 +294,12 @@ public class ListaArticuloResource
 {
     public string Eliminar { get; set; }
     public string Insert { get; set; }
+}
+
+public class ProveedorResource
+{
+    public string GetFechaMaximaHistorial { get; set; }
+    public string InsertHistorico { get; set; }
 }
 
 public class Credential

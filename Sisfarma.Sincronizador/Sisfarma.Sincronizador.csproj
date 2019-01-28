@@ -64,6 +64,7 @@
     <Compile Include="Consejo\Repositories\EsperasRepository.cs" />
     <Compile Include="Consejo\Repositories\LaboratoriosRepository.cs" />
     <Compile Include="Extensions\StringExtend.cs" />
+    <Compile Include="Farmatic\DTO\Recepciones\RecepcionGruop.cs" />
     <Compile Include="Farmatic\FarmaticContext.cs" />
     <Compile Include="Farmatic\FarmaticService.cs" />
     <Compile Include="Farmatic\Models\Articulo.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="Fisiotes\Models\ListaArticulo.cs" />
     <Compile Include="Fisiotes\Models\Medicamento.cs" />
     <Compile Include="Fisiotes\Models\Pedido.cs" />
+    <Compile Include="Fisiotes\Models\ProveedorHistorial.cs" />
     <Compile Include="Fisiotes\Models\PuntosPendientes.cs" />
     <Compile Include="Fisiotes\Models\Sinonimo.cs" />
     <Compile Include="Fisiotes\Repositories\CategoriasRepository.cs" />
@@ -137,6 +139,7 @@
     <Compile Include="Fisiotes\Repositories\ListasRepository.cs" />
     <Compile Include="Fisiotes\Repositories\MedicamentosRepository.cs" />
     <Compile Include="Fisiotes\Repositories\PedidosRepository.cs" />
+    <Compile Include="Fisiotes\Repositories\ProveedoresRepository.cs" />
     <Compile Include="Fisiotes\Repositories\PuntosPendientesRepository.cs" />
     <Compile Include="Fisiotes\Repositories\SinonimosRepository.cs" />
     <Compile Include="Helpers\Calculator.cs" />
@@ -161,6 +164,7 @@
     <Compile Include="Sincronizadores\PedidoSincronizador.cs" />
     <Compile Include="Sincronizadores\ProductoBorradoActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\ProductoCriticoSincronizador.cs" />
+    <Compile Include="Sincronizadores\ProveedorHistorialSincronizador.cs" />
     <Compile Include="Sincronizadores\PuntoPendienteActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\RecetaPendienteActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\SinonimoSincronizador.cs" />

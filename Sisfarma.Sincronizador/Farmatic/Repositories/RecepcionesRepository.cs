@@ -1,4 +1,5 @@
-﻿using Sisfarma.Sincronizador.Farmatic.Models;
+﻿using Sisfarma.Sincronizador.Farmatic.DTO.Recepciones;
+using Sisfarma.Sincronizador.Farmatic.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -31,6 +32,31 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
                 new SqlParameter("year", year),
                 new SqlParameter("pedido", pedido ?? SqlInt64.Null))
                 .ToList();            
+        }
+        
+
+        public IEnumerable<RecepcionGroup> GetGroupGreaterThanByFecha(DateTime fecha)
+        {
+            var sql = @"SELECT lr.XArt_IdArticu, r.XProv_IdProveedor, r.hora, lr.ImportePuc FROM Recep r " +
+                        @"INNER JOIN LineaRecep lr ON lr.IdRecepcion = r.IdRecepcion " +
+                        @"WHERE r.hora > @fecha " +
+                        @"GROUP BY lr.XArt_IdArticu, r.XProv_IdProveedor, r.hora, lr.ImportePuc " +
+                        @"ORDER BY r.hora DESC";
+            return _ctx.Database.SqlQuery<RecepcionGroup>(sql,
+                new SqlParameter("fecha", fecha))
+                .ToList();
+        }
+
+        internal IEnumerable<RecepcionGroup> GetGroupGreaterOrEqualByFecha(DateTime fecha)
+        {
+            var sql = @"SELECT lr.XArt_IdArticu, r.XProv_IdProveedor, r.hora, lr.ImportePuc FROM Recep r " +
+                        @"INNER JOIN LineaRecep lr ON lr.IdRecepcion = r.IdRecepcion " +
+                        @"WHERE r.hora >= @fecha " +
+                        @"GROUP BY lr.XArt_IdArticu, r.XProv_IdProveedor, r.hora, lr.ImportePuc " +
+                        @"ORDER BY r.hora DESC";
+            return _ctx.Database.SqlQuery<RecepcionGroup>(sql,
+                new SqlParameter("fecha", fecha))
+                .ToList();
         }
 
         public RecepcionResume GetResumeById(int recepcion)
