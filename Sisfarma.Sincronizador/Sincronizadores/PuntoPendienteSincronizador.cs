@@ -104,10 +104,11 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             pp.cod_nacional = linea.Codigo;
             pp.cod_barras = GetCodidoBarrasFromLocalOrDefault(farmatic, linea.Codigo);
             pp.descripcion = linea.Descripcion.Strip();
-            pp.pvp = Convert.ToSingle(linea.PVP);
+            pp.pvp = Convert.ToSingle(linea.PVP);            
             pp.dtoVenta = Convert.ToSingle(linea.DescuentoOpera ?? 0);
             pp.dtoLinea = Convert.ToSingle(venta.DescuentoLinea ?? 0d);
             pp.precio = Convert.ToDecimal(linea.ImporteNeto);
+            pp.cantidad = linea.Cantidad;            
 
             if (articulo == null)
             {
