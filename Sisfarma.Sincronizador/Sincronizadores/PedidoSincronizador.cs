@@ -59,8 +59,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private Fisiotes.Models.LineaPedido GenerarLineaDePedido(FarmaticService farmatic, Recepcion recepcion, LineaRecepcion linea, Articulo articulo, ConsejoService consejo)
         {            
-            var puc = articulo.Puc;
-            var pvp = articulo.Pvp;
+            var puc = linea.ImportePuc;
+            var pvp = linea.ImportePvp;
 
             var familia = farmatic.Familias.GetById(articulo.XFam_IdFamilia)?.Descripcion;
             if (string.IsNullOrWhiteSpace(familia))
