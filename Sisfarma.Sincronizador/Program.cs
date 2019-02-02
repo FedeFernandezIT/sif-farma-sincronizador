@@ -43,8 +43,7 @@ namespace Sisfarma.Sincronizador
             ref _localPass,
             ref _localUser,
             ref _marketCodeList);
-
-
+            
             ConsejoService consejoService = new ConsejoService();
 
             Task.Factory.StartNew(() => new ClienteSincronizador(NewFarmatic(), NewFisiotes()).Run());

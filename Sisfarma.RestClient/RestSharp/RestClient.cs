@@ -1,7 +1,7 @@
-﻿using RestSharp.Authenticators;
-using Sisfarma.RestClient.Exceptions;
+﻿using RestSharp;
+using RestSharp.Authenticators;
+using Sisfarma.RestClient.RestSharp.Factories;
 using System;
-using System.Net;
 using System.Threading.Tasks;
 using RSharp = RestSharp;
 
@@ -99,15 +99,15 @@ namespace Sisfarma.RestClient.RestSharp
         
         private T DoSend<T>(RSharp.Method method)
         {            
-            var response = _restClient.Execute(_request, method);            
-            
-            if (response.IsSuccessful)            
-                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
+            var response = _restClient.Execute(_request, method);
 
-            if (response.ErrorException != null)            
-                throw new RestClientException(HttpStatusCode.InternalServerError, response.ErrorMessage, response.Content);
-            
-            throw RestClientException.Create(response.StatusCode, response.StatusDescription, response.Content);           
+            if (response.IsSuccessful)
+                return Deserialize<T>(response);
+
+            if (response.ErrorException != null)
+                throw RestClientFactory.CreateErrorException(_restClient, response);
+
+            throw RestClientFactory.CreateFailedException(_restClient, response);            
         }
 
         private T DoSend<T>(RSharp.Method method, object body)
@@ -115,12 +115,12 @@ namespace Sisfarma.RestClient.RestSharp
             var response = _restClient.Execute(_request.AddJsonBody(body), method);            
 
             if (response.IsSuccessful)
-                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
+                return Deserialize<T>(response);
 
             if (response.ErrorException != null)
-                throw new RestClientException(HttpStatusCode.InternalServerError, response.ErrorMessage, response.Content);
+                throw RestClientFactory.CreateErrorException(_restClient, response);
 
-            throw RestClientException.Create(response.StatusCode, response.StatusDescription, response.Content);
+            throw RestClientFactory.CreateFailedException(_restClient, response);
         }
 
         private void DoSend(RSharp.Method method, object body)
@@ -128,10 +128,22 @@ namespace Sisfarma.RestClient.RestSharp
             var response = _restClient.Execute(_request.AddJsonBody(body), method);         
             
             if (response.ErrorException != null)
-                throw new RestClientException(HttpStatusCode.InternalServerError, response.ErrorMessage, response.Content);
-
+                throw RestClientFactory.CreateErrorException(_restClient, response);
+            
             if (!response.IsSuccessful)
-                throw RestClientException.Create(response.StatusCode, response.StatusDescription, response.Content);                                        
+                throw RestClientFactory.CreateFailedException(_restClient, response);
         }
+
+        private T Deserialize<T>(IRestResponse response)
+        {
+            try
+            {
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
+            }
+            catch (Exception ex)
+            {
+                throw RestClientFactory.CreateErrorException(_restClient, response, ex);
+            }            
+        }        
     }
 }

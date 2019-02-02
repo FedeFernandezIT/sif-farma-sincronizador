@@ -44,7 +44,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                             .Select(x => new Fisiotes.Models.ListaArticulo
                             {
                                 cod_lista = x.XItem_IdLista,
-                                cod_articulo = Convert.ToInt32(x.XItem_IdArticu)
+                                cod_articulo = x.XItem_IdArticu.ToIntegerOrDefault(-1)
                             }).ToList();
 
                         fisiotes.Listas.DeArticulos.Insert(items);

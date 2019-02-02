@@ -39,6 +39,9 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -63,6 +66,9 @@
     <Compile Include="Consejo\Repositories\ConsejoRepository.cs" />
     <Compile Include="Consejo\Repositories\EsperasRepository.cs" />
     <Compile Include="Consejo\Repositories\LaboratoriosRepository.cs" />
+    <Compile Include="Extensions\BooleanExtension.cs" />
+    <Compile Include="Extensions\DateTimeExtension.cs" />
+    <Compile Include="Extensions\ExceptionExtension.cs" />
     <Compile Include="Extensions\StringExtend.cs" />
     <Compile Include="Farmatic\DTO\Recepciones\RecepcionGruop.cs" />
     <Compile Include="Farmatic\FarmaticContext.cs" />
@@ -144,6 +150,7 @@
     <Compile Include="Fisiotes\Repositories\PuntosPendientesRepository.cs" />
     <Compile Include="Fisiotes\Repositories\SinonimosRepository.cs" />
     <Compile Include="Helpers\Calculator.cs" />
+    <Compile Include="Helpers\Cryptographer.cs" />
     <Compile Include="Helpers\Generator.cs" />
     <Compile Include="Models\ClienteDto.cs" />
     <Compile Include="Program.cs" />
