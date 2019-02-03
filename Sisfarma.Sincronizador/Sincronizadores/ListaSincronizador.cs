@@ -24,6 +24,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var listas = farmatic.ListasArticulos.GetByIdGreaterThan(codActual);
             foreach (var lista in listas)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 fisiotes.Listas.ResetPorDondeVoy();
                 fisiotes.Listas.InsertOrUpdate(new Fisiotes.Models.Lista
                 {

@@ -33,6 +33,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 
                 for (int i = 0; i < sinonimos.Count; i += _batchSize)
                 {
+                    _cancellationToken.ThrowIfCancellationRequested();
+
                     var items = sinonimos
                         .Skip(i)
                         .Take(_batchSize)

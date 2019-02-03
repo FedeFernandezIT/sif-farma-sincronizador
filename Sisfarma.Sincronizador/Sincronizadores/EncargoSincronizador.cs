@@ -30,7 +30,9 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
             var encargos = farmatic.Encargos.GetAllByContadorGreaterOrEqual(YEAR_FOUND, idEncargo);
             foreach (var encargo in encargos)
-            {                
+            {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 if (!fisiotes.Encargos.Exists(encargo.IdContador))                
                     fisiotes.Encargos.Insert(GenerarEncargo(farmatic, encargo, consejo));                                    
             }

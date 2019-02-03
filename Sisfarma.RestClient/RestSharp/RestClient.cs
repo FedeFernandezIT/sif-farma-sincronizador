@@ -59,7 +59,7 @@ namespace Sisfarma.RestClient.RestSharp
         }
 
         public IRestClient UseAuthenticationBasic(string username, string password)
-        {
+        {            
             _restClient.Authenticator = new HttpBasicAuthenticator(username, password);
             return this;
         }

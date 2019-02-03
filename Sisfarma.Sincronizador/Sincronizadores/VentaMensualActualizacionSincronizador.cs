@@ -59,6 +59,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var ventas = _farmatic.Ventas.GetGreatThanOrEqual(ventaIdConfiguracion, fechaInicial);
             foreach (var venta in ventas)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 var dniString = venta.XClie_IdCliente.Strip();
                 var dni = dniString.ToIntegerOrDefault();
                 var tarjetaDelCliente = string.Empty;

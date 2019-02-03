@@ -38,6 +38,8 @@ namespace Sisfarma.Sincronizador.Fisiotes
 
         public ProveedorResource Proveedores { get; set; }
 
+        public ProgramacionResource Programacion { get; set; }
+
         public static FisiotesConfig TestConfig(string remoteServer, string username, string password)
         {
             return new FisiotesConfig
@@ -170,6 +172,12 @@ namespace Sisfarma.Sincronizador.Fisiotes
                     GetOneByProveedor = "api/proveedor/index/proveedor/{proveedor}/nombre/{nombre}",
                     Insert = "api/proveedor/createUpdate",
                     Update = "api/proveedor/createUpdate"
+                },
+
+                Programacion = new ProgramacionResource
+                {
+                    Encendido = "api/programacion/encendido",
+                    Apagado = "api/programacion/apagado"
                 }
 
             };
@@ -306,6 +314,13 @@ public class ProveedorResource
     public string GetOneByProveedor { get; set; }
     public string Insert { get; set; }
     public string Update { get; set; }
+}
+
+public class ProgramacionResource
+{
+    public string Encendido { get; set; }
+
+    public string Apagado { get; set; }
 }
 
 public class Credential

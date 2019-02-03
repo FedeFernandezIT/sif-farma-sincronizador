@@ -3,6 +3,8 @@ using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Helpers;
 using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
@@ -16,27 +18,27 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             _hasSexo = farmatic.Clientes.HasSexoField();
         }
 
-        public override void Process() => ProcessClientesHuecos(_farmatic, _fisiotes);
+        public override void Process() => ProcessClientesHuecos();
 
-        private void ProcessClientesHuecos(FarmaticService farmaticService, FisiotesService fisiotesService)
+        private void ProcessClientesHuecos()
         {            
-            var remoteHuecos = fisiotesService.Huecos.GetByOrderAsc();
+            var remoteHuecos = _fisiotes.Huecos.GetByOrderAsc();
             
             foreach (var hueco in remoteHuecos)
             {
-                var cliente = farmaticService.Clientes.GetOneOrDefaulById(hueco.ToIntegerOrDefault());
+                _cancellationToken.ThrowIfCancellationRequested();
+
+                var cliente = _farmatic.Clientes.GetOneOrDefaulById(hueco.ToIntegerOrDefault());
                 if (cliente != null)
-                {
-                    // Extraemos los datos necesarios del cliente local para sincronizar con el remoto
-                    var clientData = Generator.FetchLocalClienteData(farmaticService, cliente, _hasSexo);
-                    fisiotesService.Clientes.InsertOrUpdate(
+                {                    
+                    var clientData = Generator.FetchLocalClienteData(_farmatic, cliente, _hasSexo);
+                    _fisiotes.Clientes.InsertOrUpdate(
                             clientData.Trabajador, clientData.Tarjeta, cliente.IDCLIENTE, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
                             clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, clientData.FechaAlta, clientData.Baja, clientData.Lopd);
-
-                    // Eliminamos el hueco del cliente.
-                    fisiotesService.Huecos.Delete(hueco);
+                 
+                    _fisiotes.Huecos.Delete(hueco);
                 }
             }
-        }
+        }        
     }
 }

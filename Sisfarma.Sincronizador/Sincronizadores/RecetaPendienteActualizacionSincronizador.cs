@@ -21,6 +21,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
             foreach (var punto in puntos)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 var lineaVenta = farmatic.Ventas.GetLineaVentaOrDefaultByKey(punto.idventa, punto.idnlinea);
                     
                 if (lineaVenta != null && lineaVenta.RecetaPendiente != "D")

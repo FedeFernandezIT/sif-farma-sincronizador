@@ -1,4 +1,5 @@
-﻿using Sisfarma.Sincronizador.Fisiotes.Repositories;
+﻿using Sisfarma.Sincronizador.Config;
+using Sisfarma.Sincronizador.Fisiotes.Repositories;
 
 namespace Sisfarma.Sincronizador.Fisiotes
 {
@@ -31,6 +32,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
         public FaltasRepository Faltas { get; set; }
 
         public ProveedoresRepository Proveedores { get; set; }
+        public ProgramacionRepository Programacion { get; set; }
 
         public FisiotesService(string host, string username, string password)
         {                                    
@@ -50,6 +52,11 @@ namespace Sisfarma.Sincronizador.Fisiotes
             Categorias = new CategoriasRepository(restClient, config);
             Listas = new ListasRepository(restClient, config);
             Proveedores = new ProveedoresRepository(restClient, config);
+            Programacion = new ProgramacionRepository(restClient, config);
         }
+
+        public FisiotesService(RemoteConfig config)
+            : this(config.Server, config.Username, config.Password)
+        { }
     }
 }

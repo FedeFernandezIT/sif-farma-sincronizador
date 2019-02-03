@@ -4,6 +4,7 @@ using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Helpers;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 
@@ -15,6 +16,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
 
         protected FarmaticService _farmatic;
         protected FisiotesService _fisiotes;
+        protected CancellationToken _cancellationToken;
 
         public BaseSincronizador(FarmaticService farmatic, FisiotesService fisiotes)
         {
@@ -25,13 +27,21 @@ namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
 
         public abstract void Process();
 
-        public virtual async Task Run()
+        public virtual async Task Run(CancellationToken cancellationToken = default(CancellationToken))
         {
+            Console.WriteLine($"{GetType().Name} init ...");
+            _cancellationToken = cancellationToken;
             while (true)
             {
                 try
                 {
+                    _cancellationToken.ThrowIfCancellationRequested();
                     Process();
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Console.WriteLine($"{GetType().Name} shutdown ...");
+                    throw ex;
                 }
                 catch (RestClientException ex)
                 {

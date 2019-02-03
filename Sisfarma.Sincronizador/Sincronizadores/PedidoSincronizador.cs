@@ -33,7 +33,9 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 : farmatic.Recepciones.GetByIdAndYear(YEAR_FOUND, lastPedido.idPedido);
 
             foreach (var recepcion in recepciones)
-            {                
+            {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 var resume = farmatic.Recepciones.GetResumeById(recepcion.IdRecepcion);
                 if (resume.numLineas > 0)
                 {

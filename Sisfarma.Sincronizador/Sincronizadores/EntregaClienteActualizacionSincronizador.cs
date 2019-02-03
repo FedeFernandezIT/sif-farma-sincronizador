@@ -30,7 +30,9 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
             var ventasVirtuales = farmatic.Ventas.GetVirtualesLessThanId(venta);            
             foreach (var @virtual in ventasVirtuales)
-            {                                                       
+            {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 var lineas = farmatic.Ventas.GetLineasVirtualesByVenta(@virtual.IdVenta);
                 foreach (var linea in lineas)
                 {

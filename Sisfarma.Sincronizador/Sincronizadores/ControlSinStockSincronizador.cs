@@ -31,6 +31,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var articulos = farmatic.Articulos.GetWithoutStockByIdGreaterOrEqual(codArticulo);
             foreach (var articulo in articulos)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_SIN_STOCK, articulo.IdArticu);
 
                 var medicamentoGenerado = Generator.GenerarMedicamento(farmatic, consejo, articulo);

@@ -1,11 +1,14 @@
-﻿using Sisfarma.Sincronizador.Consejo;
+﻿using Sisfarma.Sincronizador.Config;
+using Sisfarma.Sincronizador.Consejo;
 using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Properties;
 using Sisfarma.Sincronizador.Sincronizadores;
 using System;
+using System.Collections.Concurrent;
 using System.Configuration;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -43,44 +46,14 @@ namespace Sisfarma.Sincronizador
             ref _localPass,
             ref _localUser,
             ref _marketCodeList);
-            
-            ConsejoService consejoService = new ConsejoService();
 
-            Task.Factory.StartNew(() => new ClienteSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            Task.Factory.StartNew(() => new HuecoSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            Task.Factory.StartNew(() => new PuntoPendienteSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            Task.Factory.StartNew(() => new SinonimoSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            Task.Factory.StartNew(() => new PedidoSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            Task.Factory.StartNew(() => new ProductoCriticoSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            Task.Factory.StartNew(() => new FamiliaSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            Task.Factory.StartNew(() => new RecetaPendienteActualizacionSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            Task.Factory.StartNew(() => new EntregaClienteActualizacionSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            Task.Factory.StartNew(() => new ProductoBorradoActualizacionSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            Task.Factory.StartNew(() => new PuntoPendienteActualizacionSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            Task.Factory.StartNew(() => new ControlSinStockSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            Task.Factory.StartNew(() => new ControlStockSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            Task.Factory.StartNew(() => new ControlStockFechaEntradaSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            Task.Factory.StartNew(() => new ControlStockFechaSalidaSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            Task.Factory.StartNew(() => new EncargoSincronizador(NewFarmatic(), NewFisiotes(), consejoService).Run());
-            Task.Factory.StartNew(() => new CategoriaSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            Task.Factory.StartNew(() => new ListaSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            Task.Factory.StartNew(() => new ListaTiendaSincronizador(NewFarmatic(), NewFisiotes(), consejoService, _marketCodeList).Run());
-            Task.Factory.StartNew(() => new ListaFechaSincronizador(NewFarmatic(), NewFisiotes(), _marketCodeList).Run());
-            Task.Factory.StartNew(() => new VentaMensualActualizacionSincronizador(NewFarmatic(), NewFisiotes(), consejoService, _marketCodeList).Run());
-            Task.Factory.StartNew(() => new EncargoActualizacionSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            Task.Factory.StartNew(() => new ProveedorHistorialSincronizador(NewFarmatic(), NewFisiotes()).Run());
-            Task.Factory.StartNew(() => new ProveedorSincronizador(NewFarmatic(), NewFisiotes()).Run());
+            RemoteConfig.Setup(_remoteServer, _remoteUsername, _remotePassword);
+            LocalConfig.Setup(_localServer, _localBase, _localUser, _localPass, _marketCodeList);
+                                    
+            Task.Factory.StartNew(() => new PowerSwitchAutomatico(FarmaticFactory.New(), FisiotesFactory.New()).Run(new CancellationToken()));            
 
             Application.ApplicationExit += (sender, @event) => notifyIcon.Visible = false;            
-            Application.Run(new SincronizadorApplication());
-
-            
-
-            FisiotesService NewFisiotes()            
-                => new FisiotesService(_remoteServer, _remoteUsername, _remoteUsername);
-            
-            FarmaticService NewFarmatic()
-                => new FarmaticService(_localServer, _localBase, _localUser, _localPass);                        
+            Application.Run(new SincronizadorApplication());                        
         }
 
         private static ContextMenuStrip GetSincronizadorMenuStrip()

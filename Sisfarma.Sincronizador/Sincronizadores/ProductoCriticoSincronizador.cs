@@ -33,7 +33,9 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 : farmatic.Pedidos.GetByIdGreaterOrEqual(falta.idPedido);
 
             foreach (var pedido in pedidos)
-            {                
+            {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 var detallePedido = farmatic.Pedidos.GetLineasByPedido(pedido.IdPedido)
                     .Where(linea => !string.IsNullOrEmpty(linea.XArt_IdArticu?.Trim()));
 

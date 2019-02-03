@@ -59,6 +59,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\LocalConfig.cs" />
+    <Compile Include="Config\RemoteConfig.cs" />
+    <Compile Include="Config\UserConfig.cs" />
     <Compile Include="Consejo\ConsejoContext.cs" />
     <Compile Include="Consejo\ConsejoService.cs" />
     <Compile Include="Consejo\Models\Esperara.cs" />
@@ -72,6 +75,7 @@
     <Compile Include="Extensions\StringExtend.cs" />
     <Compile Include="Farmatic\DTO\Recepciones\RecepcionGruop.cs" />
     <Compile Include="Farmatic\FarmaticContext.cs" />
+    <Compile Include="Farmatic\FarmaticFactory.cs" />
     <Compile Include="Farmatic\FarmaticService.cs" />
     <Compile Include="Farmatic\Models\Articulo.cs" />
     <Compile Include="Farmatic\Models\ArticuloWithIva.cs" />
@@ -116,6 +120,7 @@
     <Compile Include="Fisiotes\DTO\PuntosPendientes\UpdatePuntacion.cs" />
     <Compile Include="Fisiotes\FisiotesConfig.cs" />
     <Compile Include="Fisiotes\FisiotesContext.cs" />
+    <Compile Include="Fisiotes\FisiotesFactory.cs" />
     <Compile Include="Fisiotes\Models\CanjeoPuntos.cs" />
     <Compile Include="Fisiotes\Models\Categoria.cs" />
     <Compile Include="Fisiotes\Models\Cliente.cs" />
@@ -129,6 +134,7 @@
     <Compile Include="Fisiotes\Models\ListaArticulo.cs" />
     <Compile Include="Fisiotes\Models\Medicamento.cs" />
     <Compile Include="Fisiotes\Models\Pedido.cs" />
+    <Compile Include="Fisiotes\Models\Programacion.cs" />
     <Compile Include="Fisiotes\Models\Proveedor.cs" />
     <Compile Include="Fisiotes\Models\ProveedorHistorial.cs" />
     <Compile Include="Fisiotes\Models\PuntosPendientes.cs" />
@@ -146,6 +152,7 @@
     <Compile Include="Fisiotes\Repositories\ListasRepository.cs" />
     <Compile Include="Fisiotes\Repositories\MedicamentosRepository.cs" />
     <Compile Include="Fisiotes\Repositories\PedidosRepository.cs" />
+    <Compile Include="Fisiotes\Repositories\ProgramacionRepository.cs" />
     <Compile Include="Fisiotes\Repositories\ProveedoresRepository.cs" />
     <Compile Include="Fisiotes\Repositories\PuntosPendientesRepository.cs" />
     <Compile Include="Fisiotes\Repositories\SinonimosRepository.cs" />
@@ -170,6 +177,7 @@
     <Compile Include="Sincronizadores\ListaFechaSincronizador.cs" />
     <Compile Include="Sincronizadores\ListaTiendaSincronizador.cs" />
     <Compile Include="Sincronizadores\PedidoSincronizador.cs" />
+    <Compile Include="Sincronizadores\PowerSwitchAutomatico.cs" />
     <Compile Include="Sincronizadores\ProductoBorradoActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\ProductoCriticoSincronizador.cs" />
     <Compile Include="Sincronizadores\ProveedorHistorialSincronizador.cs" />
@@ -183,6 +191,7 @@
     <Compile Include="Sincronizadores\SuperTypes\ISincronizador.cs" />
     <Compile Include="Sincronizadores\PuntoPendienteSincronizador.cs" />
     <Compile Include="Sincronizadores\ListaSincronizador.cs" />
+    <Compile Include="Sincronizadores\SincronizadorTaskManager.cs" />
     <Compile Include="Sincronizadores\VentaMensualActualizacionSincronizador.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

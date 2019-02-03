@@ -4,6 +4,7 @@ using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Helpers;
 using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
@@ -18,53 +19,47 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             _hasSexo = farmatic.Clientes.HasSexoField();
         }
 
-        public override Task Run()
+        public override Task Run(CancellationToken cancellationToken = default(CancellationToken))
         {
             _fisiotes.Clientes.ResetDniTracking();
-            return base.Run();
+            return base.Run(cancellationToken);
         }
 
-        public override void Process() => ProcessClientes(_farmatic, _fisiotes);
+        public override void Process() => ProcessClientes();
 
-        public void ProcessClientes(FarmaticService farmaticService, FisiotesService fisiotesService)
-        {            
-            
-                
-            var lastCliente = fisiotesService.Clientes.GetDniTrackingLast();
-                             
-            var localClientes = farmaticService.Clientes.GetGreatThanId(Convert.ToInt32(lastCliente));
+        public void ProcessClientes()
+        {                                        
+            var lastCliente = _fisiotes.Clientes.GetDniTrackingLast();                             
+            var localClientes = _farmatic.Clientes.GetGreatThanId(Convert.ToInt32(lastCliente));
 
-            // Sincronizamos los clientes locales con la BD remota
             var contadorHuecos = -1;
             foreach (var cliente in localClientes)
             {
-                if (contadorHuecos == -1)
-                    //Guardamos el Id del cliente local
-                    contadorHuecos = Convert.ToInt32(cliente.IDCLIENTE);
+                _cancellationToken.ThrowIfCancellationRequested();
 
-                //Extraemos los datos necesarios del cliente local para sincronizar con el remoto
-                var clientData = Generator.FetchLocalClienteData(farmaticService, cliente, _hasSexo);
+                if (contadorHuecos == -1)                
+                    contadorHuecos = Convert.ToInt32(cliente.IDCLIENTE);
+                
+                var clientData = Generator.FetchLocalClienteData(_farmatic, cliente, _hasSexo);
                     
-                fisiotesService.Clientes.ResetDniTracking();
-                fisiotesService.Clientes.InsertOrUpdate(
+                _fisiotes.Clientes.ResetDniTracking();
+                _fisiotes.Clientes.InsertOrUpdate(
                             clientData.Trabajador, clientData.Tarjeta, cliente.IDCLIENTE, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
                             clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, clientData.FechaAlta, clientData.Baja, clientData.Lopd,
                             withTrack: true);
 
-
-                //Almacenamos todos los huecos de clientes que hayan.
                 var intIdCliente = Convert.ToInt32(cliente.IDCLIENTE);
                 if (intIdCliente != contadorHuecos)
                 {
                     for (int i = contadorHuecos; i < intIdCliente; i++)
                     {
-                        if (!fisiotesService.Huecos.Any(i))
-                            fisiotesService.Huecos.Insert(i.ToString());
+                        if (!_fisiotes.Huecos.Any(i))
+                            _fisiotes.Huecos.Insert(i.ToString());
                     }
                     contadorHuecos = intIdCliente;
                 }
                 contadorHuecos++;
             }                     
-        }
+        }        
     }
 }

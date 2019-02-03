@@ -30,6 +30,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
             for (int i = 0; i < recepciones.Count(); i += _batchSize)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 var items = recepciones
                     .Skip(i)
                     .Take(_batchSize)

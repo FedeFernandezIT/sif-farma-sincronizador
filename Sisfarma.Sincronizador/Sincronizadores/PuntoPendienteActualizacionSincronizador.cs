@@ -19,6 +19,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var puntos = fisiotes.PuntosPendientes.GetWithoutRedencion();
             foreach (var pto in puntos)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 var venta = farmatic.Ventas.GetOneOrDefaultById(pto.idventa);
                 if (venta != null)
                 {

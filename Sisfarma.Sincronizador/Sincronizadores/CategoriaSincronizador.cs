@@ -21,6 +21,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var familias = farmatic.Familias.GetByDescripcion();
             foreach (var familia in familias)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 var padre = farmatic.Familias.GetSuperFamiliaDescripcionByFamilia($"{familia.IdFamilia}") 
                     ?? PADRE_DEFAULT;
                                 

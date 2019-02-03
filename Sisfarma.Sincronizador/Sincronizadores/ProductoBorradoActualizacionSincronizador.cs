@@ -26,6 +26,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_BORRAR, "0");
             foreach (var med in medicamentos)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 if (!farmatic.Articulos.Exists(med.cod_nacional.PadLeft(6, '0')))
                     fisiotes.Medicamentos.DeleteByCodigoNacional(med.cod_nacional);
 

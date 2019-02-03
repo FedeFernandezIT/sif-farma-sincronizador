@@ -25,6 +25,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var encargos = _farmatic.Encargos.GetAllGreaterOrEqualByFecha(fechaInicial);
             foreach (var encargo in encargos)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 if (!encargo.Estado.HasValue)
                     continue;
 

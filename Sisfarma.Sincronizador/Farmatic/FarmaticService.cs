@@ -1,4 +1,5 @@
-﻿using Sisfarma.Sincronizador.Farmatic.Models;
+﻿using Sisfarma.Sincronizador.Config;
+using Sisfarma.Sincronizador.Farmatic.Models;
 using Sisfarma.Sincronizador.Farmatic.Repositories;
 using System;
 using System.Collections.Generic;
@@ -58,5 +59,9 @@ namespace Sisfarma.Sincronizador.Farmatic
             Encargos = new EncargosRepository(_ctx);
             Pedidos = new PedidosRepository(_ctx);
         }
+
+        public FarmaticService(LocalConfig config)
+            : this(config.Server, config.Database, config.Username, config.Password)
+        { }
     }
 }

@@ -29,6 +29,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var listas = farmatic.ListasArticulos.GetByFechaExceptList(listaDeArticulo);
             foreach (var lista in listas)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 var listaRemote = fisiotes.Listas.GetOneOrDefault(lista.IdLista);
                 fisiotes.Listas.InsertOrUpdate(new Fisiotes.Models.Lista
                 {
@@ -42,6 +44,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 {
                     for (int i = 0; i < articulos.Count; i += BATCH_SIZE)
                     {
+                        _cancellationToken.ThrowIfCancellationRequested();
+
                         var items = articulos
                             .Skip(i)
                             .Take(BATCH_SIZE)

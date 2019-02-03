@@ -27,6 +27,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var articulosWithIva = farmatic.Articulos.GetByFechaUltimaEntradaGreaterOrEqual(fechaActualizacionStock);
             foreach (var articulo in articulosWithIva)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 var strFecha = articulo.FechaUltimaEntrada?.ToString("yyyy-MM-dd");
                 fisiotes.Configuraciones.Update(FIELD_STOCK_ENTRADA, strFecha);
 

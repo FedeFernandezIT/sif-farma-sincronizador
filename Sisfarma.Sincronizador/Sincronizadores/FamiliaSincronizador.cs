@@ -18,7 +18,9 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         {
             var familias = farmatic.Familias.Get();
             foreach (var familia in familias)
-            {                
+            {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 if (!fisiotes.Familias.Exists(familia.Descripcion))
                     fisiotes.Familias.Insert(GenerarFamilia(familia.Descripcion));
             }

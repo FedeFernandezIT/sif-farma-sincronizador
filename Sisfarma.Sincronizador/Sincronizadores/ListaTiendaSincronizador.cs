@@ -38,6 +38,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 var articulos = farmatic.ListasArticulos.GetArticulosByLista(lista.IdLista);
                 foreach (var articulo in articulos)
                 {
+                    _cancellationToken.ThrowIfCancellationRequested();
+
                     fisiotes.Listas.DeArticulos.Insert(new Fisiotes.Models.ListaArticulo
                     {
                         cod_lista = articulo.XItem_IdLista,

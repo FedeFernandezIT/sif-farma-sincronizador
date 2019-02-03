@@ -20,6 +20,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var proveedores = _farmatic.Proveedores.GetAll();
             foreach (var pp in proveedores)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 var nombre = pp.FIS_NOMBRE.Strip();
                 var prov = _fisiotes.Proveedores.GetOneOrDefault(pp.IDPROVEEDOR, nombre);
                 if (prov == null)

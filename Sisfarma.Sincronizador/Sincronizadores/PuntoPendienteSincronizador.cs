@@ -6,6 +6,8 @@ using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Fisiotes.Models;
 using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
@@ -17,7 +19,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private readonly bool _hasSexo;
 
-        private ConsejoService _consejo;
+        private readonly ConsejoService _consejo;
 
         public PuntoPendienteSincronizador(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
             : base(farmatic, fisiotes)
@@ -26,36 +28,38 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             _hasSexo = farmatic.Clientes.HasSexoField();
         }        
 
-        public override void Process() => ProcessPuntosPendientes(_farmatic, _fisiotes, _consejo);
+        public override void Process() => ProcessPuntosPendientes();
 
-        void ProcessPuntosPendientes(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
+        void ProcessPuntosPendientes()
         {                        
-            var idVenta = fisiotes.PuntosPendientes.GetUltimaVenta();
-            var ventas = farmatic.Ventas.GetByIdGreaterOrEqual(YEAR_FOUND, idVenta);
+            var idVenta = _fisiotes.PuntosPendientes.GetUltimaVenta();
+            var ventas = _farmatic.Ventas.GetByIdGreaterOrEqual(YEAR_FOUND, idVenta);
             foreach (var venta in ventas)
             {
-                var vendedor = farmatic.Vendedores.GetOneOrDefaultById(venta.XVend_IdVendedor)?.NOMBRE ?? "NO";
-                var detalleVenta = farmatic.Ventas.GetLineasVentaByVenta(venta.IdVenta);
+                _cancellationToken.ThrowIfCancellationRequested();
+
+                var vendedor = _farmatic.Vendedores.GetOneOrDefaultById(venta.XVend_IdVendedor)?.NOMBRE ?? "NO";
+                var detalleVenta = _farmatic.Ventas.GetLineasVentaByVenta(venta.IdVenta);
 
                 foreach (var linea in detalleVenta)
                 {
-                    if (!fisiotes.PuntosPendientes.Exists(venta.IdVenta, linea.IdNLinea))                    
-                        fisiotes.PuntosPendientes.Insert(
-                            GenerarPuntoPendiente(venta, linea, vendedor, farmatic, consejo));                                        
+                    if (!_fisiotes.PuntosPendientes.Exists(venta.IdVenta, linea.IdNLinea))                    
+                        _fisiotes.PuntosPendientes.Insert(
+                            GenerarPuntoPendiente(venta, linea, vendedor, _farmatic, _consejo));                                        
                 }
 
                 // Recuperamos el detalle de ventas virtuales
-                var virtuales = farmatic.Ventas.GetLineasVirtualesByVenta(venta.IdVenta);
+                var virtuales = _farmatic.Ventas.GetLineasVirtualesByVenta(venta.IdVenta);
                 foreach (var @virtual in virtuales)
                 {
 
                     // Verificamos la entrega del item de venta                        
-                    if (!fisiotes.Entregas.Exists(venta.IdVenta, @virtual.IdNLinea))
+                    if (!_fisiotes.Entregas.Exists(venta.IdVenta, @virtual.IdNLinea))
                     {                        
-                        fisiotes.Entregas.Insert(
+                        _fisiotes.Entregas.Insert(
                             GenerarEntregaCliente(venta, @virtual, vendedor));
 
-                        fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES, @virtual.IdVenta.ToString());
+                        _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES, @virtual.IdVenta.ToString());
                     }
                         
                 }
@@ -177,6 +181,6 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         {
             var proveedorDb = farmaticService.Proveedores.GetById(proveedor);
             return proveedorDb?.FIS_NOMBRE ?? byDefault;
-        }                
+        }        
     }
 }
