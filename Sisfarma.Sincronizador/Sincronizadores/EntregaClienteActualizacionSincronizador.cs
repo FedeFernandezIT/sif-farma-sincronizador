@@ -9,7 +9,7 @@ using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesReposit
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class EntregaClienteActualizacionSincronizador : BaseSincronizador
+    public class EntregaClienteActualizacionSincronizador : TaskSincronizador
     {
         const string FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES = FieldsConfiguracion.FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES;
         private const string TRABAJADOR_DEFAULT = "NO";

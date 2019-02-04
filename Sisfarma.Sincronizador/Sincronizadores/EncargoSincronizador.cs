@@ -7,7 +7,7 @@ using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class EncargoSincronizador : BaseSincronizador
+    public class EncargoSincronizador : TaskSincronizador
     {
         private const string LABORATORIO_DEFAULT = "<Sin Laboratorio>";
         private const string FAMILIA_DEFAULT = "<Sin Clasificar>";

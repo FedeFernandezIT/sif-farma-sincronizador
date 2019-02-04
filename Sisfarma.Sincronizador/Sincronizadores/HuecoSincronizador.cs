@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class HuecoSincronizador : BaseSincronizador
+    public class HuecoSincronizador : TaskSincronizador
     {
         private readonly bool _hasSexo;
 

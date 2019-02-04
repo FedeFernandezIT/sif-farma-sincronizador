@@ -8,7 +8,7 @@ using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class SinonimoSincronizador : BaseSincronizador
+    public class SinonimoSincronizador : TaskSincronizador
     {
         private readonly string[] _horariosDeVaciamiento;
         private readonly int _batchSize;

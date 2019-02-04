@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class RecetaPendienteActualizacionSincronizador : BaseSincronizador
+    public class RecetaPendienteActualizacionSincronizador : TaskSincronizador
     {
         public RecetaPendienteActualizacionSincronizador(FarmaticService farmatic, FisiotesService fisiotes) 
             : base(farmatic, fisiotes)

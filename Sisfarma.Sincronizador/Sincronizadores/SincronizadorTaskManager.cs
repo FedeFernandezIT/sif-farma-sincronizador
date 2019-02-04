@@ -16,7 +16,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         public static ConcurrentBag<Task> CurrentTasks;
         public static CancellationTokenSource TokenSource;
 
-        public static ConcurrentBag<Task> CreateConcurrentTasks()
+        private static ConcurrentBag<Task> CreateConcurrentTasks()
         {
             DisposeTasks();
 
@@ -29,49 +29,49 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             {
                 RunTask(new ClienteSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new HuecoSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new HuecoSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new PuntoPendienteSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
+                RunTask(new PuntoPendienteSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 
-                //RunTask(new SinonimoSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new SinonimoSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new PedidoSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
+                RunTask(new PedidoSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 
-                //RunTask(new ProductoCriticoSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
+                RunTask(new ProductoCriticoSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 
-                //RunTask(new FamiliaSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new FamiliaSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new RecetaPendienteActualizacionSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new RecetaPendienteActualizacionSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new EntregaClienteActualizacionSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new EntregaClienteActualizacionSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new ProductoBorradoActualizacionSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new ProductoBorradoActualizacionSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new PuntoPendienteActualizacionSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new PuntoPendienteActualizacionSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new ControlSinStockSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
+                RunTask(new ControlSinStockSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 
-                //RunTask(new ControlStockSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
+                RunTask(new ControlStockSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 
-                //RunTask(new ControlStockFechaEntradaSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
+                RunTask(new ControlStockFechaEntradaSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 
-                //RunTask(new ControlStockFechaSalidaSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
+                RunTask(new ControlStockFechaSalidaSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 
-                //RunTask(new EncargoSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
+                RunTask(new EncargoSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 
-                //RunTask(new CategoriaSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new CategoriaSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new ListaSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new ListaSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new ListaTiendaSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService(), listaDeCompra), cancellationToken),
+                RunTask(new ListaTiendaSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService(), listaDeCompra), cancellationToken),
 
-                //RunTask(new ListaFechaSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), listaDeCompra), cancellationToken),
+                RunTask(new ListaFechaSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), listaDeCompra), cancellationToken),
 
-                //RunTask(new VentaMensualActualizacionSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService(), listaDeCompra), cancellationToken),
+                RunTask(new VentaMensualActualizacionSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService(), listaDeCompra), cancellationToken),
 
-                //RunTask(new EncargoActualizacionSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new EncargoActualizacionSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new ProveedorHistorialSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new ProveedorHistorialSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
                 RunTask(new ProveedorSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken)
             };

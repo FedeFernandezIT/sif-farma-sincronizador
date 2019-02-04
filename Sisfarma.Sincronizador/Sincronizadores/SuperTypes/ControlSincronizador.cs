@@ -9,7 +9,7 @@ using Sisfarma.Sincronizador.Fisiotes;
 
 namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
 {
-    public abstract class ControlSincronizador : BaseSincronizador
+    public abstract class ControlSincronizador : TaskSincronizador
     {
         protected readonly ConsejoService _consejo;
 

@@ -1,5 +1,4 @@
 ﻿using Sisfarma.Sincronizador.Extensions;
-using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Fisiotes.Models;
 using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
@@ -7,31 +6,32 @@ using System;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class PowerSwitchAutomatico : BaseSincronizador
+    public class PowerSwitchProgramado : PowerSwitch
     {
-        public static bool EstaEncendido;        
-        
-        public PowerSwitchAutomatico(FarmaticService farmatic, FisiotesService fisiotes)
-            : base(farmatic, fisiotes)
-        {
-            SincronizadorTaskManager.PowerOn();
-            EstaEncendido = true;
-        }
-        
+        public PowerSwitchProgramado(FisiotesService fisiotes)
+            : base(fisiotes) 
+            => Encender();
+
         public override void Process() => ProcessPowerSwitch();
 
         private void ProcessPowerSwitch()
         {
-            if (EsHorario(Programacion.Encendido) && !EstaEncendido)
-            {
-                SincronizadorTaskManager.PowerOn();
-                EstaEncendido = true;
-            }                
-            else if (EsHorario(Programacion.Apagado) && EstaEncendido)
-            {
-                SincronizadorTaskManager.PowerOff();
-                EstaEncendido = false;
-            }
+            if (EsHorario(Programacion.Encendido) && !EstaEncendido)            
+                Encender();            
+            else if (EsHorario(Programacion.Apagado) && EstaEncendido)            
+                Apagar();            
+        }
+
+        protected override void Encender()
+        {
+            base.Encender();
+            _fisiotes.Configuraciones.Update(FIELD_ENCENDIDO, Programacion.Encendido);
+        }
+
+        protected override void Apagar()
+        {
+            base.Apagar();
+            _fisiotes.Configuraciones.Update(FIELD_ENCENDIDO, Programacion.Apagado);
         }
 
         private bool EsHorario(string horario)

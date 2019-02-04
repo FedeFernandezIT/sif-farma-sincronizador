@@ -13,7 +13,7 @@ using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesReposit
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class VentaMensualActualizacionSincronizador : BaseSincronizador
+    public class VentaMensualActualizacionSincronizador : TaskSincronizador
     {
         private const string FIELD_POR_DONDE_VOY_VENTA_MES = FieldsConfiguracion.FIELD_POR_DONDE_VOY_VENTA_MES;
         private const string FIELD_POR_DONDE_VOY_VENTA_MES_ID = FieldsConfiguracion.FIELD_POR_DONDE_VOY_VENTA_MES_ID;

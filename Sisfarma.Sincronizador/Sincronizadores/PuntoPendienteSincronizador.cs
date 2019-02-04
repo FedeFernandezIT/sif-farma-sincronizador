@@ -12,7 +12,7 @@ using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesReposit
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class PuntoPendienteSincronizador : BaseSincronizador
+    public class PuntoPendienteSincronizador : TaskSincronizador
     {
         const string FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES = FieldsConfiguracion.FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES;
         const int YEAR_FOUND = 1;

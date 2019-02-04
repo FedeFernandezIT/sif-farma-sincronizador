@@ -5,7 +5,7 @@ using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesReposit
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class ProductoBorradoActualizacionSincronizador : BaseSincronizador
+    public class ProductoBorradoActualizacionSincronizador : TaskSincronizador
     {
         private const string FIELD_POR_DONDE_VOY_BORRAR = FieldsConfiguracion.FIELD_POR_DONDE_VOY_BORRAR;
 

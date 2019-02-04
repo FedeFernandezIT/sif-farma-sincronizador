@@ -9,7 +9,7 @@ using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class PedidoSincronizador : BaseSincronizador
+    public class PedidoSincronizador : TaskSincronizador
     {
         private const string LABORATORIO_DEFAULT = "<Sin Laboratorio>";
         private const string FAMILIA_DEFAULT = "<Sin Clasificar>";

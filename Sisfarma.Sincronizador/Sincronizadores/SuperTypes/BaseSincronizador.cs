@@ -1,6 +1,5 @@
 ﻿using Sisfarma.RestClient.Exceptions;
 using Sisfarma.Sincronizador.Extensions;
-using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Helpers;
 using System;
@@ -13,16 +12,12 @@ namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
     public abstract class BaseSincronizador : ISincronizador
     {
         private const string FIELD_LOG_ERRORS = FieldsConfiguracion.FIELD_LOG_ERRORS;
-
-        protected FarmaticService _farmatic;
+        
         protected FisiotesService _fisiotes;
         protected CancellationToken _cancellationToken;
 
-        public BaseSincronizador(FarmaticService farmatic, FisiotesService fisiotes)
-        {
-            _farmatic = farmatic ?? throw new ArgumentNullException(nameof(farmatic));
-            _fisiotes = fisiotes ?? throw new ArgumentNullException(nameof(fisiotes));
-        }
+        public BaseSincronizador(FisiotesService fisiotes)                    
+            => _fisiotes = fisiotes ?? throw new ArgumentNullException(nameof(fisiotes));        
 
 
         public abstract void Process();

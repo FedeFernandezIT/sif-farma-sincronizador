@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class ListaFechaSincronizador : BaseSincronizador
+    public class ListaFechaSincronizador : TaskSincronizador
     {
         private const int BATCH_SIZE = 1000;
 

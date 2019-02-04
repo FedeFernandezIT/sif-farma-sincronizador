@@ -1,11 +1,8 @@
 ﻿using Sisfarma.Sincronizador.Config;
-using Sisfarma.Sincronizador.Consejo;
-using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Properties;
 using Sisfarma.Sincronizador.Sincronizadores;
 using System;
-using System.Collections.Concurrent;
 using System.Configuration;
 using System.IO;
 using System.Threading;
@@ -50,7 +47,8 @@ namespace Sisfarma.Sincronizador
             RemoteConfig.Setup(_remoteServer, _remoteUsername, _remotePassword);
             LocalConfig.Setup(_localServer, _localBase, _localUser, _localPass, _marketCodeList);
                                     
-            Task.Factory.StartNew(() => new PowerSwitchAutomatico(FarmaticFactory.New(), FisiotesFactory.New()).Run(new CancellationToken()));            
+            Task.Factory.StartNew(() => new PowerSwitchProgramado(FisiotesFactory.New()).Run(new CancellationToken()));
+            Task.Factory.StartNew(() => new PowerSwitchManual(FisiotesFactory.New()).Run(new CancellationToken()));
 
             Application.ApplicationExit += (sender, @event) => notifyIcon.Visible = false;            
             Application.Run(new SincronizadorApplication());                        

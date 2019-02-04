@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class ClienteSincronizador : BaseSincronizador
+    public class ClienteSincronizador : TaskSincronizador
     {
         private readonly bool _hasSexo;
 

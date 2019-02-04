@@ -5,7 +5,7 @@ using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class FamiliaSincronizador : BaseSincronizador
+    public class FamiliaSincronizador : TaskSincronizador
     {
         public FamiliaSincronizador(FarmaticService farmatic, FisiotesService fisiotes) 
             : base(farmatic, fisiotes)

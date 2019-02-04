@@ -5,7 +5,7 @@ using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class PuntoPendienteActualizacionSincronizador : BaseSincronizador
+    public class PuntoPendienteActualizacionSincronizador : TaskSincronizador
     {
         public PuntoPendienteActualizacionSincronizador(FarmaticService farmatic, FisiotesService fisiotes) 
             : base(farmatic, fisiotes)

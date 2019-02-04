@@ -7,7 +7,7 @@ using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class ListaSincronizador : BaseSincronizador
+    public class ListaSincronizador : TaskSincronizador
     {
         private const int BATCH_SIZE = 1000;
 

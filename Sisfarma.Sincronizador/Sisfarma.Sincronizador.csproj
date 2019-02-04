@@ -177,7 +177,8 @@
     <Compile Include="Sincronizadores\ListaFechaSincronizador.cs" />
     <Compile Include="Sincronizadores\ListaTiendaSincronizador.cs" />
     <Compile Include="Sincronizadores\PedidoSincronizador.cs" />
-    <Compile Include="Sincronizadores\PowerSwitchAutomatico.cs" />
+    <Compile Include="Sincronizadores\PowerSwitchProgramado.cs" />
+    <Compile Include="Sincronizadores\PowerSwitchManual.cs" />
     <Compile Include="Sincronizadores\ProductoBorradoActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\ProductoCriticoSincronizador.cs" />
     <Compile Include="Sincronizadores\ProveedorHistorialSincronizador.cs" />
@@ -192,6 +193,8 @@
     <Compile Include="Sincronizadores\PuntoPendienteSincronizador.cs" />
     <Compile Include="Sincronizadores\ListaSincronizador.cs" />
     <Compile Include="Sincronizadores\SincronizadorTaskManager.cs" />
+    <Compile Include="Sincronizadores\SuperTypes\PowerSwitch.cs" />
+    <Compile Include="Sincronizadores\SuperTypes\TaskSincronizador.cs" />
     <Compile Include="Sincronizadores\VentaMensualActualizacionSincronizador.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -9,7 +9,7 @@ using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class ProveedorHistorialSincronizador : BaseSincronizador
+    public class ProveedorHistorialSincronizador : TaskSincronizador
     {
         private readonly int _batchSize;
 

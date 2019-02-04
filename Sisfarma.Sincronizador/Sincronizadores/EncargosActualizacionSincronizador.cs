@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class EncargoActualizacionSincronizador : BaseSincronizador
+    public class EncargoActualizacionSincronizador : TaskSincronizador
     {
         public EncargoActualizacionSincronizador(FarmaticService farmatic, FisiotesService fisiotes) 
             : base(farmatic, fisiotes)

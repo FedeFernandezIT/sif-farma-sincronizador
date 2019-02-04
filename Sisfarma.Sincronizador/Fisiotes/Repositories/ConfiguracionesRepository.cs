@@ -78,6 +78,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             public const string FIELD_SOLO_PUNTOS_CON_TARJETA = "soloPuntosConTarjeta";
             public const string FIELD_CANJEO_PUNTOS = "canjeoPuntos";
             public const string FIELD_LOG_ERRORS = "logErrors";
+            public const string FIELD_ENCENDIDO = "estadoSincro";
         }
 
         #region SQL Methods

@@ -5,7 +5,7 @@ using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
-    public class CategoriaSincronizador : BaseSincronizador
+    public class CategoriaSincronizador : TaskSincronizador
     {
         private const string PADRE_DEFAULT = @"<SIN PADRE>";
 
