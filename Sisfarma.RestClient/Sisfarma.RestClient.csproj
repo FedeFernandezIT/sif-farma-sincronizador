@@ -59,6 +59,7 @@
     <Compile Include="RestSharp\Extensions\RestRequestExtension.cs" />
     <Compile Include="RestSharp\Extensions\RestResponseExtension.cs" />
     <Compile Include="RestSharp\Factories\RestClientFactory.cs" />
+    <Compile Include="RestSharp\HttpBasicAuthentication.cs" />
     <Compile Include="RestSharp\RestClient.cs" />
   </ItemGroup>
   <ItemGroup>

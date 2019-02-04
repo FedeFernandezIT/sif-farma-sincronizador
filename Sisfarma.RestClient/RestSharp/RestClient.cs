@@ -64,6 +64,12 @@ namespace Sisfarma.RestClient.RestSharp
             return this;
         }
 
+        public IRestClient UseAuthenticationBasic(string token)
+        {
+            _restClient.Authenticator = new HttpBasicAuthentication(token);
+            return this;
+        }
+
         public async Task<T> SendGetAsync<T>()
         {
             var response = await _restClient.ExecuteGetTaskAsync(_request);

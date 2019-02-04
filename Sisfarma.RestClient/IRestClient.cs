@@ -10,6 +10,8 @@ namespace Sisfarma.RestClient
 
         IRestClient UseAuthenticationBasic(string username, string password);
 
+        IRestClient UseAuthenticationBasic(string token);
+
         Task<T> SendGetAsync<T>();
 
         T SendGet<T>();

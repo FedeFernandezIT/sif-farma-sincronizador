@@ -34,10 +34,10 @@ namespace Sisfarma.Sincronizador.Fisiotes
         public ProveedoresRepository Proveedores { get; set; }
         public ProgramacionRepository Programacion { get; set; }
 
-        public FisiotesService(string host, string username, string password)
+        public FisiotesService(string host, string token)
         {                                    
             var restClient = new RestClient.RestSharp.RestClient();
-            var config = FisiotesConfig.TestConfig(host, username, password);
+            var config = FisiotesConfig.TestConfig(host, token);
             Clientes = new ClientesRepository(restClient, config);
             Huecos = new HuecosRepository(restClient, config);
             PuntosPendientes = new PuntosPendientesRepository(restClient, config);
@@ -56,7 +56,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
         }
 
         public FisiotesService(RemoteConfig config)
-            : this(config.Server, config.Username, config.Password)
+            : this(config.Server, config.Token)
         { }
     }
 }

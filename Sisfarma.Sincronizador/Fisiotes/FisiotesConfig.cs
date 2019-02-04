@@ -40,15 +40,14 @@ namespace Sisfarma.Sincronizador.Fisiotes
 
         public ProgramacionResource Programacion { get; set; }
 
-        public static FisiotesConfig TestConfig(string remoteServer, string username, string password)
+        public static FisiotesConfig TestConfig(string remoteServer, string token)
         {
             return new FisiotesConfig
             {
                 BaseAddress = remoteServer,
                 Credentials = new Credential
                 {
-                    Username = username,
-                    Password = password
+                    Token = token
                 },
 
                 Clientes = new ClienteResource
@@ -328,4 +327,6 @@ public class Credential
     public string Username { get; set; }
 
     public string Password { get; set; }
+
+    public string Token { get; set; }
 }

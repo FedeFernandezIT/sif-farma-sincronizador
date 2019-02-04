@@ -22,7 +22,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             _config = config ?? throw new ArgumentNullException(nameof(config));
 
             _restClient.BaseAddress(_config.BaseAddress)
-                .UseAuthenticationBasic(_config.Credentials.Username, _config.Credentials.Password);
+                .UseAuthenticationBasic(_config.Credentials.Token);
         }
 
         protected void CheckAndCreateFieldsTemplate(string sqlTable, string[] fields, string[] sqlAlter)

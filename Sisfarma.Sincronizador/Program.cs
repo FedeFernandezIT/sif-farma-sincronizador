@@ -18,8 +18,7 @@ namespace Sisfarma.Sincronizador
             string
                 _remoteBase = string.Empty,
                 _remoteServer = string.Empty,
-                _remoteUsername = string.Empty,
-                _remotePassword = string.Empty,
+                _remoteToken = string.Empty,                
                 _localBase = string.Empty,
                 _localServer = string.Empty,
                 _localUser = string.Empty,
@@ -36,15 +35,14 @@ namespace Sisfarma.Sincronizador
             LeerFicherosConfiguracion(
             ref _remoteBase,
             ref _remoteServer,
-            ref _remoteUsername,
-            ref _remotePassword,
+            ref _remoteToken,            
             ref _localServer,
             ref _localBase,
             ref _localPass,
             ref _localUser,
             ref _marketCodeList);
 
-            RemoteConfig.Setup(_remoteServer, _remoteUsername, _remotePassword);
+            RemoteConfig.Setup(_remoteServer, _remoteToken);
             LocalConfig.Setup(_localServer, _localBase, _localUser, _localPass, _marketCodeList);
                                     
             Task.Factory.StartNew(() => new PowerSwitchProgramado(FisiotesFactory.New()).Run(new CancellationToken()));
@@ -64,8 +62,7 @@ namespace Sisfarma.Sincronizador
         private static void LeerFicherosConfiguracion(
             ref string _remoteBase,
             ref string _remoteServer,
-            ref string _remoteUsername,
-            ref string _remotePassword,
+            ref string _remoteToken,            
             ref string _localServer,
             ref string _localBase,
             ref string _localPass,
@@ -83,8 +80,7 @@ namespace Sisfarma.Sincronizador
                 path = ConfigurationManager.AppSettings["File.Remote.Server"];
                 var stream = new StreamReader(Path.Combine(dir, path));
                 _remoteServer = stream.ReadLine();
-                _remoteUsername = stream.ReadLine();
-                _remotePassword = stream.ReadLine();
+                _remoteToken = stream.ReadLine();                
 
                 // Servidor Local
                 path = ConfigurationManager.AppSettings["File.Local.Server"];
