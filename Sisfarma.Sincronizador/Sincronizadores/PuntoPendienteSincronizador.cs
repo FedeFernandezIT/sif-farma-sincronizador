@@ -150,10 +150,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var redencion = (farmatic.Ventas.GetOneOrDefaultLineaRedencionByKey(venta.IdVenta, linea.IdNLinea)?
                 .Redencion) ?? 0;
             var articulo = farmatic.Articulos.GetOneOrDefaultById(linea.Codigo);
-
             
-            var cargado = cargarPuntos.ToLower().Equals("si");// ? "si" : "no";
-
             var pp = new PuntosPendientes();
             pp.idventa = venta.IdVenta;
             pp.idnlinea = linea.IdNLinea;
@@ -204,6 +201,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var sonPuntosDeSisfarma = puntosDeSisfarma.ToLower().Equals("si");            
             var fechaDePuntos = _fisiotes.Configuraciones.GetByCampo(FIELD_FECHA_PUNTOS);
             var fechaDeVenta = venta.FechaHora.Date;
+            var cargado = cargarPuntos.ToLower().Equals("si");
 
             if (dni != 0 && 
                 sonPuntosDeSisfarma && !cargado &&
