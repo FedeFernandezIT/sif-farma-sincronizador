@@ -90,8 +90,9 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                         var articulo = _farmatic.Articulos.GetOneOrDefaultById(item.Codigo);
                         var pp = GenerarPuntoPendienteCargadoPorDefault(dni, venta, item, articulo, vendedor);
 
-                        if (dni != 0 && fechaDePuntos.ToLower() != "no" && 
+                        if (dni != 0 &&
                             !string.IsNullOrWhiteSpace(fechaDePuntos) &&
+                            fechaDePuntos.ToLower() != "no" &&                             
                             fechaDeVenta >= fechaDePuntos.ToDateTimeOrDefault("yyyyMMdd"))
                         {
                             var tipoFamilia = pp.familia != FAMILIA_DEFAULT ? pp.familia : pp.superFamilia;
@@ -276,10 +277,12 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         {
             var clienteDTO = Generator.FetchLocalClienteData(_farmatic, cliente, _hasSexo);
 
-            var dniCliente = cliente.PER_NIF.Strip();            
+            var dniCliente = cliente.PER_NIF.Strip();
+            
             if (_fisiotes.Configuraciones.PerteneceFarmazul())
             {
                 var beBlue = _farmatic.Clientes.EsBeBlue(cliente.XTIPO_IDTIPO) ? 1 : 0;
+                
                 _fisiotes.Clientes.InsertOrUpdateBeBlue(
                     clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
                     clienteDTO.Movil, clienteDTO.Email, clienteDTO.Puntos, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,

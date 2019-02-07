@@ -6,14 +6,15 @@ using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Farmatic.Models;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
+using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
     public class PedidoSincronizador : TaskSincronizador
     {
+        private const string YEAR_FOUND = FieldsConfiguracion.FIELD_ANIO_INICIO;
         private const string LABORATORIO_DEFAULT = "<Sin Laboratorio>";
-        private const string FAMILIA_DEFAULT = "<Sin Clasificar>";
-        private const int YEAR_FOUND = 1;
+        private const string FAMILIA_DEFAULT = "<Sin Clasificar>";        
 
         private ConsejoService _consejo;
 
@@ -27,10 +28,13 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private  void ProcessPedidos(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
         {
+            var anioInicio = _fisiotes.Configuraciones.GetByCampo(YEAR_FOUND)
+                .ToIntegerOrDefault(@default: DateTime.Now.Year - 2);
+
             var lastPedido = fisiotes.Pedidos.LastOrDefault();
             var recepciones = (lastPedido == null)
-                ? farmatic.Recepciones.GetByYear(YEAR_FOUND)
-                : farmatic.Recepciones.GetByIdAndYear(YEAR_FOUND, lastPedido.idPedido);
+                ? farmatic.Recepciones.GetByYear(anioInicio)
+                : farmatic.Recepciones.GetByIdAndYear(anioInicio, lastPedido.idPedido);
 
             foreach (var recepcion in recepciones)
             {
@@ -103,8 +107,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             return new Fisiotes.Models.Pedido
             {
                 idPedido = recepcion.IdRecepcion,
-                fechaPedido = recepcion.Fecha,
-                hora = recepcion.Hora,
+                fechaPedido = recepcion.Hora,
+                hora = DateTime.Now,
                 numLineas = resume.numLineas,
                 importePvp = Convert.ToSingle(resume.importePvp),
                 importePuc = Convert.ToSingle(resume.importePuc),

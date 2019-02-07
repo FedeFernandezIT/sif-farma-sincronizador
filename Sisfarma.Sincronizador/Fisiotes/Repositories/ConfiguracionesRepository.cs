@@ -11,9 +11,6 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
 {
     public class ConfiguracionesRepository : FisiotesRepository
     {
-        public ConfiguracionesRepository(FisiotesContext ctx) : base(ctx)
-        {
-        }
 
         public ConfiguracionesRepository(IRestClient restClient, FisiotesConfig config) 
             : base(restClient, config)
@@ -79,6 +76,9 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             public const string FIELD_CANJEO_PUNTOS = "canjeoPuntos";
             public const string FIELD_LOG_ERRORS = "logErrors";
             public const string FIELD_ENCENDIDO = "estadoSincro";
+            public const string FIELD_ANIO_INICIO = "anioInicioSincro";
+            public const string FIELD_PUNTOS_SISFARMA = "puntosPorSisfarma";
+            public const string FIELD_COPIAS_CLIENTES = "copiarClientes";
         }
 
         #region SQL Methods

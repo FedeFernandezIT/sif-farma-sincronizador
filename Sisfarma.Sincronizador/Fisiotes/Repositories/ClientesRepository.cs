@@ -102,6 +102,31 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 });
         }
 
+        public void InsertOrUpdate(string trabajador, string tarjeta, string idCliente, string dniCliente, string nombre,
+            string telefono, string direccion, string movil, string email, long fechaNacimiento,
+            string sexo, DateTime? fechaAlta, int baja, int lopd, bool withTrack = false)
+        {
+            _restClient
+                .Resource(_config.Clientes.Insert.Replace("{dni}", $"{idCliente}"))
+                .SendPut(new
+                {
+                    dni_tra = withTrack ? "1" : "0",
+                    nombre_tra = trabajador,
+                    tarjeta = tarjeta,
+                    apellidos = nombre,
+                    telefono = telefono,
+                    direccion = direccion,
+                    movil = movil,
+                    email = email,
+                    fecha_nacimiento = fechaNacimiento,                    
+                    sexo = sexo,
+                    fechaAlta = fechaAlta.ToIsoString(),
+                    baja = baja,
+                    lopd = lopd,
+                    dniCliente = dniCliente
+                });
+        }
+
         public void InsertOrUpdateBeBlue(string trabajador, string tarjeta, string idCliente, string dniCliente, string nombre,
             string telefono, string direccion, string movil, string email, decimal puntos, long fechaNacimiento,
             string sexo, DateTime? fechaAlta, int baja, int lopd, int esBeBlue)
@@ -120,6 +145,30 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                     email = email,
                     fecha_nacimiento = fechaNacimiento,
                     puntos = puntos,
+                    sexo = sexo,
+                    fechaAlta = fechaAlta.ToIsoString(),
+                    baja = baja,
+                    lopd = lopd
+                });
+        }
+
+        public void InsertOrUpdateBeBlue(string trabajador, string tarjeta, string idCliente, string dniCliente, string nombre,
+            string telefono, string direccion, string movil, string email, long fechaNacimiento,
+            string sexo, DateTime? fechaAlta, int baja, int lopd, int esBeBlue)
+        {
+            _restClient
+                .Resource(_config.Clientes.Insert.Replace("{dni}", $"{idCliente}"))
+                .SendPut(new
+                {
+                    dni_tra = "0",
+                    nombre_tra = trabajador,
+                    tarjeta = tarjeta,
+                    apellidos = nombre,
+                    telefono = telefono,
+                    direccion = direccion,
+                    movil = movil,
+                    email = email,
+                    fecha_nacimiento = fechaNacimiento,                    
                     sexo = sexo,
                     fechaAlta = fechaAlta.ToIsoString(),
                     baja = baja,

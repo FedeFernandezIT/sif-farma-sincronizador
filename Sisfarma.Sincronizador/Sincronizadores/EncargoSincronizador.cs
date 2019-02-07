@@ -4,14 +4,15 @@ using Sisfarma.Sincronizador.Extensions;
 using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
+using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
     public class EncargoSincronizador : TaskSincronizador
     {
+        private const string YEAR_FOUND = FieldsConfiguracion.FIELD_ANIO_INICIO;
         private const string LABORATORIO_DEFAULT = "<Sin Laboratorio>";
-        private const string FAMILIA_DEFAULT = "<Sin Clasificar>";
-        private const int YEAR_FOUND = 1;
+        private const string FAMILIA_DEFAULT = "<Sin Clasificar>";        
 
         private readonly ConsejoService _consejo;
 
@@ -24,11 +25,14 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         public override void Process() => ProcessEncargos(_farmatic, _fisiotes, _consejo);
 
         private void ProcessEncargos(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
-        {            
+        {
+            var anioInicio = _fisiotes.Configuraciones.GetByCampo(YEAR_FOUND)
+                .ToIntegerOrDefault(@default: DateTime.Now.Year - 2);
+
             var ultimo = fisiotes.Encargos.LastOrDefault();
             var idEncargo = ultimo?.idEncargo ?? 1;
 
-            var encargos = farmatic.Encargos.GetAllByContadorGreaterOrEqual(YEAR_FOUND, idEncargo);
+            var encargos = farmatic.Encargos.GetAllByContadorGreaterOrEqual(anioInicio, idEncargo);
             foreach (var encargo in encargos)
             {
                 _cancellationToken.ThrowIfCancellationRequested();
