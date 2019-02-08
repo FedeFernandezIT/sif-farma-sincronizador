@@ -24,10 +24,11 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
         }
 
-        public IEnumerable<PuntosPendientes> GetOfRecetasPendientes()
+        public IEnumerable<PuntosPendientes> GetOfRecetasPendientes(int año)
         {
             return _restClient
-               .Resource(_config.Puntos.GetVentasNoActualizadas)
+                .Resource(_config.Puntos.GetVentasNoActualizadas
+                    .Replace("{anio}", $"{año}"))
                .SendGet<IEnumerable<PuntosPendientes>>();
         }
 

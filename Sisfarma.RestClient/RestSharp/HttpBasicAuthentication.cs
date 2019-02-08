@@ -12,9 +12,9 @@ namespace Sisfarma.RestClient.RestSharp
 
         public HttpBasicAuthentication(string tokenHash)
         {
-            var token = Convert.ToBase64String(Encoding.UTF8.GetBytes(tokenHash));
+            var token = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{tokenHash}:"));
 
-            authHeader = string.Format("Basic {0}:", token);
+            authHeader = string.Format("Basic {0}", token);
         }
 
         public void Authenticate(RSharp.IRestClient client, RSharp.IRestRequest request)

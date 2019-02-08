@@ -69,7 +69,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
 
                 Puntos = new PuntoResource
                 {
-                    GetVentasNoActualizadas = "api/puntos/ventasNoActualizado",
+                    GetVentasNoActualizadas = "api/puntos/ventasNoActualizado/greateranio/{año}",
                     GetSinRedencion = "api/puntos/sinRedencion",
                     GetLastOfYear = "api/puntos/ultimo/year/{year}",
                     GetByItemVenta = "api/puntos/item/venta/{venta}/linea/{linea}",
