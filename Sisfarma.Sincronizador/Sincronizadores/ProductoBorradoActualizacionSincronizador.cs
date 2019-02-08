@@ -1,6 +1,7 @@
 ﻿using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
+using System.Linq;
 using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
@@ -14,24 +15,36 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         {
         }
 
-        public override void Process() => ProcessUpdateProductosBorrados(_farmatic, _fisiotes);
+        public override void Process() => ProcessUpdateProductosBorrados();
 
-        private  void ProcessUpdateProductosBorrados(FarmaticService farmatic, FisiotesService fisiotes)
+        private  void ProcessUpdateProductosBorrados()
         {
-            var codArticulo = fisiotes.Configuraciones.GetByCampo(FIELD_POR_DONDE_VOY_BORRAR);
+            var codArticulo = _fisiotes.Configuraciones.GetByCampo(FIELD_POR_DONDE_VOY_BORRAR);
             
-            var medicamentos = fisiotes.Medicamentos
+            var medicamentos = _fisiotes.Medicamentos
                 .GetGreaterOrEqualCodigosNacionales(codArticulo);
-            
-            fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_BORRAR, "0");
+            if (!medicamentos.Any())
+            {
+                _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_BORRAR, "0");
+                return;
+            }
+
+            if (medicamentos.Count() == 1)
+            {
+                var med = medicamentos.First();
+                if (!_farmatic.Articulos.Exists(med.cod_nacional.PadLeft(6, '0')))
+                    _fisiotes.Medicamentos.DeleteByCodigoNacional(med.cod_nacional);
+                _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_BORRAR, "0");
+            }
+                        
             foreach (var med in medicamentos)
             {
                 _cancellationToken.ThrowIfCancellationRequested();
 
-                if (!farmatic.Articulos.Exists(med.cod_nacional.PadLeft(6, '0')))
-                    fisiotes.Medicamentos.DeleteByCodigoNacional(med.cod_nacional);
+                if (!_farmatic.Articulos.Exists(med.cod_nacional.PadLeft(6, '0')))
+                    _fisiotes.Medicamentos.DeleteByCodigoNacional(med.cod_nacional);
 
-                fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_BORRAR, med.cod_nacional);
+                _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_BORRAR, med.cod_nacional);
             }
         }
     }
