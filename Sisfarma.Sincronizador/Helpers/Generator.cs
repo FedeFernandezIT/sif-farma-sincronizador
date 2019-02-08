@@ -170,7 +170,7 @@ namespace Sisfarma.Sincronizador.Helpers
             var codigoBarra = farmatic.Sinonimos.GetOneOrDefaultByArticulo(articulo.IdArticu)?.Sinonimo
                 ?? COD_BARRAS_DEFAULT;
 
-            var proveedor = farmatic.Proveedores.GetById(articulo.ProveedorHabitual)?.FIS_NOMBRE
+            var proveedor = farmatic.Proveedores.GetOneOrDefaultByCodigoNacional(articulo.IdArticu)?.FIS_NOMBRE
                 ?? string.Empty;
 
             var nombreLaboratorio = GetNombreLaboratorioFromLocalOrDefault(

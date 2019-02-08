@@ -79,7 +79,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                     ? farmatic.Familias.GetSuperFamiliaDescripcionByFamilia(familia) ?? FAMILIA_DEFAULT
                     : familia;
 
-                proveedor = farmatic.Proveedores.GetById(proveedor)?.FIS_NOMBRE.Strip() ?? string.Empty;
+                proveedor = farmatic.Proveedores.GetOneOrDefaultByCodigoNacional(articulo.IdArticu)?.FIS_NOMBRE.Strip() ?? string.Empty;
 
                 codLaboratorio = articulo.Laboratorio.Strip() ?? string.Empty;
                 laboratorio = GetNombreLaboratorioFromLocalOrDefault(farmatic, consejo, codLaboratorio, LABORATORIO_DEFAULT).Strip();

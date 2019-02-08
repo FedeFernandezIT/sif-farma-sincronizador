@@ -35,7 +35,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                         var articulo = farmatic.Articulos.GetOneOrDefaultById(linea.Codigo);
 
                         var proveedor = (articulo != null)
-                            ? farmatic.Proveedores.GetById(articulo.ProveedorHabitual)?.FIS_NOMBRE ?? string.Empty
+                            ? farmatic.Proveedores.GetOneOrDefaultByCodigoNacional(articulo.IdArticu)?.FIS_NOMBRE ?? string.Empty
                             : string.Empty;                        
 
                         fisiotes.PuntosPendientes.Update(venta.TipoVenta, proveedor,

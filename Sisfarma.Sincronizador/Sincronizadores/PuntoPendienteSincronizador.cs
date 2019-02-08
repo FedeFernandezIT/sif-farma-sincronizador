@@ -193,7 +193,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                     ? GetSuperFamiliaFromLocalOrDefault(farmatic, pp.familia, "<Sin Clasificar>").Strip()
                     : pp.familia;
 
-                pp.proveedor = GetProveedorFromLocalOrDefault(farmatic, articulo.ProveedorHabitual).Strip();
+                pp.proveedor = GetProveedorFromLocalOrDefault(farmatic, articulo.IdArticu).Strip();
             }
 
 
@@ -261,9 +261,9 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             return nombreLaboratorio;
         }
 
-        string GetProveedorFromLocalOrDefault(FarmaticService farmaticService, string proveedor, string byDefault = "")
+        string GetProveedorFromLocalOrDefault(FarmaticService farmaticService, string codigoNacional, string byDefault = "")
         {
-            var proveedorDb = farmaticService.Proveedores.GetById(proveedor);
+            var proveedorDb = farmaticService.Proveedores.GetOneOrDefaultByCodigoNacional(codigoNacional);
             return proveedorDb?.FIS_NOMBRE ?? byDefault;
         }
 

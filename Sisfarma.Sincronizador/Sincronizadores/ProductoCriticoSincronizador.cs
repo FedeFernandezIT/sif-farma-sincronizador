@@ -23,29 +23,29 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             _consejo = consejo ?? throw new ArgumentNullException(nameof(consejo));
         }
 
-        public override void Process() => ProcessProductosCrticos(_farmatic, _fisiotes, _consejo);
+        public override void Process() => ProcessProductosCrticos();
 
-        public void ProcessProductosCrticos(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
+        public void ProcessProductosCrticos()
         {            
-            var falta = fisiotes.Faltas.LastOrDefault();
+            var falta = _fisiotes.Faltas.LastOrDefault();
             var pedidos = (falta == null)
-                ? farmatic.Pedidos.GetByFechaGreaterOrEqual(DateTime.Now.Date)
-                : farmatic.Pedidos.GetByIdGreaterOrEqual(falta.idPedido);
+                ? _farmatic.Pedidos.GetByFechaGreaterOrEqual(DateTime.Now.Date)
+                : _farmatic.Pedidos.GetByIdGreaterOrEqual(falta.idPedido);
 
             foreach (var pedido in pedidos)
             {
                 _cancellationToken.ThrowIfCancellationRequested();
 
-                var detallePedido = farmatic.Pedidos.GetLineasByPedido(pedido.IdPedido)
+                var detallePedido = _farmatic.Pedidos.GetLineasByPedido(pedido.IdPedido)
                     .Where(linea => !string.IsNullOrEmpty(linea.XArt_IdArticu?.Trim()));
 
                 foreach (var linea in detallePedido)
                 {                    
-                    var articulo = farmatic.Articulos.GetOneOrDefaultById(linea.XArt_IdArticu);
+                    var articulo = _farmatic.Articulos.GetOneOrDefaultById(linea.XArt_IdArticu);
                     if (articulo != null && articulo.StockActual == STOCK_CRITICO)
                     {
-                        if(!fisiotes.Faltas.ExistsLineaDePedido(linea.IdPedido, linea.IdLinea))
-                            fisiotes.Faltas.Insert(GenerarFaltante(farmatic, pedido, linea, articulo, consejo));                        
+                        if(!_fisiotes.Faltas.ExistsLineaDePedido(linea.IdPedido, linea.IdLinea))
+                            _fisiotes.Faltas.Insert(GenerarFaltante(_farmatic, pedido, linea, articulo, _consejo));                        
                     }
                 }
             }
@@ -68,7 +68,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 ? farmatic.Familias.GetSuperFamiliaDescripcionByFamilia(familia) ?? FAMILIA_DEFAULT
                 : familia;
 
-            var proveedor = farmatic.Proveedores.GetById(articulo.ProveedorHabitual)?.FIS_NOMBRE
+            var proveedor = farmatic.Proveedores.GetOneOrDefaultByCodigoNacional(articulo.IdArticu)?.FIS_NOMBRE
                 ?? string.Empty;
 
             var codLaboratorio = articulo.Laboratorio ?? string.Empty;

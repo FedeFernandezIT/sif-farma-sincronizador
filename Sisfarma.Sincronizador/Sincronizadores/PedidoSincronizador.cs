@@ -98,7 +98,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private Fisiotes.Models.Pedido GenerarPedido(FarmaticService farmatic, Recepcion recepcion, RecepcionResume resume)
         {
-            var proveedor = farmatic.Proveedores.GetById(recepcion.XProv_IdProveedor)?.FIS_NOMBRE
+            var proveedor = farmatic.Proveedores.GetOneOrDefault(recepcion.XProv_IdProveedor)?.FIS_NOMBRE
                             ?? string.Empty;
 
             var trabajador = farmatic.Vendedores.GetOneOrDefaultById(Convert.ToInt16(recepcion.XVend_IdVendedor))?.NOMBRE

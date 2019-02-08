@@ -231,7 +231,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                             .GetOneOrDefaultByArticulo(detalleDeVenta.Codigo)?.Sinonimo.Strip()
                                 ?? COD_BARRAS_DEFAULT;            
 
-            var proveedor = _farmatic.Proveedores.GetById(detalleDeVenta.Codigo)?.FIS_NOMBRE.Strip() ?? string.Empty;
+            var proveedor = _farmatic.Proveedores.GetOneOrDefaultByCodigoNacional(detalleDeVenta.Codigo)?.FIS_NOMBRE.Strip() ?? string.Empty;
             
             var laboratorio = Generator.GetNombreLaboratorioFromLocalOrDefault(_farmatic, _consejo, codLaboratorio, LABORATORIO_DEAFULT).Strip();
 
