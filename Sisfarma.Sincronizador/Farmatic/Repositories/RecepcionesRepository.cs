@@ -18,7 +18,7 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
 
         public IEnumerable<Recepcion> GetByYear(int year)
         {            
-            var sql = @"SELECT * From Recep WHERE YEAR(Fecha) >= @year Order by IdRecepcion ASC";
+            var sql = @"SELECT TOP 1000 * From Recep WHERE YEAR(Fecha) >= @year Order by IdRecepcion ASC";
             return _ctx.Database.SqlQuery<Recepcion>(sql,
                 new SqlParameter("year", year))
                 .ToList();         
@@ -27,7 +27,7 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
         public IEnumerable<Recepcion> GetByIdAndYear(int year, long? pedido)
         {            
             var sql =
-                @"SELECT * From Recep WHERE IdRecepcion >= @pedido AND YEAR(Fecha) >= @year Order by IdRecepcion ASC";
+                @"SELECT TOP 1000 * From Recep WHERE IdRecepcion >= @pedido AND YEAR(Fecha) >= @year Order by IdRecepcion ASC";
             return _ctx.Database.SqlQuery<Recepcion>(sql,
                 new SqlParameter("year", year),
                 new SqlParameter("pedido", pedido ?? SqlInt64.Null))

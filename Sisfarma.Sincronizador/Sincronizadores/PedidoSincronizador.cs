@@ -24,38 +24,38 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             _consejo = consejo ?? throw new ArgumentNullException(nameof(consejo));
         }
 
-        public override void Process() => ProcessPedidos(_farmatic, _fisiotes, _consejo);
+        public override void Process() => ProcessPedidos();
 
-        private  void ProcessPedidos(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
+        private  void ProcessPedidos()
         {
             var anioInicio = _fisiotes.Configuraciones.GetByCampo(YEAR_FOUND)
                 .ToIntegerOrDefault(@default: DateTime.Now.Year - 2);
 
-            var lastPedido = fisiotes.Pedidos.LastOrDefault();
+            var lastPedido = _fisiotes.Pedidos.LastOrDefault();
             var recepciones = (lastPedido == null)
-                ? farmatic.Recepciones.GetByYear(anioInicio)
-                : farmatic.Recepciones.GetByIdAndYear(anioInicio, lastPedido.idPedido);
+                ? _farmatic.Recepciones.GetByYear(anioInicio)
+                : _farmatic.Recepciones.GetByIdAndYear(anioInicio, lastPedido.idPedido);
 
             foreach (var recepcion in recepciones)
             {
                 _cancellationToken.ThrowIfCancellationRequested();
 
-                var resume = farmatic.Recepciones.GetResumeById(recepcion.IdRecepcion);
+                var resume = _farmatic.Recepciones.GetResumeById(recepcion.IdRecepcion);
                 if (resume.numLineas > 0)
                 {
-                    if (!fisiotes.Pedidos.Exists(recepcion.IdRecepcion))                                            
-                        fisiotes.Pedidos.Insert(GenerarPedido(farmatic, recepcion, resume));                        
+                    if (!_fisiotes.Pedidos.Exists(recepcion.IdRecepcion))                                            
+                        _fisiotes.Pedidos.Insert(GenerarPedido(_farmatic, recepcion, resume));                        
                     
-                    var lineas = farmatic.Recepciones.GetLineasById(recepcion.IdRecepcion)
+                    var lineas = _farmatic.Recepciones.GetLineasById(recepcion.IdRecepcion)
                             .Where(l => !string.IsNullOrEmpty(l.XArt_IdArticu));
 
                     foreach (var linea in lineas)
                     {                        
-                        var articulo = farmatic.Articulos.GetOneOrDefaultById(linea.XArt_IdArticu);
+                        var articulo = _farmatic.Articulos.GetOneOrDefaultById(linea.XArt_IdArticu);
                         if (articulo != null)
                         {                            
-                            if (!fisiotes.Pedidos.ExistsLinea(linea.IdRecepcion, linea.IdNLinea))                                
-                                fisiotes.Pedidos.InsertLinea(GenerarLineaDePedido(farmatic, recepcion, linea, articulo, consejo));                                                                    
+                            if (!_fisiotes.Pedidos.ExistsLinea(linea.IdRecepcion, linea.IdNLinea))                                
+                                _fisiotes.Pedidos.InsertLinea(GenerarLineaDePedido(_farmatic, recepcion, linea, articulo, _consejo));                                                                    
                         }                                                                                                                                                                                     
                     }
                 }
