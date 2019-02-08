@@ -6,11 +6,13 @@ using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
     public class ClienteSincronizador : TaskSincronizador
     {
+        private const string FIELD_PUNTOS_SISFARMA = FieldsConfiguracion.FIELD_PUNTOS_SISFARMA;
         private readonly bool _hasSexo;
 
         public ClienteSincronizador(FarmaticService farmatic, FisiotesService fisiotes) 
@@ -43,10 +45,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 var clientData = Generator.FetchLocalClienteData(_farmatic, cliente, _hasSexo);
                     
                 _fisiotes.Clientes.ResetDniTracking();
-                _fisiotes.Clientes.InsertOrUpdate(
-                            clientData.Trabajador, clientData.Tarjeta, cliente.IDCLIENTE, clientData.Nombre.Strip(), clientData.Telefono, clientData.Direccion.Strip(),
-                            clientData.Movil, clientData.Email, clientData.Puntos, clientData.FechaNacimiento, clientData.Sexo, clientData.FechaAlta, clientData.Baja, clientData.Lopd,
-                            withTrack: true);
+
+                InsertOrUpdateCliente(cliente);                
 
                 var intIdCliente = Convert.ToInt32(cliente.IDCLIENTE);
                 if (intIdCliente != contadorHuecos)
@@ -60,6 +60,49 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 }
                 contadorHuecos++;
             }                     
-        }        
+        }
+
+        private void InsertOrUpdateCliente(Farmatic.Models.Cliente cliente)
+        {
+            var clienteDTO = Generator.FetchLocalClienteData(_farmatic, cliente, _hasSexo);
+
+            var puntosDeSisfarma = _fisiotes.Configuraciones.GetByCampo(FIELD_PUNTOS_SISFARMA) ?? string.Empty;
+            var debeCargarPuntos = puntosDeSisfarma.ToLower().Equals("no") || string.IsNullOrWhiteSpace(puntosDeSisfarma);
+
+            var dniCliente = cliente.PER_NIF.Strip();
+
+            if (_fisiotes.Configuraciones.PerteneceFarmazul())
+            {
+                var beBlue = _farmatic.Clientes.EsBeBlue(cliente.XTIPO_IDTIPO) ? 1 : 0;
+                if (debeCargarPuntos)
+                {
+                    _fisiotes.Clientes.InsertOrUpdateBeBlue(
+                    clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
+                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.Puntos, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
+                    beBlue);
+                }
+                else
+                {
+                    _fisiotes.Clientes.InsertOrUpdateBeBlue(
+                        clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
+                        clienteDTO.Movil, clienteDTO.Email, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
+                        beBlue);
+                }
+            }
+            else if (debeCargarPuntos)
+            {
+                _fisiotes.Clientes.InsertOrUpdate(
+                    clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
+                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.Puntos, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
+                    withTrack: true);
+            }
+            else
+            {
+                _fisiotes.Clientes.InsertOrUpdate(
+                    clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
+                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
+                    withTrack: true);
+            }
+        }
     }
 }
