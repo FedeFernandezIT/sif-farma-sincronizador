@@ -70,7 +70,7 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
 
         public List<ArticuloWithIva> GetByFechaUltimaEntradaGreaterOrEqual(DateTime? fechaActualizacionStock)
         {
-            var sql = @"select a.*, t.Piva AS iva from articu a INNER JOIN Tablaiva t ON t.IdTipoArt = a.XGrup_IdGrupoIva AND t.IdTipoPro = '05' " +
+            var sql = @"select top 1000 a.*, t.Piva AS iva from articu a INNER JOIN Tablaiva t ON t.IdTipoArt = a.XGrup_IdGrupoIva AND t.IdTipoPro = '05' " +
                 @"WHERE a.Descripcion <> 'PENDIENTE DE ASIGNACIÓN' AND a.Descripcion <> 'VENTAS VARIAS' AND a.Descripcion <> '   BASE DE DATOS  3/03/2014' " +
                 @"AND FechaUltimaEntrada >= @fechaActualizacion ORDER BY FechaUltimaEntrada ASC";
             return _ctx.Database.SqlQuery<ArticuloWithIva>(sql,
