@@ -57,6 +57,17 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
                 .ToList();
         }
 
+        public ArticuloWithIva GetControlArticuloFisrtOrDefault(string articulo)
+        {
+            var sql = @"select TOP 1 idArticu from articu " +
+                  " WHERE Descripcion <> 'PENDIENTE DE ASIGNACIÓN' AND Descripcion <> 'VENTAS VARIAS' AND Descripcion <> '   BASE DE DATOS  3/03/2014' " +
+                  " AND IdArticu > @articulo AND StockActual > 0 ORDER BY IdArticu ASC";
+
+            return _ctx.Database.SqlQuery<ArticuloWithIva>(sql,
+                new SqlParameter("articulo", articulo))
+                .FirstOrDefault();            
+        }
+
         public List<ArticuloWithIva> GetByFechaUltimaEntradaGreaterOrEqual(DateTime? fechaActualizacionStock)
         {
             var sql = @"select a.*, t.Piva AS iva from articu a INNER JOIN Tablaiva t ON t.IdTipoArt = a.XGrup_IdGrupoIva AND t.IdTipoPro = '05' " +

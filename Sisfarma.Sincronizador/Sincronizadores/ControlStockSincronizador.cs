@@ -3,6 +3,7 @@ using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Helpers;
 using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
+using System.Linq;
 using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
@@ -16,30 +17,40 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         {            
         }
 
-        public override void Process() => ProcessControlStockInicial(_farmatic, _fisiotes, _consejo);
+        public override void Process() => ProcessControlStockInicial();
 
-        public void ProcessControlStockInicial(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
+        public void ProcessControlStockInicial()
         {
-            var configuracion = fisiotes.Configuraciones.GetByCampo(FIELD_POR_DONDE_VOY_CON_STOCK);
+            var configuracion = _fisiotes.Configuraciones.GetByCampo(FIELD_POR_DONDE_VOY_CON_STOCK);
             var codArticulo = !string.IsNullOrEmpty(configuracion)
                 ? configuracion
                 : "0";
 
-            var articulos = farmatic.Articulos.GetWithStockByIdGreaterOrEqual(codArticulo);
+            var articulos = _farmatic.Articulos.GetWithStockByIdGreaterOrEqual(codArticulo);
+            if (!articulos.Any())
+            {
+                _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_CON_STOCK, "0");
+                _fisiotes.Medicamentos.ResetPorDondeVoy();
+                return;
+            }
+
             foreach (var articulo in articulos)
             {
                 _cancellationToken.ThrowIfCancellationRequested();
 
-                fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_CON_STOCK, articulo.IdArticu);
+                _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_CON_STOCK, articulo.IdArticu);
 
-                var medicamentoGenerado = Generator.GenerarMedicamento(farmatic, consejo, articulo);
-                var medicamento = fisiotes.Medicamentos.GetOneOrDefaultByCodNacional(articulo.IdArticu);                
+                var medicamentoGenerado = Generator.GenerarMedicamento(_farmatic, _consejo, articulo);
+                var medicamento = _fisiotes.Medicamentos.GetOneOrDefaultByCodNacional(articulo.IdArticu);                
 
-                SincronizarMedicamento(fisiotes, medicamento, medicamentoGenerado);
+                SincronizarMedicamento(_fisiotes, medicamento, medicamentoGenerado);
             }
 
-            fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_CON_STOCK, "0");
-            fisiotes.Medicamentos.ResetPorDondeVoy();
+            if (_farmatic.Articulos.GetControlArticuloFisrtOrDefault(articulos.Last().IdArticu) == null)
+            {
+                _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_CON_STOCK, "0");
+                _fisiotes.Medicamentos.ResetPorDondeVoy();
+            }
         }
     }
 }
