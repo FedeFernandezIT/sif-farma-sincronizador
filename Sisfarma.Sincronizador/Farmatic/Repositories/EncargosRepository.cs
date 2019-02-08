@@ -17,7 +17,7 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
 
         public IEnumerable<Encargo> GetAllByContadorGreaterOrEqual(int year, long? contador)
         {            
-            var sql = @"SELECT * From Encargo WHERE year(idFecha) >= @year AND IdContador >= @contador Order by IdContador ASC";
+            var sql = @"SELECT TOP 1000 * From Encargo WHERE year(idFecha) >= @year AND IdContador >= @contador Order by IdContador ASC";
             return _ctx.Database.SqlQuery<Encargo>(sql,
                 new SqlParameter("year", year),
                 new SqlParameter("contador", contador ?? SqlInt64.Null))

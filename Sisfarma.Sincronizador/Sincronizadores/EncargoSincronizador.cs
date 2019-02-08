@@ -22,23 +22,23 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             _consejo = consejo ?? throw new ArgumentNullException(nameof(consejo));
         }
 
-        public override void Process() => ProcessEncargos(_farmatic, _fisiotes, _consejo);
+        public override void Process() => ProcessEncargos();
 
-        private void ProcessEncargos(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
+        private void ProcessEncargos()
         {
             var anioInicio = _fisiotes.Configuraciones.GetByCampo(YEAR_FOUND)
                 .ToIntegerOrDefault(@default: DateTime.Now.Year - 2);
 
-            var ultimo = fisiotes.Encargos.LastOrDefault();
+            var ultimo = _fisiotes.Encargos.LastOrDefault();
             var idEncargo = ultimo?.idEncargo ?? 1;
 
-            var encargos = farmatic.Encargos.GetAllByContadorGreaterOrEqual(anioInicio, idEncargo);
+            var encargos = _farmatic.Encargos.GetAllByContadorGreaterOrEqual(anioInicio, idEncargo);
             foreach (var encargo in encargos)
             {
                 _cancellationToken.ThrowIfCancellationRequested();
 
-                if (!fisiotes.Encargos.Exists(encargo.IdContador))                
-                    fisiotes.Encargos.Insert(GenerarEncargo(farmatic, encargo, consejo));                                    
+                if (!_fisiotes.Encargos.Exists(encargo.IdContador))                
+                    _fisiotes.Encargos.Insert(GenerarEncargo(_farmatic, encargo, _consejo));                                    
             }
         }
 
