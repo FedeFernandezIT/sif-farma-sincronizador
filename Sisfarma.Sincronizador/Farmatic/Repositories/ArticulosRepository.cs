@@ -29,13 +29,23 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
 
         public List<ArticuloWithIva> GetWithoutStockByIdGreaterOrEqual(string codArticulo)
         {
-            var sql = @"select a.*, t.Piva AS iva from articu a INNER JOIN Tablaiva t ON t.IdTipoArt = a.XGrup_IdGrupoIva AND t.IdTipoPro = '05' " +
+            var sql = @"select top 1000 a.*, t.Piva AS iva from articu a INNER JOIN Tablaiva t ON t.IdTipoArt = a.XGrup_IdGrupoIva AND t.IdTipoPro = '05' " +
                 @" WHERE a.Descripcion <> 'PENDIENTE DE ASIGNACIÓN' AND a.Descripcion <> 'VENTAS VARIAS' AND a.Descripcion <> '   BASE DE DATOS  3/03/2014' " +
                 @" AND a.IdArticu >= @codArticulo AND a.StockActual <= 0 ORDER BY a.IdArticu ASC";
             return _ctx.Database.SqlQuery<ArticuloWithIva>(sql,
                 new SqlParameter("codArticulo", codArticulo))
                 .ToList();
-        }        
+        }
+
+        public List<ArticuloWithIva> GetWithStockByIdGreaterOrEqual(string codArticulo)
+        {
+            var sql = @"select top 1000 a.*, t.Piva AS iva from articu a INNER JOIN Tablaiva t ON t.IdTipoArt = a.XGrup_IdGrupoIva AND t.IdTipoPro = '05' " +
+                @" WHERE a.Descripcion <> 'PENDIENTE DE ASIGNACIÓN' AND a.Descripcion <> 'VENTAS VARIAS' AND a.Descripcion <> '   BASE DE DATOS  3/03/2014' " +
+                @" AND a.IdArticu >= @codArticulo AND a.StockActual > 0 ORDER BY a.IdArticu ASC";
+            return _ctx.Database.SqlQuery<ArticuloWithIva>(sql,
+                new SqlParameter("codArticulo", codArticulo))
+                .ToList();
+        }
 
         public List<ArticuloWithIva> GetByFechaUltimaSalidaGreaterOrEqual(DateTime? fechaActualizacionStock)
         {
@@ -45,17 +55,7 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
             return _ctx.Database.SqlQuery<ArticuloWithIva>(sql,
                 new SqlParameter("fechaActualizacion", fechaActualizacionStock ?? SqlDateTime.Null))
                 .ToList();
-        }
-
-        public List<ArticuloWithIva> GetWithStockByIdGreaterOrEqual(string codArticulo)
-        {
-            var sql = @"select a.*, t.Piva AS iva from articu a INNER JOIN Tablaiva t ON t.IdTipoArt = a.XGrup_IdGrupoIva AND t.IdTipoPro = '05' " +
-                @" WHERE a.Descripcion <> 'PENDIENTE DE ASIGNACIÓN' AND a.Descripcion <> 'VENTAS VARIAS' AND a.Descripcion <> '   BASE DE DATOS  3/03/2014' " +
-                @" AND a.IdArticu >= @codArticulo AND a.StockActual > 0 ORDER BY a.IdArticu ASC";
-            return _ctx.Database.SqlQuery<ArticuloWithIva>(sql,
-                new SqlParameter("codArticulo", codArticulo))
-                .ToList();
-        }
+        }        
 
         public ArticuloWithIva GetControlArticuloFisrtOrDefault(string articulo)
         {
