@@ -47,10 +47,10 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             }
 
             if (_farmatic.Articulos.GetControlArticuloFisrtOrDefault(articulosWithIva.Last().IdArticu) == null)
-            {
-                _fisiotes.Configuraciones.Update(FIELD_STOCK_SALIDA, "0");
+            {                
                 _fisiotes.Medicamentos.ResetPorDondeVoySinStock();
             }
+            _fisiotes.Configuraciones.Update(FIELD_STOCK_SALIDA, "0");
         }
     }
 }

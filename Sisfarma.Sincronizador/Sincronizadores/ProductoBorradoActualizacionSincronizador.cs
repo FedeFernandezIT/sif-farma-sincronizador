@@ -46,6 +46,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
                 _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_BORRAR, med.cod_nacional);
             }
+            _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_BORRAR, "0");
         }
     }
 }
