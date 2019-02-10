@@ -9,13 +9,30 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Deployment.Application;
+using System.Reflection;
+using Sisfarma.ClickOnce;
+using Microsoft.Win32;
 
 namespace Sisfarma.Sincronizador
 {
     internal static class Program
-    {       
+    {
+        private static Mutex instanceMutex;
+
         private static void Main()
-        {            
+        {
+            bool createdNew;
+            instanceMutex = new Mutex(true, @"Local\" + Assembly.GetExecutingAssembly().GetType().GUID, out createdNew);
+            if (!createdNew)
+            {
+                instanceMutex = null;
+                return;
+            }
+
+            RegisterStartup(Globals.ProductName);
+            var clickOnce = new ClickOnceHelper(Globals.PublisherName, Globals.ProductName);
+            clickOnce.UpdateUninstallParameters();
+
             if (InstallUpdateSyncWithInfo())
                 return;
 
@@ -53,7 +70,9 @@ namespace Sisfarma.Sincronizador
             Task.Factory.StartNew(() => new PowerSwitchManual(FisiotesFactory.New()).Run(new CancellationToken()));
 
             Application.ApplicationExit += (sender, @event) => notifyIcon.Visible = false;            
-            Application.Run(new SincronizadorApplication());                        
+            Application.Run(new SincronizadorApplication());
+
+            instanceMutex.ReleaseMutex();
         }
 
         private static ContextMenuStrip GetSincronizadorMenuStrip()
@@ -127,6 +146,14 @@ namespace Sisfarma.Sincronizador
             catch (DeploymentDownloadException) { return false; }
             catch (InvalidDeploymentException) { return false; }
             catch (InvalidOperationException) { return false; }            
+        }
+
+        internal static void RegisterStartup(string productName)
+        {
+            if (!ApplicationDeployment.IsNetworkDeployed)
+                return;
+            RegistryKey reg = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            reg.SetValue(productName, Assembly.GetExecutingAssembly().Location);
         }
     }
 }

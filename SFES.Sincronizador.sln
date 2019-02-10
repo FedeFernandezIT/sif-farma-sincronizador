@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sisfarma.Sincronizador", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sisfarma.RestClient", "Sisfarma.RestClient\Sisfarma.RestClient.csproj", "{496093B9-667B-4041-8581-462771FC68FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sisfarma.ClickOnce", "Sisfarma.ClickOnce\Sisfarma.ClickOnce.csproj", "{92CBB2CC-844F-4B52-9208-87B322BB6DBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sisfarma.Uninstall", "Sisfarma.Uninstall\Sisfarma.Uninstall.csproj", "{09C83554-3836-46E1-9E55-AAC5F235080C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{496093B9-667B-4041-8581-462771FC68FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{496093B9-667B-4041-8581-462771FC68FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{496093B9-667B-4041-8581-462771FC68FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92CBB2CC-844F-4B52-9208-87B322BB6DBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92CBB2CC-844F-4B52-9208-87B322BB6DBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92CBB2CC-844F-4B52-9208-87B322BB6DBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92CBB2CC-844F-4B52-9208-87B322BB6DBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09C83554-3836-46E1-9E55-AAC5F235080C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09C83554-3836-46E1-9E55-AAC5F235080C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09C83554-3836-46E1-9E55-AAC5F235080C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09C83554-3836-46E1-9E55-AAC5F235080C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -29,7 +29,7 @@
     <SuiteName>Sisfarma</SuiteName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>index.html</WebPage>
-    <ApplicationRevision>30</ApplicationRevision>
+    <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -269,6 +269,10 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Sisfarma.ClickOnce\Sisfarma.ClickOnce.csproj">
+      <Project>{92CBB2CC-844F-4B52-9208-87B322BB6DBA}</Project>
+      <Name>Sisfarma.ClickOnce</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sisfarma.RestClient\Sisfarma.RestClient.csproj">
       <Project>{496093B9-667B-4041-8581-462771FC68FC}</Project>
       <Name>Sisfarma.RestClient</Name>
@@ -285,6 +289,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="uninstall.exe" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
