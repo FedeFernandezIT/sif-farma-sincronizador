@@ -3,7 +3,6 @@ using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
 using Sisfarma.Sincronizador.Helpers;
 using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
-using System.Linq;
 using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
@@ -25,13 +24,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
             var fechaActualizacionStock = Calculator.CalculateFechaActualizacion(configuracion);
 
-            var articulosWithIva = _farmatic.Articulos.GetByFechaUltimaEntradaGreaterOrEqual(fechaActualizacionStock);
-            if (!articulosWithIva.Any())
-            {
-                _fisiotes.Configuraciones.Update(FIELD_STOCK_ENTRADA, "0");
-                _fisiotes.Medicamentos.ResetPorDondeVoy();
-                return;
-            }
+            var articulosWithIva = _farmatic.Articulos.GetByFechaUltimaEntradaGreaterOrEqual(fechaActualizacionStock);            
 
             foreach (var articulo in articulosWithIva)
             {
@@ -45,12 +38,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
                 SincronizarMedicamento(_fisiotes, medicamento, medicamentoGenerado);
             }
-
-            if (_farmatic.Articulos.GetControlArticuloFisrtOrDefault(articulosWithIva.Last().IdArticu) == null)
-            {                
-                _fisiotes.Medicamentos.ResetPorDondeVoySinStock();
-            }
-            _fisiotes.Configuraciones.Update(FIELD_STOCK_ENTRADA, "0");
+            
         }
     }
 }

@@ -29,8 +29,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var articulos = _farmatic.Articulos.GetWithStockByIdGreaterOrEqual(codArticulo);
             if (!articulos.Any())
             {
-                _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_CON_STOCK, "0");
-                _fisiotes.Medicamentos.ResetPorDondeVoy();
+                _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_CON_STOCK, "0");                
                 return;
             }
 
@@ -47,11 +46,9 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             }
 
             if (_farmatic.Articulos.GetControlArticuloFisrtOrDefault(articulos.Last().IdArticu) == null)
-            {                
-                _fisiotes.Medicamentos.ResetPorDondeVoy();
-            }
-
-            _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_CON_STOCK, "0");
+            {
+                _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_CON_STOCK, "0");
+            }            
         }
     }
 }
