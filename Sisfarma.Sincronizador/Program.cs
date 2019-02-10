@@ -8,13 +8,17 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Deployment.Application;
 
 namespace Sisfarma.Sincronizador
 {
     internal static class Program
     {       
         private static void Main()
-        {
+        {            
+            if (InstallUpdateSyncWithInfo())
+                return;
+
             string
                 _remoteBase = string.Empty,
                 _remoteServer = string.Empty,
@@ -44,7 +48,7 @@ namespace Sisfarma.Sincronizador
 
             RemoteConfig.Setup(_remoteServer, _remoteToken);
             LocalConfig.Setup(_localServer, _localBase, _localUser, _localPass, _marketCodeList);
-                                    
+            
             Task.Factory.StartNew(() => new PowerSwitchProgramado(FisiotesFactory.New()).Run(new CancellationToken()));
             Task.Factory.StartNew(() => new PowerSwitchManual(FisiotesFactory.New()).Run(new CancellationToken()));
 
@@ -53,7 +57,7 @@ namespace Sisfarma.Sincronizador
         }
 
         private static ContextMenuStrip GetSincronizadorMenuStrip()
-        {
+        {            
             var cms = new ContextMenuStrip();
             cms.Items.Add("Salir", null, (sender, @event) => Application.Exit());
             return cms;
@@ -103,5 +107,26 @@ namespace Sisfarma.Sincronizador
                 throw new IOException("Ha habido un error en la lectura de algún fichero de configuración. Compruebe que existen dichos ficheros de configuración.");
             }
         }        
+
+        internal static bool InstallUpdateSyncWithInfo()
+        {            
+            if (!ApplicationDeployment.IsNetworkDeployed)                            
+                return false;                            
+            
+            var AD = ApplicationDeployment.CurrentDeployment;
+            try
+            {
+                if (!AD.CheckForDetailedUpdate().UpdateAvailable)
+                    return false;
+
+                AD.Update();
+                Application.Restart();
+                Application.ExitThread();
+                return true;
+            }
+            catch (DeploymentDownloadException) { return false; }
+            catch (InvalidDeploymentException) { return false; }
+            catch (InvalidOperationException) { return false; }            
+        }
     }
 }
