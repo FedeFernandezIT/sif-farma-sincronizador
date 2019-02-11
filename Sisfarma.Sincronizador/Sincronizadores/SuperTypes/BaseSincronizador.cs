@@ -9,20 +9,16 @@ using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesReposit
 
 namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
 {
-    public abstract class BaseSincronizador : ISincronizador
+    public abstract class BaseSincronizador : Sincronizador, ISincronizador
     {
         private const string FIELD_LOG_ERRORS = FieldsConfiguracion.FIELD_LOG_ERRORS;
         
-        protected FisiotesService _fisiotes;
-        protected CancellationToken _cancellationToken;
+        protected FisiotesService _fisiotes;        
 
         public BaseSincronizador(FisiotesService fisiotes)                    
-            => _fisiotes = fisiotes ?? throw new ArgumentNullException(nameof(fisiotes));        
+            => _fisiotes = fisiotes ?? throw new ArgumentNullException(nameof(fisiotes));                
 
-
-        public abstract void Process();
-
-        public virtual async Task Run(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task Run(CancellationToken cancellationToken = default(CancellationToken))
         {
             Console.WriteLine($"{GetType().Name} init ...");
             _cancellationToken = cancellationToken;

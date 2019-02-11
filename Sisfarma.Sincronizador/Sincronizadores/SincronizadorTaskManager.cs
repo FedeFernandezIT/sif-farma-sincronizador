@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
@@ -105,28 +106,27 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         }
 
         public static void PowerOff()
-        {            
+        {         
             try
             {
-                TokenSource.Cancel();                
+                TokenSource.Cancel();
                 Task.WaitAll(CurrentTasks.ToArray());                
             }
             catch (AggregateException ex) 
                 when(ex.InnerExceptions.Any(inner => inner is TaskCanceledException))
-            {
+            {                
                 var canceledTasks = ex.InnerExceptions
                     .Where(inner => inner is TaskCanceledException)
                     .Select(x => ((TaskCanceledException)x).Task);
 
                 foreach (var t in canceledTasks)                
-                    t.Dispose();                                    
+                    t.Dispose();             
             }
             finally
-            {
-                TokenSource.Dispose();
-                CurrentTasks = null;
-            }
-            
+            {                                
+                TokenSource.Dispose();                
+                CurrentTasks = null;                
+            }            
             Console.WriteLine("Power off success");
         }
 

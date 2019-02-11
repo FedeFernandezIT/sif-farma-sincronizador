@@ -12,29 +12,37 @@ using System.Deployment.Application;
 using System.Reflection;
 using Sisfarma.ClickOnce;
 using Microsoft.Win32;
+using Sisfarma.Sincronizador.Helpers;
 
 namespace Sisfarma.Sincronizador
 {
     internal static class Program
     {
         private static Mutex instanceMutex;
-
+        public static int EsUnaActualizacion = 0;
         private static void Main()
         {
-            bool createdNew;
-            instanceMutex = new Mutex(true, @"Local\" + Assembly.GetExecutingAssembly().GetType().GUID, out createdNew);
-            if (!createdNew)
-            {
-                instanceMutex = null;
-                return;
-            }
-
             RegisterStartup(Globals.ProductName);
             var clickOnce = new ClickOnceHelper(Globals.PublisherName, Globals.ProductName);
             clickOnce.UpdateUninstallParameters();
 
-            if (InstallUpdateSyncWithInfo())
-                return;
+            bool createdNew;
+            instanceMutex = new Mutex(true, @"Local\" + Assembly.GetExecutingAssembly().GetType().GUID, out createdNew);
+            if (!createdNew)
+            {
+                Task.Delay(1000).Wait();                
+                if (!ApplicationDeployment.CurrentDeployment.IsFirstRun)
+                {
+                    instanceMutex = null;
+                    return;
+                }                
+            }
+            else
+            {
+                Task.Delay(1000).Wait();                
+                if (Updater.InstallUpdateSyncWithInfo())                
+                    return;                                
+            }
 
             string
                 _remoteBase = string.Empty,
@@ -66,10 +74,11 @@ namespace Sisfarma.Sincronizador
             RemoteConfig.Setup(_remoteServer, _remoteToken);
             LocalConfig.Setup(_localServer, _localBase, _localUser, _localPass, _marketCodeList);
             
-            Task.Factory.StartNew(() => new PowerSwitchProgramado(FisiotesFactory.New()).Run(new CancellationToken()));
-            Task.Factory.StartNew(() => new PowerSwitchManual(FisiotesFactory.New()).Run(new CancellationToken()));
+            Task.Factory.StartNew(() => new PowerSwitchProgramado(FisiotesFactory.New()).Run(Updater.GetCancellationToken()));
+            Task.Factory.StartNew(() => new PowerSwitchManual(FisiotesFactory.New()).Run(Updater.GetCancellationToken()));
+            Task.Factory.StartNew(() => new UpdateVersionSincronizador().Run(new CancellationToken()));
 
-            Application.ApplicationExit += (sender, @event) => notifyIcon.Visible = false;            
+            Application.ApplicationExit += (sender, @event) => notifyIcon.Visible = false;
             Application.Run(new SincronizadorApplication());
 
             instanceMutex.ReleaseMutex();
@@ -125,28 +134,7 @@ namespace Sisfarma.Sincronizador
             {
                 throw new IOException("Ha habido un error en la lectura de algún fichero de configuración. Compruebe que existen dichos ficheros de configuración.");
             }
-        }        
-
-        internal static bool InstallUpdateSyncWithInfo()
-        {            
-            if (!ApplicationDeployment.IsNetworkDeployed)                            
-                return false;                            
-            
-            var AD = ApplicationDeployment.CurrentDeployment;
-            try
-            {
-                if (!AD.CheckForDetailedUpdate().UpdateAvailable)
-                    return false;
-
-                AD.Update();
-                Application.Restart();
-                Application.ExitThread();
-                return true;
-            }
-            catch (DeploymentDownloadException) { return false; }
-            catch (InvalidDeploymentException) { return false; }
-            catch (InvalidOperationException) { return false; }            
-        }
+        }                
 
         internal static void RegisterStartup(string productName)
         {

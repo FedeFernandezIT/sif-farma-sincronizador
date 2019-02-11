@@ -29,8 +29,8 @@
     <SuiteName>Sisfarma</SuiteName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>index.html</WebPage>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <ApplicationRevision>99</ApplicationRevision>
+    <ApplicationVersion>1.0.3.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -198,6 +198,7 @@
     <Compile Include="Helpers\Calculator.cs" />
     <Compile Include="Helpers\Cryptographer.cs" />
     <Compile Include="Helpers\Generator.cs" />
+    <Compile Include="Helpers\Updater.cs" />
     <Compile Include="Models\ClienteDto.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -233,7 +234,9 @@
     <Compile Include="Sincronizadores\ListaSincronizador.cs" />
     <Compile Include="Sincronizadores\SincronizadorTaskManager.cs" />
     <Compile Include="Sincronizadores\SuperTypes\PowerSwitch.cs" />
+    <Compile Include="Sincronizadores\SuperTypes\_Sincronizador.cs" />
     <Compile Include="Sincronizadores\SuperTypes\TaskSincronizador.cs" />
+    <Compile Include="Sincronizadores\UpdateVersionSincronizador.cs" />
     <Compile Include="Sincronizadores\VentaMensualActualizacionSincronizador.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
