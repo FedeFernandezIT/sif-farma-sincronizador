@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using Sisfarma.Sincronizador.Consejo;
 using Sisfarma.Sincronizador.Extensions;
@@ -18,20 +17,17 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         private const string FAMILIA_DEFAULT = "<Sin Clasificar>";
 
         private ConsejoService _consejo;
-        private readonly string _fileLogs;
 
         public PedidoSincronizador(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
             : base(farmatic, fisiotes)
         {
             _consejo = consejo ?? throw new ArgumentNullException(nameof(consejo));
-            _fileLogs = System.Configuration.ConfigurationManager.AppSettings["Directory.Setup"] + @"PedidoSincronizador.logs";
         }
 
         public override void Process() => ProcessPedidos();
 
         private void ProcessPedidos()
         {
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Init process v.135" });
             var anioInicio = _fisiotes.Configuraciones.GetByCampo(YEAR_FOUND)
                 .ToIntegerOrDefault(@default: DateTime.Now.Year - 2);
 
@@ -49,9 +45,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 {
                     if (!_fisiotes.Pedidos.Exists(recepcion.IdRecepcion))
                     {
-                        File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes insert pedido ..." });
                         _fisiotes.Pedidos.Insert(GenerarPedido(_farmatic, recepcion, resume));
-                        File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes pedido insertado" });
                     }
 
                     var lineas = _farmatic.Recepciones.GetLineasById(recepcion.IdRecepcion)
@@ -60,15 +54,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                     foreach (var linea in lineas)
                     {
                         var articulo = _farmatic.Articulos.GetOneOrDefaultById(linea.XArt_IdArticu);
-                        if (articulo != null)
-                        {
-                            if (!_fisiotes.Pedidos.ExistsLinea(linea.IdRecepcion, linea.IdNLinea))
-                            {
-                                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes insert pedido ..." });
-                                _fisiotes.Pedidos.InsertLinea(GenerarLineaDePedido(_farmatic, recepcion, linea, articulo, _consejo));
-                                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes pedido insertado" });
-                            }
-                        }
+                        if (articulo != null && !_fisiotes.Pedidos.ExistsLinea(linea.IdRecepcion, linea.IdNLinea))
+                            _fisiotes.Pedidos.InsertLinea(GenerarLineaDePedido(_farmatic, recepcion, linea, articulo, _consejo));
                     }
                 }
             }

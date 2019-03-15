@@ -24,8 +24,6 @@ namespace Sisfarma.RestClient
 
         void SendPost(object body = null);
 
-        void SendPostAndLog(string filePath, object body = null);
-
         void SendPut(object body = null);
 
         T SendPut<T>(object body);

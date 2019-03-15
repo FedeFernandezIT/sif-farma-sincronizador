@@ -8,7 +8,6 @@ using Sisfarma.Sincronizador.Fisiotes.Models;
 using Sisfarma.Sincronizador.Helpers;
 using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
@@ -28,7 +27,6 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         private const string FAMILIA_DEFAULT = "<Sin Clasificar>";
 
         private readonly bool _hasSexo;
-        private readonly string _fileLogs;
 
         private readonly ConsejoService _consejo;
 
@@ -44,26 +42,18 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         {
             _consejo = consejo ?? throw new ArgumentNullException(nameof(consejo));
             _hasSexo = farmatic.Clientes.HasSexoField();
-            _fileLogs = System.Configuration.ConfigurationManager.AppSettings["Directory.Setup"] + @"PuntoPendienteSincronizador.logs";
         }
 
         public override void Process() => ProcessPuntosPendientes();
 
         private void ProcessPuntosPendientes()
         {
-            var initDateTime = DateTime.UtcNow;
-            var puntosInsertados = 0;
-            File.AppendAllLines(_fileLogs, new[] { initDateTime.ToString("o") + " Init process v.123" });
             var anioInicio = _fisiotes.Configuraciones.GetByCampo(YEAR_FOUND)
                 .ToIntegerOrDefault(@default: DateTime.Now.Year - 2);
 
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes Recuperando última venta ..." });
             var idVenta = _fisiotes.PuntosPendientes.GetUltimaVenta();
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + $" Fisiotes Última venta {idVenta}" });
 
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic Recuperando ventas ..." });
             var ventas = _farmatic.Ventas.GetByIdGreaterOrEqual(anioInicio, idVenta);
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + $" Farmatic ventas recuperadas {ventas.Count}" });
 
             _fechaDePuntos = _fisiotes.Configuraciones.GetByCampo(FIELD_FECHA_PUNTOS);
             _cargarPuntos = _fisiotes.Configuraciones.GetByCampo(FIELD_CARGAR_PUNTOS) ?? string.Empty;
@@ -82,7 +72,6 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 // TODO: Carga cliente
                 if (dni > 0)
                 {
-                    File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic Recuperando cliente ..." });
                     var cliente = _farmatic.Clientes.GetOneOrDefaulById(dni);
                     tarjetaDelCliente = cliente?.FIS_FAX ?? string.Empty;
                     if (cliente != null)
@@ -91,10 +80,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 }
 
                 var vendedor = _farmatic.Vendedores.GetOneOrDefaultById(venta.XVend_IdVendedor)?.NOMBRE ?? "NO";
-
-                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic recuperando detalle venta ..." });
                 var detalleVenta = _farmatic.Ventas.GetLineasVentaByVenta(venta.IdVenta);
-                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + $" Farmatic detalle venta recuperado {detalleVenta.Count}" });
 
                 // TODO: sólo se carga la desc venta una vez
                 var descuentoVentaCargado = false;
@@ -107,18 +93,10 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                         descuentoVenta = venta.DescuentoOpera ?? 0;
                     }
 
-                    File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes verificando existencia puntos pendientes ..." });
-                    var existe = _fisiotes.PuntosPendientes.Exists(venta.IdVenta, linea.IdNLinea);
-                    File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + $" Fisiotes puntos pendientes existe {existe}" });
-                    if (!existe)
+                    if (!_fisiotes.PuntosPendientes.Exists(venta.IdVenta, linea.IdNLinea))
                     {
-                        var puntoPendienteGenerado = GenerarPuntoPendiente(_puntosDeSisfarma, _cargarPuntos, dni, tarjetaDelCliente, descuentoVenta, venta, linea, vendedor, _farmatic, _consejo);
-                        File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes insert puntos pendientes ..." });
                         _fisiotes.PuntosPendientes.Insert(
-                            // TODO: dentro de este método se calculan puntos sisfarma
-                            puntoPendienteGenerado, _fileLogs);
-                        File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes puntos pendientes insertados" });
-                        File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + $" PUNTOS INSERTADOS {++puntosInsertados} en {(DateTime.UtcNow - initDateTime).TotalSeconds} segundos." });
+                            GenerarPuntoPendiente(_puntosDeSisfarma, _cargarPuntos, dni, tarjetaDelCliente, descuentoVenta, venta, linea, vendedor, _farmatic, _consejo));
                     }
                 }
 
@@ -130,7 +108,6 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                     !string.IsNullOrWhiteSpace(_fechaDePuntos) &&
                     venta.FechaHora.Date >= _fechaDePuntos.ToDateTimeOrDefault("yyyyMMdd"))
                 {
-                    File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes actualizando puntos del cliente ..." });
                     var puntosDelCliente = Math.Round(_fisiotes.PuntosPendientes.GetPuntosByDni(dni), 2);
 
                     var puntosCanjeadosDelCliente = Math.Round(_fisiotes.PuntosPendientes.GetPuntosCanjeadosByDni(dni), 2);
@@ -138,25 +115,19 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                     var puntosCalculados = Math.Round(puntosDelCliente - puntosCanjeadosDelCliente, 2);
 
                     _fisiotes.Clientes.UpdatePuntos(new UpdatePuntaje { dni = dniString, puntos = puntosCalculados });
-                    File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes puntos del cliente actualizados" });
                 }
 
                 // Recuperamos el detalle de ventas virtuales
-                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic recuperando lineas virtuales ..." });
                 var virtuales = _farmatic.Ventas.GetLineasVirtualesByVenta(venta.IdVenta);
-                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + $" Farmatic lineas virtuales {virtuales.Count}" });
-
                 foreach (var @virtual in virtuales)
                 {
                     // Verificamos la entrega del item de venta
                     if (!_fisiotes.Entregas.Exists(venta.IdVenta, @virtual.IdNLinea))
                     {
-                        File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes insert entregas ..." });
                         _fisiotes.Entregas.Insert(
                             GenerarEntregaCliente(venta, @virtual, vendedor));
 
                         _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES, @virtual.IdVenta.ToString());
-                        File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes entrega insertada" });
                     }
                 }
             }
@@ -164,7 +135,6 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private EntregaCliente GenerarEntregaCliente(Venta venta, LineaVentaVirtual lineaVirtual, string vendedor)
         {
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic generando entrega ..." });
             var ec = new EntregaCliente();
 
             ec.idventa = venta.IdVenta;
@@ -180,23 +150,15 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             ec.pvp = Convert.ToSingle(lineaVirtual.Pvp);
             ec.fechaEntrega = venta.FechaHora;
 
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic entrega generada" });
             return ec;
         }
 
         private PuntosPendientes GenerarPuntoPendiente(string puntosDeSisfarma, string cargarPuntos, int dni, string tarjetaDelCliente, double descuentoVenta, Venta venta, LineaVenta linea, string vendedor, FarmaticService farmatic, ConsejoService consejo)
         {
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic generando puntos ..." });
-
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic recuperando redencion ..." });
             var redencion = (farmatic.Ventas.GetOneOrDefaultLineaRedencionByKey(venta.IdVenta, linea.IdNLinea)?
                 .Redencion) ?? 0;
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic redencion recuperada" });
 
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic recuperando articulo ..." });
             var articulo = farmatic.Articulos.GetOneOrDefaultById(linea.Codigo);
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic articulo recuperado" });
-
             var pp = new PuntosPendientes();
             pp.idventa = venta.IdVenta;
             pp.idnlinea = linea.IdNLinea;
@@ -239,9 +201,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                     ? GetSuperFamiliaFromLocalOrDefault(farmatic, pp.familia, "<Sin Clasificar>").Strip()
                     : pp.familia;
 
-                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic recuperando proveedor ..." });
                 pp.proveedor = GetProveedorFromLocalOrDefault(farmatic, articulo.IdArticu).Strip();
-                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic proveedor recuperado" });
             }
 
             var sonPuntosDeSisfarma = puntosDeSisfarma.ToLower().Equals("si");
@@ -260,30 +220,23 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 var articuloDescripcion = articulo?.Descripcion ?? string.Empty;
                 var articuloCantidad = linea.Cantidad;
 
-                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes calculado puntos ..." });
                 pp.puntos = (float)CalcularPuntos(tarjetaDelCliente, tipoFamilia, importe, articuloDescripcion, articuloCantidad);
-                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes puntos calculados" });
             }
             else if (dni != 0 && fechaDePuntos.ToLower() != "no")
                 pp.cargado = "no";
 
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic puntos generados" });
             return pp;
         }
 
         private string GetCodidoBarrasFromLocalOrDefault(FarmaticService farmaticService, string articulo)
         {
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic recuperando sinonimos ..." });
             var sinonimo = farmaticService.Sinonimos.GetOneOrDefaultByArticulo(articulo);
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic sinonimo recuperado" });
             return sinonimo?.Sinonimo ?? "847000".PadLeft(6, '0');
         }
 
         private string GetFamiliaFromLocalOrDefault(FarmaticService farmatic, short id, string byDefault = "")
         {
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic recuperando familia ..." });
             var familiaDb = farmatic.Familias.GetById(id);
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic familia recuperada" });
             return !string.IsNullOrEmpty(familiaDb?.Descripcion)
                 ? familiaDb.Descripcion
                 : byDefault;
@@ -291,15 +244,12 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private string GetSuperFamiliaFromLocalOrDefault(FarmaticService farmaticService, string familia, string byDefault = "")
         {
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic recuperando super familia ..." });
             var superfamilia = farmaticService.Familias.GetSuperFamiliaDescripcionByFamilia(familia) ?? byDefault;
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic super familia recuperada" });
             return superfamilia;
         }
 
         private string GetNombreLaboratorioFromLocalOrDefault(FarmaticService farmaticService, ConsejoService consejoService, string codigo, string byDefault = "")
         {
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic recuperando laboratorio ..." });
             var nombreLaboratorio = byDefault;
             if (!string.IsNullOrEmpty(codigo?.Trim()) && !string.IsNullOrWhiteSpace(codigo))
             {
@@ -313,7 +263,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 else nombreLaboratorio = laboratorioDb.NOMBRE;
             }
             else nombreLaboratorio = byDefault;
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic laboratorio recuperado" });
+
             return nombreLaboratorio;
         }
 
@@ -325,9 +275,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private void InsertOrUpdateCliente(Farmatic.Models.Cliente cliente)
         {
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic generando cliente ..." });
             var clienteDTO = Generator.FetchLocalClienteData(_farmatic, cliente, _hasSexo);
-            File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Farmatic cliente generado" });
 
             var puntosDeSisfarma = _puntosDeSisfarma;
             var debeCargarPuntos = puntosDeSisfarma.ToLower().Equals("no") || string.IsNullOrWhiteSpace(puntosDeSisfarma);
@@ -339,40 +287,32 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
                 if (debeCargarPuntos)
                 {
-                    File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes insert cliente ..." });
                     _fisiotes.Clientes.InsertOrUpdateBeBlue(
                     clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
                     clienteDTO.Movil, clienteDTO.Email, clienteDTO.Puntos, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
                     beBlue);
-                    File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes cliente insertado" });
                 }
                 else
                 {
-                    File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes insert cliente ..." });
                     _fisiotes.Clientes.InsertOrUpdateBeBlue(
                         clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
                         clienteDTO.Movil, clienteDTO.Email, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
                         beBlue);
-                    File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes cliente insertado" });
                 }
             }
             else if (debeCargarPuntos)
             {
-                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes insert cliente ..." });
                 _fisiotes.Clientes.InsertOrUpdate(
                     clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
                     clienteDTO.Movil, clienteDTO.Email, clienteDTO.Puntos, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
                     withTrack: true);
-                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes cliente insertado" });
             }
             else
             {
-                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes insert cliente ..." });
                 _fisiotes.Clientes.InsertOrUpdate(
                     clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
                     clienteDTO.Movil, clienteDTO.Email, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
                     withTrack: true);
-                File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + " Fisiotes cliente insertado" });
             }
         }
 

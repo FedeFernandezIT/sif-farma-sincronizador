@@ -13,8 +13,6 @@ using System.Reflection;
 using Sisfarma.ClickOnce;
 using Microsoft.Win32;
 using Sisfarma.Sincronizador.Helpers;
-using Sisfarma.Sincronizador.Farmatic;
-using Sisfarma.Sincronizador.Consejo;
 using System.Net;
 
 namespace Sisfarma.Sincronizador
@@ -24,7 +22,6 @@ namespace Sisfarma.Sincronizador
         private static Mutex instanceMutex;
         public static int EsUnaActualizacion = 0;
 
-        [MTAThread]
         private static void Main()
         {
             ServicePointManager.DefaultConnectionLimit = 100;

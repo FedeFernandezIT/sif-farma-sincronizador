@@ -8,7 +8,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
@@ -28,15 +27,15 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
             CurrentTasks = new ConcurrentBag<Task>
             {
-                //RunTask(new ClienteSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new ClienteSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new HuecoSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new HuecoSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new PuntoPendienteSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
+                RunTask(new PuntoPendienteSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 
-                //RunTask(new SinonimoSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                RunTask(new SinonimoSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                //RunTask(new PedidoSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
+                RunTask(new PedidoSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 
                 RunTask(new ProductoCriticoSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 

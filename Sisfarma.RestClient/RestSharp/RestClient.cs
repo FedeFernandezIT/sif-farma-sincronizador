@@ -2,7 +2,6 @@
 using RestSharp.Authenticators;
 using Sisfarma.RestClient.RestSharp.Factories;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 
 using RSharp = RestSharp;
@@ -106,9 +105,7 @@ namespace Sisfarma.RestClient.RestSharp
 
         private T DoSend<T>(RSharp.Method method)
         {
-            //File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + $" {_request.Resource}" });
             var response = _restClient.Execute(_request, method);
-            //File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + $" {response.StatusCode}" });
 
             if (response.IsSuccessful)
                 return Deserialize<T>(response);
@@ -121,9 +118,7 @@ namespace Sisfarma.RestClient.RestSharp
 
         private T DoSend<T>(RSharp.Method method, object body)
         {
-            //File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + $" {_request.Resource}" });
             var response = _restClient.Execute(_request.AddJsonBody(body), method);
-            //File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + $" {response.StatusCode}" });
 
             if (response.IsSuccessful)
                 return Deserialize<T>(response);
@@ -136,9 +131,7 @@ namespace Sisfarma.RestClient.RestSharp
 
         private void DoSend(RSharp.Method method, object body)
         {
-            //File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + $" {_request.Resource}" });
             var response = _restClient.Execute(_request.AddJsonBody(body), method);
-            //File.AppendAllLines(_fileLogs, new[] { DateTime.UtcNow.ToString("o") + $" {response.StatusCode}" });
 
             if (response.ErrorException != null)
                 throw RestClientFactory.CreateErrorException(_restClient, response);
@@ -157,19 +150,6 @@ namespace Sisfarma.RestClient.RestSharp
             {
                 throw RestClientFactory.CreateErrorException(_restClient, response, ex);
             }
-        }
-
-        public void SendPostAndLog(string filePath = null, object body = null)
-        {
-            File.AppendAllLines(filePath, new[] { DateTime.UtcNow.ToString("o") + $" {_request.Resource}" });
-            var response = _restClient.Execute(_request.AddJsonBody(body), RSharp.Method.POST);
-            File.AppendAllLines(filePath, new[] { DateTime.UtcNow.ToString("o") + $" {response.StatusCode}" });
-
-            if (response.ErrorException != null)
-                throw RestClientFactory.CreateErrorException(_restClient, response);
-
-            if (!response.IsSuccessful)
-                throw RestClientFactory.CreateFailedException(_restClient, response);
         }
     }
 }

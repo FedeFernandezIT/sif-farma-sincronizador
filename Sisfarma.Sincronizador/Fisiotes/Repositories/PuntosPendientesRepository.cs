@@ -7,7 +7,6 @@ using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -168,7 +167,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             public long? idventa { get; set; }
         }
 
-        public void Insert(PuntosPendientes pp, string filePath)
+        public void Insert(PuntosPendientes pp)
         {
             var set = new
             {
@@ -202,14 +201,12 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
 
             var where = new { idventa = pp.idventa, idnlinea = pp.idnlinea };
 
-            File.AppendAllLines(filePath, new[] { DateTime.UtcNow.ToString("o") + " Rest insert puntos pendientes ..." });
             _restClient
                 .Resource(_config.Puntos.Insert)
-                .SendPostAndLog(filePath, new
+                .SendPost(new
                 {
                     puntos = new[] { new { set, where } }
                 });
-            File.AppendAllLines(filePath, new[] { DateTime.UtcNow.ToString("o") + " Rest puntos pendientes insertados" });
         }
 
         public void Insert(IEnumerable<PuntosPendientes> pps)
