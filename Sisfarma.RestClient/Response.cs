@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sisfarma.RestClient
 {
@@ -18,7 +14,7 @@ namespace Sisfarma.RestClient
             StatusHttp = statusHttp;
         }
 
-        public override string ToString() 
+        public override string ToString()
             => $"{StatusHttp}{Environment.NewLine}{Content}";
     }
 }

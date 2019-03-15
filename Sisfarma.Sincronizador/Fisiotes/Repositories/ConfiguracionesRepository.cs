@@ -1,18 +1,13 @@
 ﻿using Sisfarma.RestClient;
 using Sisfarma.Sincronizador.Fisiotes.Models;
-using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sisfarma.Sincronizador.Fisiotes.Repositories
 {
     public class ConfiguracionesRepository : FisiotesRepository
     {
-
-        public ConfiguracionesRepository(IRestClient restClient, FisiotesConfig config) 
+        public ConfiguracionesRepository(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)
         {
         }
@@ -21,14 +16,14 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
             return _restClient
                 .Resource(_config.Configuraciones.GetValorByCampo.Replace("{campo}", field))
-                .SendGet<string>();            
+                .SendGet<string>();
         }
 
         public void Update(string field, string value)
         {
             _restClient
                 .Resource(_config.Configuraciones.UpdateValorByCampo)
-                .SendPut(new { campo = field, valor = value });            
+                .SendPut(new { campo = field, valor = value });
         }
 
         public bool PerteneceFarmazul()
@@ -57,7 +52,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             }
             _ctx.Database.ExecuteSqlCommand(sql,
                 new SqlParameter("field", field));
-        }        
+        }
 
         public static class FieldsConfiguracion
         {
@@ -98,7 +93,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("value", value),
                 new SqlParameter("field", field));
         }
-        
-        #endregion
+
+        #endregion SQL Methods
     }
 }
