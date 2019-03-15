@@ -32,27 +32,26 @@ namespace Sisfarma.Sincronizador.Fisiotes
         public FaltasRepository Faltas { get; set; }
 
         public ProveedoresRepository Proveedores { get; set; }
+
         public ProgramacionRepository Programacion { get; set; }
 
         public FisiotesService(string host, string token)
-        {                                    
-            var restClient = new RestClient.RestSharp.RestClient();
-            var config = FisiotesConfig.TestConfig(host, token);
-            Clientes = new ClientesRepository(restClient, config);
-            Huecos = new HuecosRepository(restClient, config);
-            PuntosPendientes = new PuntosPendientesRepository(restClient, config);
-            Configuraciones = new ConfiguracionesRepository(restClient, config);
-            Entregas = new EntregasRepository(restClient, config);
-            Medicamentos = new MedicamentosRepository(restClient, config);
-            Sinonimos = new SinonimosRepository(restClient, config);
-            Pedidos = new PedidosRepository(restClient, config);
-            Faltas = new FaltasRepository(restClient, config);
-            Familias = new FamiliasRepository(restClient, config);
-            Encargos = new EncargosRepository(restClient, config);
-            Categorias = new CategoriasRepository(restClient, config);
-            Listas = new ListasRepository(restClient, config);
-            Proveedores = new ProveedoresRepository(restClient, config);
-            Programacion = new ProgramacionRepository(restClient, config);
+        {
+            Clientes = new ClientesRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            Huecos = new HuecosRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            PuntosPendientes = new PuntosPendientesRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            Configuraciones = new ConfiguracionesRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            Entregas = new EntregasRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            Medicamentos = new MedicamentosRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            Sinonimos = new SinonimosRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            Pedidos = new PedidosRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            Faltas = new FaltasRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            Familias = new FamiliasRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            Encargos = new EncargosRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            Categorias = new CategoriasRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            Listas = new ListasRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            Proveedores = new ProveedoresRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
+            Programacion = new ProgramacionRepository(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
         }
 
         public FisiotesService(RemoteConfig config)

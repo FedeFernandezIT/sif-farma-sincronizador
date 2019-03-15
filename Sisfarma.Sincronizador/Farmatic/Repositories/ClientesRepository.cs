@@ -1,4 +1,5 @@
-﻿using Sisfarma.Sincronizador.Farmatic.Models;
+﻿using Sisfarma.Sincronizador.Config;
+using Sisfarma.Sincronizador.Farmatic.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,83 +11,103 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
     public class ClientesRepository : FarmaticRepository
     {
         public ClientesRepository(FarmaticContext ctx) : base(ctx)
-        {
-        }
+        { }
+
+        public ClientesRepository(LocalConfig config) : base(config)
+        { }
 
         public List<Cliente> GetGreatThanId(int id)
         {
-            var sql =
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql =
                 @"SELECT TOP 10000 * FROM cliente WHERE Idcliente > @ultimoCliente ORDER BY CAST(Idcliente AS DECIMAL(20)) ASC";
-            return _ctx.Database.SqlQuery<Cliente>(sql,
-                new SqlParameter("ultimoCliente", id))
-                .ToList();            
+                return db.Database.SqlQuery<Cliente>(sql,
+                    new SqlParameter("ultimoCliente", id))
+                    .ToList();
+            }
         }
 
         public T GetAuxiliarById<T>(string cliente) where T : ClienteAux
         {
-            var sql = @"SELECT * FROM ClienteAux WHERE idCliente = @idCliente";
-            return _ctx.Database.SqlQuery<T>(sql,
-                new SqlParameter("idCliente", cliente))
-                .FirstOrDefault();
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql = @"SELECT * FROM ClienteAux WHERE idCliente = @idCliente";
+                return db.Database.SqlQuery<T>(sql,
+                    new SqlParameter("idCliente", cliente))
+                    .FirstOrDefault();
+            }
         }
 
         public decimal GetTotalPuntosById(string idCliente)
         {
-            var sql = @"SELECT ISNULL(SUM(cantidad), 0) AS puntos FROM HistoOferta WHERE IdCliente = @idCliente AND TipoAcumulacion = 'P'";
-            return _ctx.Database.SqlQuery<decimal>(sql,
-                new SqlParameter("idCliente", idCliente))
-                .FirstOrDefault(); // Default = 0
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql = @"SELECT ISNULL(SUM(cantidad), 0) AS puntos FROM HistoOferta WHERE IdCliente = @idCliente AND TipoAcumulacion = 'P'";
+                return db.Database.SqlQuery<decimal>(sql,
+                    new SqlParameter("idCliente", idCliente))
+                    .FirstOrDefault();
+            }
         }
 
         public bool HasSexoField()
         {
-            var existFieldSexo = false;
-
-            // Chekeamos si existen los campos
-            var connection = _ctx.Database.Connection;
-
-            var sql = "SELECT TOP 1 * FROM ClienteAux";
-            var command = connection.CreateCommand();
-            command.CommandText = sql;
-            connection.Open();
-            var reader = command.ExecuteReader();
-            var schemaTable = reader.GetSchemaTable();
-
-            foreach (DataRow row in schemaTable.Rows)
+            using (var db = FarmaticContext.Create(_config))
             {
-                if (row[schemaTable.Columns["ColumnName"]].ToString()
-                    .Equals("sexo", StringComparison.CurrentCultureIgnoreCase))
+                var existFieldSexo = false;
+
+                // Chekeamos si existen los campos
+                var connection = db.Database.Connection;
+
+                var sql = "SELECT TOP 1 * FROM ClienteAux";
+                var command = connection.CreateCommand();
+                command.CommandText = sql;
+                connection.Open();
+                var reader = command.ExecuteReader();
+                var schemaTable = reader.GetSchemaTable();
+
+                foreach (DataRow row in schemaTable.Rows)
                 {
-                    existFieldSexo = true;
-                    break;
+                    if (row[schemaTable.Columns["ColumnName"]].ToString()
+                        .Equals("sexo", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        existFieldSexo = true;
+                        break;
+                    }
                 }
+                connection.Close();
+                return existFieldSexo;
             }
-            connection.Close();
-            return existFieldSexo;
         }
 
         public Cliente GetOneOrDefaulById(int dni)
         {
-            var sql = @"SELECT * FROM Cliente WHERE Idcliente = @dni";
-            return _ctx.Database.SqlQuery<Cliente>(sql,
-                new SqlParameter("dni", dni))
-                .FirstOrDefault();
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql = @"SELECT * FROM Cliente WHERE Idcliente = @dni";
+                return db.Database.SqlQuery<Cliente>(sql,
+                    new SqlParameter("dni", dni))
+                    .FirstOrDefault();
+            }
         }
 
-        public bool Exists(int id) 
+        public bool Exists(int id)
             => GetOneOrDefaulById(id) != null;
 
         public bool EsBeBlue(string tipoCliente)
         {
-            var sql = @"SELECT descripcion FROM tipocliente WHERE idtipocliente = @tipoCliente";
-            var tipo = _ctx.Database.SqlQuery<TipoCliente>(sql,
-                new SqlParameter("tipoCliente", tipoCliente))
-                .FirstOrDefault();
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql = @"SELECT descripcion FROM tipocliente WHERE idtipocliente = @tipoCliente";
+                var tipo = db.Database.SqlQuery<TipoCliente>(sql,
+                    new SqlParameter("tipoCliente", tipoCliente))
+                    .FirstOrDefault();
 
-            if (tipo == null)
-                return false;
+                if (tipo == null)
+                    return false;
 
-            return tipo.Descripcion.Trim().ToLower() == "farmazul";
+                return tipo.Descripcion.Trim().ToLower() == "farmazul";
+            }
         }
     }
 }

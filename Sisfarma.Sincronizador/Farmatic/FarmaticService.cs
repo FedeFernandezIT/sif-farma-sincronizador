@@ -15,6 +15,7 @@ namespace Sisfarma.Sincronizador.Farmatic
     public class FarmaticService
     {
         private FarmaticContext _ctx;
+        private LocalConfig _config;
 
         public ClientesRepository Clientes { get; private set; }
 
@@ -61,7 +62,22 @@ namespace Sisfarma.Sincronizador.Farmatic
         }
 
         public FarmaticService(LocalConfig config)
-            : this(config.Server, config.Database, config.Username, config.Password)
-        { }
+        {
+            _config = config ?? throw new ArgumentNullException(nameof(config));
+
+            Clientes = new ClientesRepository(_config);
+            Destinatarios = new DestinatariosRepository(_config);
+            Vendedores = new VendedoresRepository(_config);
+            Ventas = new VentasRepository(_config);
+            Articulos = new ArticulosRepository(_config);
+            Proveedores = new ProveedoresRepository(_config);
+            Sinonimos = new SinonimosRepository(_config);
+            Familias = new FamiliasRepository(_config);
+            Laboratorios = new LaboratoriosRepository(_config);
+            Recepciones = new RecepcionesRepository(_config);
+            ListasArticulos = new ListasArticulosRepository(_config);
+            Encargos = new EncargosRepository(_config);
+            Pedidos = new PedidosRepository(_config);
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Sisfarma.Sincronizador.Farmatic.Models;
+﻿using Sisfarma.Sincronizador.Config;
+using Sisfarma.Sincronizador.Farmatic.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -11,82 +12,106 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
     public class VentasRepository : FarmaticRepository
     {
         public VentasRepository(FarmaticContext ctx) : base(ctx)
-        {
-        }
+        { }
+
+        public VentasRepository(LocalConfig config) : base(config)
+        { }
 
         public LineaVenta GetLineaVentaOrDefaultByKey(long venta, long linea)
         {
-            var sql = @"SELECT * FROM lineaventa WHERE IdVenta = @venta AND IdNLinea = @linea";
-            return _ctx.Database.SqlQuery<LineaVenta>(sql,
-                new SqlParameter("venta", venta),
-                new SqlParameter("linea", linea))
-                .FirstOrDefault();
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql = @"SELECT * FROM lineaventa WHERE IdVenta = @venta AND IdNLinea = @linea";
+                return db.Database.SqlQuery<LineaVenta>(sql,
+                    new SqlParameter("venta", venta),
+                    new SqlParameter("linea", linea))
+                    .FirstOrDefault();
+            }
         }
 
         public List<Venta> GetByIdGreaterOrEqual(int year, long value)
-        {            
-            var sql = @"SELECT TOP 10000 * FROM venta WHERE ejercicio >= @year AND IdVenta >= @value ORDER BY IdVenta ASC";
-            return _ctx.Database.SqlQuery<Venta>(sql,
-                new SqlParameter("year", year),
-                new SqlParameter("value", value))
-                .ToList();            
+        {
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql = @"SELECT TOP 10000 * FROM venta WHERE ejercicio >= @year AND IdVenta >= @value ORDER BY IdVenta ASC";
+                return db.Database.SqlQuery<Venta>(sql,
+                    new SqlParameter("year", year),
+                    new SqlParameter("value", value))
+                    .ToList();
+            }
         }
 
         public List<Venta> GetVirtualesLessThanId(long venta)
         {
-            var sql = @"SELECT v.* FROM venta v INNER JOIN lineaventavirtual lvv ON lvv.idventa = v.idventa AND (lvv.codigo = 'Pago' OR lvv.codigo = 'A Cuenta') " +
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql = @"SELECT v.* FROM venta v INNER JOIN lineaventavirtual lvv ON lvv.idventa = v.idventa AND (lvv.codigo = 'Pago' OR lvv.codigo = 'A Cuenta') " +
                     @"WHERE v.ejercicio >= 2015 AND v.IdVenta < @venta ORDER BY v.IdVenta DESC";
-            return _ctx.Database.SqlQuery<Venta>(sql,
-                new SqlParameter("venta", venta))
-                .ToList();
+                return db.Database.SqlQuery<Venta>(sql,
+                    new SqlParameter("venta", venta))
+                    .ToList();
+            }
         }
 
         public List<LineaVentaVirtual> GetLineasVirtualesByVenta(int venta)
         {
-            var sql =
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql =
                 @"SELECT * FROM lineaventavirtual WHERE IdVenta = @venta AND (codigo = 'Pago' OR codigo = 'A Cuenta')";
-            return _ctx.Database.SqlQuery<LineaVentaVirtual>(sql,
-                new SqlParameter("venta", venta))
-                .ToList();
+                return db.Database.SqlQuery<LineaVentaVirtual>(sql,
+                    new SqlParameter("venta", venta))
+                    .ToList();
+            }
         }
 
         public Venta GetOneOrDefaultById(long venta)
         {
-            var sql = @"SELECT * FROM venta WHERE IdVenta = @venta ORDER BY IdVenta ASC";
-            return _ctx.Database.SqlQuery<Venta>(sql,
-                new SqlParameter("venta", venta))
-                .FirstOrDefault();
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql = @"SELECT * FROM venta WHERE IdVenta = @venta ORDER BY IdVenta ASC";
+                return db.Database.SqlQuery<Venta>(sql,
+                    new SqlParameter("venta", venta))
+                    .FirstOrDefault();
+            }
         }
 
         public List<Venta> GetGreatThanOrEqual(int venta, DateTime fecha)
         {
-            var year = fecha.Year;
-            var sql = "SELECT * FROM venta WHERE IdVenta >= @venta AND  ejercicio = @year AND FechaHora >= @fecha ORDER BY IdVenta ASC";
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var year = fecha.Year;
+                var sql = "SELECT * FROM venta WHERE IdVenta >= @venta AND  ejercicio = @year AND FechaHora >= @fecha ORDER BY IdVenta ASC";
 
-            return _ctx.Database.SqlQuery<Venta>(sql,
-                new SqlParameter("venta", venta),
-                new SqlParameter("year", year),
-                new SqlParameter("fecha", fecha))
-                .ToList();
+                return db.Database.SqlQuery<Venta>(sql,
+                    new SqlParameter("venta", venta),
+                    new SqlParameter("year", year),
+                    new SqlParameter("fecha", fecha))
+                    .ToList();
+            }
         }
-
 
         public List<LineaVenta> GetLineasVentaByVenta(int venta)
         {
-            var sql = @"SELECT * FROM lineaventa WHERE IdVenta = @idVenta";
-            return _ctx.Database.SqlQuery<LineaVenta>(sql,
-                new SqlParameter("idVenta", venta))
-                .ToList();
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql = @"SELECT * FROM lineaventa WHERE IdVenta = @idVenta";
+                return db.Database.SqlQuery<LineaVenta>(sql,
+                    new SqlParameter("idVenta", venta))
+                    .ToList();
+            }
         }
 
-        
         public LineaVentaRedencion GetOneOrDefaultLineaRedencionByKey(int venta, int linea)
         {
-            var sql = @"SELECT * FROM LineaVentaReden WHERE IdVenta = @venta AND IdNLinea = @linea";
-            return _ctx.Database.SqlQuery<LineaVentaRedencion>(sql,
-                    new SqlParameter("venta", venta),
-                    new SqlParameter("linea", linea))
-                .FirstOrDefault();
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql = @"SELECT * FROM LineaVentaReden WHERE IdVenta = @venta AND IdNLinea = @linea";
+                return db.Database.SqlQuery<LineaVentaRedencion>(sql,
+                        new SqlParameter("venta", venta),
+                        new SqlParameter("linea", linea))
+                    .FirstOrDefault();
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sisfarma.Sincronizador.Config;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Core.EntityClient;
@@ -20,6 +21,14 @@ namespace Sisfarma.Sincronizador.Farmatic
             //: base(ConnectToSqlServer(server, database, username, password))
             : base($@"data source={server}; initial catalog={database}; persist security info=True;user id={username}; password={password};MultipleActiveResultSets=True;App=EntityFramework")
         {
+        }
+
+        public static FarmaticContext Create(LocalConfig config)
+        {
+            if (config == null)
+                throw new ArgumentNullException(nameof(config));
+
+            return new FarmaticContext(config.Server, config.Database, config.Username, config.Password);
         }
 
         public static string ConnectToSqlServer(string hostServer, string catalogDbName, string user, string pass)

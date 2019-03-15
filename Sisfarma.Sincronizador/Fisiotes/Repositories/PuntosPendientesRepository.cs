@@ -7,6 +7,7 @@ using Sisfarma.Sincronizador.Fisiotes.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
         {
         }
 
-        public PuntosPendientesRepository(IRestClient restClient, FisiotesConfig config) 
+        public PuntosPendientesRepository(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)
         {
         }
@@ -54,13 +55,14 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                .Resource(_config.Puntos.Update)
                .SendPut(new
                {
-                   puntos = new { set, where }                   
+                   puntos = new { set, where }
                });
         }
 
         public void Update(string tipoPago, string proveedor, float? dtoLinea, float? dtoVenta, float redencion, long venta, long linea)
         {
-            var set = new {
+            var set = new
+            {
                 tipoPago = tipoPago,
                 proveedor = proveedor,
                 dtoLinea = dtoLinea,
@@ -75,7 +77,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                .SendPut(new
                {
                    puntos = new { set, where }
-               });            
+               });
         }
 
         public IEnumerable<PuntosPendientes> GetWithoutRedencion()
@@ -89,7 +91,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             catch (RestClientNotFoundException)
             {
                 return new List<PuntosPendientes>();
-            }            
+            }
         }
 
         public bool ExistsGreatThanOrEqual(DateTime fecha)
@@ -108,7 +110,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             catch (RestClientNotFoundException)
             {
                 return false;
-            }            
+            }
         }
 
         public long GetLastOfYear(int year)
@@ -119,7 +121,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                     .Resource(_config.Puntos.GetLastOfYear
                         .Replace("{year}", $"{year}"))
                     .SendGet<IdVentaResponse>()
-                        .idventa ?? 1L;                
+                        .idventa ?? 1L;
             }
             catch (RestClientNotFoundException)
             {
@@ -142,9 +144,8 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             }
         }
 
-        public bool Exists(int venta, int linea) 
+        public bool Exists(int venta, int linea)
             => GetOneOrDefaultByItemVenta(venta, linea) != null;
-        
 
         public PuntosPendientes GetOneOrDefaultByItemVenta(int venta, int linea)
         {
@@ -160,15 +161,14 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             {
                 return null;
             }
-        }        
+        }
 
         internal class IdVentaResponse
         {
             public long? idventa { get; set; }
         }
 
-
-        public void Insert(PuntosPendientes pp)
+        public void Insert(PuntosPendientes pp, string filePath)
         {
             var set = new
             {
@@ -202,17 +202,19 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
 
             var where = new { idventa = pp.idventa, idnlinea = pp.idnlinea };
 
+            File.AppendAllLines(filePath, new[] { DateTime.UtcNow.ToString("o") + " Rest insert puntos pendientes ..." });
             _restClient
                 .Resource(_config.Puntos.Insert)
-                .SendPost(new
+                .SendPostAndLog(filePath, new
                 {
                     puntos = new[] { new { set, where } }
                 });
+            File.AppendAllLines(filePath, new[] { DateTime.UtcNow.ToString("o") + " Rest puntos pendientes insertados" });
         }
 
         public void Insert(IEnumerable<PuntosPendientes> pps)
         {
-            var puntos = pps.Select(pp => 
+            var puntos = pps.Select(pp =>
             {
                 var set = new
                 {
@@ -248,7 +250,6 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
 
                 return new { set, where };
             });
-            
 
             _restClient
                 .Resource(_config.Puntos.Insert)
@@ -302,7 +303,6 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 });
         }
 
-
         public void UpdatePuntacion(UpdatePuntacion pp)
         {
             var set = new
@@ -310,7 +310,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 pp.cantidad,
                 pp.dtoLinea,
                 pp.dtoVenta,
-                pp.dni,                
+                pp.dni,
                 pp.precio,
                 pp.receta,
                 pp.tipoPago,
@@ -326,7 +326,6 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                    puntos = new { set, where }
                });
         }
-    
 
         public void InsertPuntuacion(InsertPuntuacion pp)
         {
@@ -375,7 +374,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             return _restClient
                 .Resource(_config.Puntos.GetPuntosByDni.Replace("{dni}", $"{dni}"))
                 .SendGet<decimal>();
-        }        
+        }
 
         public decimal GetPuntosCanjeadosByDni(int dni)
         {
@@ -419,7 +418,7 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 sql = @"ALTER TABLE pendiente_puntos ADD tipoPago CHAR(2) DEFAULT NULL AFTER precio;";
                 _ctx.Database.ExecuteSqlCommand(sql);
             }
-        }                                                                        
+        }
 
         #region SQL Methods
 
@@ -532,6 +531,6 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
                 new SqlParameter("recetaPendiente", recetaPendiente));
         }
 
-        #endregion
+        #endregion SQL Methods
     }
 }

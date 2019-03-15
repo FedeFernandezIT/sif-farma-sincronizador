@@ -28,15 +28,15 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
             CurrentTasks = new ConcurrentBag<Task>
             {
-                RunTask(new ClienteSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                //RunTask(new ClienteSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                RunTask(new HuecoSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                //RunTask(new HuecoSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                RunTask(new PuntoPendienteSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
+                //RunTask(new PuntoPendienteSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 
-                RunTask(new SinonimoSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
+                //RunTask(new SinonimoSincronizador(FarmaticFactory.New(), FisiotesFactory.New()), cancellationToken),
 
-                RunTask(new PedidoSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
+                //RunTask(new PedidoSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 
                 RunTask(new ProductoCriticoSincronizador(FarmaticFactory.New(), FisiotesFactory.New(), new ConsejoService()), cancellationToken),
 
@@ -83,8 +83,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         private static void DisposeTasks()
         {
             if (CurrentTasks == null)
-                return;         
-            
+                return;
+
             var tasks = CurrentTasks.ToArray();
             if (tasks.Any(t => t.Status == TaskStatus.Running))
             {
@@ -96,7 +96,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 }
             }
             TokenSource.Dispose();
-            CurrentTasks = null;            
+            CurrentTasks = null;
         }
 
         public static void PowerOn()
@@ -106,32 +106,32 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         }
 
         public static void PowerOff()
-        {         
+        {
             try
             {
                 TokenSource.Cancel();
-                Task.WaitAll(CurrentTasks.ToArray());                
+                Task.WaitAll(CurrentTasks.ToArray());
             }
-            catch (AggregateException ex) 
-                when(ex.InnerExceptions.Any(inner => inner is TaskCanceledException))
-            {                
+            catch (AggregateException ex)
+                when (ex.InnerExceptions.Any(inner => inner is TaskCanceledException))
+            {
                 var canceledTasks = ex.InnerExceptions
                     .Where(inner => inner is TaskCanceledException)
                     .Select(x => ((TaskCanceledException)x).Task);
 
-                foreach (var t in canceledTasks)                
-                    t.Dispose();             
+                foreach (var t in canceledTasks)
+                    t.Dispose();
             }
             finally
-            {                                
-                TokenSource.Dispose();                
-                CurrentTasks = null;                
-            }            
+            {
+                TokenSource.Dispose();
+                CurrentTasks = null;
+            }
             Console.WriteLine("Power off success");
         }
 
         public static Task RunTask<T>(T sincronizador, CancellationToken cancellationToken)
-            where T : BaseSincronizador        
-            => Task.Run(() => sincronizador.Run(cancellationToken), cancellationToken);                    
+            where T : BaseSincronizador
+            => Task.Run(() => sincronizador.Run(cancellationToken), cancellationToken);
     }
 }

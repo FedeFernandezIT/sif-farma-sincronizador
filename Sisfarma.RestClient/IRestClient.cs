@@ -22,12 +22,14 @@ namespace Sisfarma.RestClient
 
         T SendPost<T>(object body);
 
-        void SendPost(object body = null);        
+        void SendPost(object body = null);
+
+        void SendPostAndLog(string filePath, object body = null);
 
         void SendPut(object body = null);
 
         T SendPut<T>(object body);
 
-        void SendDelete(object body = null);        
+        void SendDelete(object body = null);
     }
 }

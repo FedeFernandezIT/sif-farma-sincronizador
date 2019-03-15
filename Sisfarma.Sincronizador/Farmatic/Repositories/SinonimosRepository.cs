@@ -1,4 +1,5 @@
-﻿using Sisfarma.Sincronizador.Farmatic.Models;
+﻿using Sisfarma.Sincronizador.Config;
+using Sisfarma.Sincronizador.Farmatic.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -11,22 +12,30 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
     public class SinonimosRepository : FarmaticRepository
     {
         public SinonimosRepository(FarmaticContext ctx) : base(ctx)
-        {
-        }
+        { }
+
+        public SinonimosRepository(LocalConfig config) : base(config)
+        { }
 
         public List<Sinonimos> GetAll()
         {
-            var sql = @"SELECT * FROM Sinonimo";
-            return _ctx.Database.SqlQuery<Sinonimos>(sql)
-                .ToList();
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql = @"SELECT * FROM Sinonimo";
+                return db.Database.SqlQuery<Sinonimos>(sql)
+                    .ToList();
+            }
         }
 
         public Sinonimos GetOneOrDefaultByArticulo(string codigo)
         {
-            var sql = @"SELECT * FROM sinonimo WHERE IdArticu = @codigo";
-            return _ctx.Database.SqlQuery<Sinonimos>(sql,
-                new SqlParameter("codigo", codigo))
-                .FirstOrDefault();
+            using (var db = FarmaticContext.Create(_config))
+            {
+                var sql = @"SELECT * FROM sinonimo WHERE IdArticu = @codigo";
+                return db.Database.SqlQuery<Sinonimos>(sql,
+                    new SqlParameter("codigo", codigo))
+                    .FirstOrDefault();
+            }
         }
     }
 }
