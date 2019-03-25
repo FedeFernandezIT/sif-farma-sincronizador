@@ -4,13 +4,15 @@ using System.Threading.Tasks;
 
 namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
 {
-    public abstract class Sincronizador : ISincronizador
+    public abstract class Sincronizador : ISincronizadorAsync
     {
+        protected const int DelayLoopDefault = 200;
+
         protected CancellationToken _cancellationToken;
 
         public abstract void Process();
 
-        public virtual async Task Run(CancellationToken cancellationToken)
+        public virtual async Task SincronizarAsync(CancellationToken cancellationToken, int delayLoop = DelayLoopDefault)
         {
             _cancellationToken = cancellationToken;
             while (true)
@@ -20,13 +22,13 @@ namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
                     _cancellationToken.ThrowIfCancellationRequested();
                     Process();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    await Task.Delay(200);
+                    // nothing
                 }
                 finally
                 {
-                    await Task.Delay(200);
+                    await Task.Delay(delayLoop);
                 }
             }
         }

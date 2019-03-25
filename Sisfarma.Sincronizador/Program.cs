@@ -77,9 +77,9 @@ namespace Sisfarma.Sincronizador
             RemoteConfig.Setup(_remoteServer, _remoteToken);
             LocalConfig.Setup(_localServer, _localBase, _localUser, _localPass, _marketCodeList);
 
-            Task.Factory.StartNew(() => new PowerSwitchProgramado(FisiotesFactory.New()).Run(Updater.GetCancellationToken()));
-            Task.Factory.StartNew(() => new PowerSwitchManual(FisiotesFactory.New()).Run(Updater.GetCancellationToken()));
-            Task.Factory.StartNew(() => new UpdateVersionSincronizador().Run(new CancellationToken()));
+            //Task.Factory.StartNew(() => new PowerSwitchProgramado(FisiotesFactory.New()).SincronizarAsync(Updater.GetCancellationToken()));
+            Task.Factory.StartNew(() => new PowerSwitchManual(FisiotesFactory.New()).SincronizarAsync(Updater.GetCancellationToken()));
+            //Task.Factory.StartNew(() => new UpdateVersionSincronizador().SincronizarAsync(new CancellationToken()));
 
             Application.ApplicationExit += (sender, @event) => notifyIcon.Visible = false;
             Application.Run(new SincronizadorApplication());
@@ -90,7 +90,8 @@ namespace Sisfarma.Sincronizador
         private static ContextMenuStrip GetSincronizadorMenuStrip()
         {
             var cms = new ContextMenuStrip();
-            cms.Items.Add("Salir", null, (sender, @event) => Application.Exit());
+            //cms.Items.Add($"Salir {ApplicationDeployment.CurrentDeployment.CurrentVersion}", null, (sender, @event) => Application.Exit());
+            cms.Items.Add($"Salir", null, (sender, @event) => Application.Exit());
             return cms;
         }
 

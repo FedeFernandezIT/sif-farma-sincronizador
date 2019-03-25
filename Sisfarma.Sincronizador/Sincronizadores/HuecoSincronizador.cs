@@ -43,7 +43,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private void InsertOrUpdateCliente(Farmatic.Models.Cliente cliente)
         {
-            var clienteDTO = Generator.FetchLocalClienteData(_farmatic, cliente, _hasSexo);
+            var clienteDTO = Generator.GenerarCliente(_farmatic, cliente, _hasSexo);
 
             var puntosDeSisfarma = _fisiotes.Configuraciones.GetByCampo(FIELD_PUNTOS_SISFARMA) ?? string.Empty;
             var debeCargarPuntos = puntosDeSisfarma.ToLower().Equals("no") || string.IsNullOrWhiteSpace(puntosDeSisfarma);

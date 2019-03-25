@@ -9,19 +9,24 @@ using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesReposit
 
 namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
 {
-    public abstract class BaseSincronizador : Sincronizador, ISincronizador
+    public abstract class BaseSincronizador : Sincronizador, ISincronizadorAsync
     {
         private const string FIELD_LOG_ERRORS = FieldsConfiguracion.FIELD_LOG_ERRORS;
-        
-        protected FisiotesService _fisiotes;        
 
-        public BaseSincronizador(FisiotesService fisiotes)                    
-            => _fisiotes = fisiotes ?? throw new ArgumentNullException(nameof(fisiotes));                
+        protected FisiotesService _fisiotes;
 
-        public override async Task Run(CancellationToken cancellationToken = default(CancellationToken))
+        public BaseSincronizador(FisiotesService fisiotes)
+            => _fisiotes = fisiotes ?? throw new ArgumentNullException(nameof(fisiotes));
+
+        public override async Task SincronizarAsync(CancellationToken cancellationToken = default(CancellationToken), int delayLoop = 200)
         {
             Console.WriteLine($"{GetType().Name} init ...");
             _cancellationToken = cancellationToken;
+
+            LoadConfiguration();
+
+            PreSincronizacion();
+
             while (true)
             {
                 try
@@ -36,7 +41,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
                 }
                 catch (RestClientException ex)
                 {
-                    LogError(ex.ToLogErrorMessage());                                        
+                    LogError(ex.ToLogErrorMessage());
                 }
                 catch (Exception ex)
                 {
@@ -44,24 +49,38 @@ namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
                 }
                 finally
                 {
-                    await Task.Delay(200);
+                    await Task.Delay(delayLoop);
                 }
             }
         }
 
-        private void LogError(string message)
-        {            
-            var hash = Cryptographer.GenerateMd5Hash(message);
+        public virtual void LoadConfiguration()
+        {
+        }
 
-            var logsPrevios = _fisiotes.Configuraciones.GetByCampo(FIELD_LOG_ERRORS);            
-            if (logsPrevios.Contains(hash))
-                return;
-            
-            var log = $@"$log{{{hash}}}{Environment.NewLine}{message}";
-            var logs = $@"{logsPrevios}{Environment.NewLine}{log}";
-            _fisiotes.Configuraciones.Update(FIELD_LOG_ERRORS, logs);
-            
+        public virtual void PreSincronizacion()
+        {
+        }
+
+        private void LogError(string message)
+        {
+            try
+            {
+                var hash = Cryptographer.GenerateMd5Hash(message);
+
+                var logsPrevios = _fisiotes.Configuraciones.GetByCampo(FIELD_LOG_ERRORS);
+                if (logsPrevios.Contains(hash))
+                    return;
+
+                var log = $@"$log{{{hash}}}{Environment.NewLine}{message}";
+                var logs = $@"{logsPrevios}{Environment.NewLine}{log}";
+                _fisiotes.Configuraciones.Update(FIELD_LOG_ERRORS, logs);
+            }
+            catch (Exception)
+            {
+                // nothing
+                // El sincro se detiene si lanzamos una excepción en este punto.
+            }
         }
     }
 }
-    

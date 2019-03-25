@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
 {
-    public interface ISincronizador
+    public interface ISincronizadorAsync
     {
-        Task Run(CancellationToken cancellationToken);        
+        Task SincronizarAsync(CancellationToken cancellationToken, int delayLoop);
     }
 }

@@ -2,6 +2,6 @@
 {
     public class ClienteAuxWithSexo : ClienteAux
     {
-        public char Sexo { get; set; }
+        public string Sexo { get; set; }
     }
 }

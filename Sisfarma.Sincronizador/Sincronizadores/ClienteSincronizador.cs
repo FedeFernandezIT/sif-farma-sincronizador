@@ -1,20 +1,16 @@
 ﻿using Sisfarma.Sincronizador.Extensions;
 using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Fisiotes;
+using Sisfarma.Sincronizador.Fisiotes.Models;
 using Sisfarma.Sincronizador.Helpers;
 using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
-using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
     public class ClienteSincronizador : TaskSincronizador
     {
-        private const string FIELD_PUNTOS_SISFARMA = FieldsConfiguracion.FIELD_PUNTOS_SISFARMA;
         private readonly bool _hasSexo;
-        private readonly string _fileLogs;
 
         private string _puntosDeSisfarma;
         private bool _perteneceFarmazul;
@@ -25,20 +21,20 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             _hasSexo = farmatic.Clientes.HasSexoField();
         }
 
-        public override async Task Run(CancellationToken cancellationToken = default(CancellationToken))
+        public override void Process() => ProcessClientes();
+
+        public override void LoadConfiguration()
         {
-            _fisiotes.Clientes.ResetDniTracking();
-            _puntosDeSisfarma = _fisiotes.Configuraciones.GetByCampo(FIELD_PUNTOS_SISFARMA) ?? string.Empty;
+            _puntosDeSisfarma = ConfiguracionPredeinida[Configuracion.FIELD_PUNTOS_SISFARMA];
             _perteneceFarmazul = _fisiotes.Configuraciones.PerteneceFarmazul();
-            await base.Run(cancellationToken);
         }
 
-        public override void Process() => ProcessClientes();
+        public override void PreSincronizacion()
+            => _fisiotes.Clientes.ResetDniTracking();
 
         public void ProcessClientes()
         {
-            var lastCliente = _fisiotes.Clientes.GetDniTrackingLast();
-            var localClientes = _farmatic.Clientes.GetGreatThanId(Convert.ToInt32(lastCliente));
+            var localClientes = _farmatic.Clientes.GetAll();
 
             var contadorHuecos = -1;
             foreach (var cliente in localClientes)
@@ -47,8 +43,6 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
                 if (contadorHuecos == -1)
                     contadorHuecos = Convert.ToInt32(cliente.IDCLIENTE);
-
-                _fisiotes.Clientes.ResetDniTracking();
 
                 InsertOrUpdateCliente(cliente);
 
@@ -68,10 +62,9 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private void InsertOrUpdateCliente(Farmatic.Models.Cliente cliente)
         {
-            var clienteDTO = Generator.FetchLocalClienteData(_farmatic, cliente, _hasSexo);
+            var clienteDTO = Generator.GenerarCliente(_farmatic, cliente, _hasSexo);
 
-            var puntosDeSisfarma = _puntosDeSisfarma;
-            var debeCargarPuntos = puntosDeSisfarma.ToLower().Equals("no") || string.IsNullOrWhiteSpace(puntosDeSisfarma);
+            var debeCargarPuntos = _puntosDeSisfarma.ToLower().Equals("no") || string.IsNullOrWhiteSpace(_puntosDeSisfarma);
 
             var dniCliente = cliente.PER_NIF.Strip();
 
@@ -98,14 +91,14 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 _fisiotes.Clientes.InsertOrUpdate(
                     clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
                     clienteDTO.Movil, clienteDTO.Email, clienteDTO.Puntos, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
-                    withTrack: true);
+                    withTrack: false);
             }
             else
             {
                 _fisiotes.Clientes.InsertOrUpdate(
                     clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
                     clienteDTO.Movil, clienteDTO.Email, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
-                    withTrack: true);
+                    withTrack: false);
             }
         }
     }

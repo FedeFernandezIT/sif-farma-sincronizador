@@ -1,5 +1,6 @@
 ﻿using Sisfarma.RestClient;
 using Sisfarma.Sincronizador.Fisiotes.Models;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -31,6 +32,13 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             return _restClient
                .Resource(_config.Configuraciones.PerteneceFarmazul)
                .SendGet<bool>();
+        }
+
+        public IEnumerable<Configuracion> GetEstadosActuales()
+        {
+            return _restClient
+               .Resource(_config.Configuraciones.GetAll)
+               .SendGet<IEnumerable<Configuracion>>();
         }
 
         public void Insert(string field)

@@ -5,8 +5,8 @@ using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
     public class PowerSwitchManual : PowerSwitch
-    {        
-        public PowerSwitchManual(FisiotesService fisiotes) 
+    {
+        public PowerSwitchManual(FisiotesService fisiotes)
             : base(fisiotes)
         { }
 
@@ -14,15 +14,16 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private void ProcessPowerSwitch()
         {
-            var estadoActual = _fisiotes.Configuraciones
-                .GetByCampo(FIELD_ENCENDIDO)
-                    .ToLower()
-                    .Trim() ;
+            //var estadoActual = _fisiotes.Configuraciones
+            //    .GetByCampo(FIELD_ENCENDIDO)
+            //        .ToLower()
+            //        .Trim() ;
+            var estadoActual = Programacion.Encendido;
 
-            if (EstaEncendido && estadoActual == Programacion.Apagado )            
-                Apagar();            
-            else if (!EstaEncendido && estadoActual == Programacion.Encendido)            
-                Encender();                        
+            if (EstaEncendido && estadoActual == Programacion.Apagado)
+                Apagar();
+            else if (!EstaEncendido && estadoActual == Programacion.Encendido)
+                Encender();
         }
     }
 }
