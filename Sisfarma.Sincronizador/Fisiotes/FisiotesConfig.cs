@@ -56,6 +56,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
                     ResetDniTracking = "api/cliente/setCeroClientes",
                     GetByDni = "api/cliente/index/dni/{dni}",
                     Insert = "api/cliente/index/dni/{dni}",
+                    InsertHueco = "api/cliente/index/dni/{dni}/esHueco/1",
                     Update = "api/cliente/update"
                 },
 
@@ -204,6 +205,8 @@ public class ClienteResource
     public string Insert { get; set; }
 
     public string Update { get; set; }
+
+    public string InsertHueco { get; internal set; }
 }
 
 public class HuecoResource

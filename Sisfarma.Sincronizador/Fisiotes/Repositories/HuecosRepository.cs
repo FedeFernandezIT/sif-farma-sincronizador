@@ -24,11 +24,11 @@ namespace Sisfarma.Sincronizador.Fisiotes.Repositories
             return response.Exists;
         }
 
-        public void Insert(string hueco)
+        public void Insert(string[] huecos)
         {
             _restClient
                 .Resource(_config.Huecos.Insert)
-                .SendPut(new { id = hueco });
+                .SendPut(new { ids = huecos });
         }
 
         public IEnumerable<string> GetByOrderAsc()

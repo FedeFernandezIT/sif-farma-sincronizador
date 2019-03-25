@@ -5,6 +5,7 @@ using Sisfarma.Sincronizador.Fisiotes.Models;
 using Sisfarma.Sincronizador.Helpers;
 using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 using System;
+using System.Collections.Generic;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
@@ -14,6 +15,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private string _puntosDeSisfarma;
         private bool _perteneceFarmazul;
+        private bool _debeCargarPuntos;
+        private int _ultimoClienteSincronizado;
 
         public ClienteSincronizador(FarmaticService farmatic, FisiotesService fisiotes)
             : base(farmatic, fisiotes)
@@ -25,16 +28,20 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         public override void LoadConfiguration()
         {
-            _puntosDeSisfarma = ConfiguracionPredeinida[Configuracion.FIELD_PUNTOS_SISFARMA];
+            _puntosDeSisfarma = ConfiguracionPredefinida[Configuracion.FIELD_PUNTOS_SISFARMA];
             _perteneceFarmazul = _fisiotes.Configuraciones.PerteneceFarmazul();
+            _debeCargarPuntos = _puntosDeSisfarma.ToLower().Equals("no") || string.IsNullOrWhiteSpace(_puntosDeSisfarma);
         }
 
         public override void PreSincronizacion()
-            => _fisiotes.Clientes.ResetDniTracking();
+        {
+            _fisiotes.Clientes.ResetDniTracking();
+            _ultimoClienteSincronizado = -1;
+        }
 
         public void ProcessClientes()
         {
-            var localClientes = _farmatic.Clientes.GetAll();
+            var localClientes = _farmatic.Clientes.GetGreatThanId(_ultimoClienteSincronizado);
 
             var contadorHuecos = -1;
             foreach (var cliente in localClientes)
@@ -49,11 +56,13 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 var intIdCliente = Convert.ToInt32(cliente.IDCLIENTE);
                 if (intIdCliente != contadorHuecos)
                 {
+                    var huecos = new List<string>();
                     for (int i = contadorHuecos; i < intIdCliente; i++)
                     {
-                        if (!_fisiotes.Huecos.Any(i))
-                            _fisiotes.Huecos.Insert(i.ToString());
+                        huecos.Add(i.ToString());
                     }
+
+                    _fisiotes.Huecos.Insert(huecos.ToArray());
                     contadorHuecos = intIdCliente;
                 }
                 contadorHuecos++;
@@ -64,14 +73,12 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         {
             var clienteDTO = Generator.GenerarCliente(_farmatic, cliente, _hasSexo);
 
-            var debeCargarPuntos = _puntosDeSisfarma.ToLower().Equals("no") || string.IsNullOrWhiteSpace(_puntosDeSisfarma);
-
             var dniCliente = cliente.PER_NIF.Strip();
 
             if (_perteneceFarmazul)
             {
                 var beBlue = _farmatic.Clientes.EsBeBlue(cliente.XTIPO_IDTIPO) ? 1 : 0;
-                if (debeCargarPuntos)
+                if (_debeCargarPuntos)
                 {
                     _fisiotes.Clientes.InsertOrUpdateBeBlue(
                     clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
@@ -86,20 +93,20 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                         beBlue);
                 }
             }
-            else if (debeCargarPuntos)
+            else if (_debeCargarPuntos)
             {
                 _fisiotes.Clientes.InsertOrUpdate(
                     clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
-                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.Puntos, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
-                    withTrack: false);
+                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.Puntos, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd);
             }
             else
             {
                 _fisiotes.Clientes.InsertOrUpdate(
                     clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
-                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
-                    withTrack: false);
+                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd);
             }
+
+            _ultimoClienteSincronizado = cliente.IDCLIENTE.ToIntegerOrDefault();
         }
     }
 }

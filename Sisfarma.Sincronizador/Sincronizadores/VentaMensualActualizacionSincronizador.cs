@@ -33,7 +33,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         private readonly int _listaDeArticulo;
         private readonly bool _hasSexo;
 
-        public VentaMensualActualizacionSincronizador(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo, int listaDeArticulo) 
+        public VentaMensualActualizacionSincronizador(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo, int listaDeArticulo)
             : base(farmatic, fisiotes)
         {
             _consejo = consejo ?? throw new ArgumentNullException(nameof(consejo));
@@ -48,11 +48,11 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var fechaActual = DateTime.Now.Date;
             if (!FechaConfiguracionIsValid(fechaActual))
                 return;
-            
+
             var fechaInicial = CalcularFechaInicialDelProceso(fechaActual);
             if (!_fisiotes.PuntosPendientes.ExistsGreatThanOrEqual(fechaInicial))
                 return;
-             
+
             var ventaIdConfiguracion = _fisiotes.Configuraciones
                 .GetByCampo(FIELD_POR_DONDE_VOY_VENTA_MES_ID)
                     .ToIntegerOrDefault();
@@ -66,11 +66,11 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 var dni = dniString.ToIntegerOrDefault();
                 var tarjetaDelCliente = string.Empty;
                 if (dni > 0)
-                {                     
+                {
                     var cliente = _farmatic.Clientes.GetOneOrDefaulById(dni);
                     tarjetaDelCliente = cliente?.FIS_FAX ?? string.Empty;
-                    if (cliente != null)                        
-                        InsertOrUpdateCliente(cliente);                        
+                    if (cliente != null)
+                        InsertOrUpdateCliente(cliente);
                 }
 
                 var vendedor = _farmatic.Vendedores.GetOneOrDefaultById(venta.XVend_IdVendedor)?.NOMBRE.Strip()
@@ -88,7 +88,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
                 var detalleDeVenta = _farmatic.Ventas.GetLineasVentaByVenta(venta.IdVenta);
                 foreach (var item in detalleDeVenta)
-                {                                                
+                {
                     var puntoPendiente = _fisiotes.PuntosPendientes.GetOneOrDefaultByItemVenta(item.IdVenta, item.IdNLinea);
                     if (puntoPendiente == null)
                     {
@@ -98,7 +98,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                         if (dni != 0 &&
                             sonPuntosDeSisfarma && !cargado &&
                             !string.IsNullOrWhiteSpace(fechaDePuntos) &&
-                            fechaDePuntos.ToLower() != "no" &&                             
+                            fechaDePuntos.ToLower() != "no" &&
                             fechaDeVenta >= fechaDePuntos.ToDateTimeOrDefault("yyyyMMdd"))
                         {
                             var tipoFamilia = pp.familia != FAMILIA_DEFAULT ? pp.familia : pp.superFamilia;
@@ -106,26 +106,26 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                             var articuloDescripcion = articulo?.Descripcion ?? string.Empty;
                             var articuloCantidad = item.Cantidad;
 
-                            pp.puntos = (float) CalcularPuntos(tarjetaDelCliente, tipoFamilia, importe, articuloDescripcion, articuloCantidad);                                
+                            pp.puntos = (float)CalcularPuntos(tarjetaDelCliente, tipoFamilia, importe, articuloDescripcion, articuloCantidad);
                         }
-                        else if (dni != 0 && fechaDePuntos.ToLower() != "no")                                
+                        else if (dni != 0 && fechaDePuntos.ToLower() != "no")
                             pp.cargado = "no";
 
-                        _fisiotes.PuntosPendientes.InsertPuntuacion(pp);                            
+                        _fisiotes.PuntosPendientes.InsertPuntuacion(pp);
                         newInsert = true;
                     }
                     else
-                    {                        
+                    {
                         if ((string.IsNullOrWhiteSpace(cargarPuntos) || cargarPuntos.ToLower() == "no") ||
                             (cargarPuntos.ToLower() == "si" && puntoPendiente.dni == "0"))
                         {
-                            if (HayDiferencias(dni, vendedor, puntoPendiente, item))                                
-                                _fisiotes.PuntosPendientes.UpdatePuntacion(GenerarUpdatePuntoPendiente(dni, venta, item, vendedor));                                
+                            if (HayDiferencias(dni, vendedor, puntoPendiente, item))
+                                _fisiotes.PuntosPendientes.UpdatePuntacion(GenerarUpdatePuntoPendiente(dni, venta, item, vendedor));
                         }
-                    }                                                
+                    }
                 }
 
-                if (newInsert && 
+                if (newInsert &&
                     dni != 0 &&
                     sonPuntosDeSisfarma && !cargado &&
                     fechaDePuntos.ToLower() != "no" &&
@@ -145,7 +145,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             }
 
             _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_VENTA_MES_ID, "0");
-            _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_VENTA_MES, fechaActual.ToString("yyyy-MM-dd"));                            
+            _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_VENTA_MES, fechaActual.ToString("yyyy-MM-dd"));
         }
 
         private DateTime CalcularFechaInicialDelProceso(DateTime fechaActual)
@@ -161,11 +161,11 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             var fechaConfiguracion = _fisiotes.Configuraciones.GetByCampo(FIELD_POR_DONDE_VOY_VENTA_MES)
                 .ToDateTimeOrDefault("yyyy-MM-dd");
 
-            return fechaActual.Date != fechaConfiguracion.Date;                
+            return fechaActual.Date != fechaConfiguracion.Date;
         }
 
         private UpdatePuntacion GenerarUpdatePuntoPendiente(int dniDelCliente, Venta venta, LineaVenta detalleDeVenta, string vendedor)
-        {        
+        {
             return new UpdatePuntacion
             {
                 idventa = detalleDeVenta.IdVenta,
@@ -191,12 +191,12 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 puntos = 0;
 
             var canjeoPuntos = _fisiotes.Configuraciones.GetByCampo(FIELD_CANJEO_PUNTOS);
-            if (canjeoPuntos.ToLower() != "si" && articuloDescripcion.Contains("FIDELIZACION"))                
-                puntos = Math.Abs(articuloCantidad) * -1;                
-            
+            if (canjeoPuntos.ToLower() != "si" && articuloDescripcion.Contains("FIDELIZACION"))
+                puntos = Math.Abs(articuloCantidad) * -1;
+
             return puntos;
         }
-        
+
         private InsertPuntuacion GenerarPuntoPendienteCargadoPorDefault(int dniDelCliente, Venta venta, LineaVenta detalleDeVenta, Articulo articulo, string vendedor)
         {
             var puntos = 0d;
@@ -222,17 +222,17 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
                 codLaboratorio = articulo.Laboratorio.Strip() ?? string.Empty;
             }
-            
+
             var redencion = _farmatic.Ventas
                             .GetOneOrDefaultLineaRedencionByKey(detalleDeVenta.IdVenta, detalleDeVenta.IdNLinea)?.Redencion
                                 ?? 0;
-            
+
             var codigoBarra = _farmatic.Sinonimos
                             .GetOneOrDefaultByArticulo(detalleDeVenta.Codigo)?.Sinonimo.Strip()
-                                ?? COD_BARRAS_DEFAULT;            
+                                ?? COD_BARRAS_DEFAULT;
 
             var proveedor = _farmatic.Proveedores.GetOneOrDefaultByCodigoNacional(detalleDeVenta.Codigo)?.FIS_NOMBRE.Strip() ?? string.Empty;
-            
+
             var laboratorio = Generator.GetNombreLaboratorioFromLocalOrDefault(_farmatic, _consejo, codLaboratorio, LABORATORIO_DEAFULT).Strip();
 
             return new InsertPuntuacion
@@ -257,7 +257,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 proveedor = proveedor,
                 receta = detalleDeVenta.TipoAportacion,
                 fechaVenta = venta.FechaHora,
-                pvp = pvp,  
+                pvp = pvp,
                 puc = puc,
                 puntos = (float)puntos,
                 dtoLinea = (float)(detalleDeVenta.DescuentoLinea ?? 0),
@@ -311,16 +311,14 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             {
                 _fisiotes.Clientes.InsertOrUpdate(
                     clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
-                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.Puntos, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
-                    withTrack: true);
+                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.Puntos, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd);
             }
             else
             {
                 _fisiotes.Clientes.InsertOrUpdate(
                     clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
-                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
-                    withTrack: true);
+                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd);
             }
-        }        
-    }    
+        }
+    }
 }

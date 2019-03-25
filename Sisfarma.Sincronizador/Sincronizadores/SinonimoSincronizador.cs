@@ -13,6 +13,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         private readonly string[] _horariosDeVaciamiento;
         private readonly int _batchSize;
 
+        private bool _isEmpty;
+
         public SinonimoSincronizador(FarmaticService farmatic, FisiotesService fisiotes)
             : base(farmatic, fisiotes)
         {
@@ -22,16 +24,21 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         public override void Process() => ProcessSinonimos(_farmatic, _fisiotes);
 
+        public override void PreSincronizacion()
+        {
+            _isEmpty = _fisiotes.Sinonimos.IsEmpty();
+        }
+
         public void ProcessSinonimos(FarmaticService farmaticService, FisiotesService fisiotesService)
         {
-            var isEmpty = fisiotesService.Sinonimos.IsEmpty();
-            if (isEmpty || _horariosDeVaciamiento.Any(x => x.Equals(DateTime.Now.ToString("HHmm"))))
+            if (!_isEmpty && _horariosDeVaciamiento.Any(x => x.Equals(DateTime.Now.ToString("HHmm"))))
             {
-                if (!isEmpty)
-                {
-                    fisiotesService.Sinonimos.Empty();
-                }
+                fisiotesService.Sinonimos.Empty();
+                _isEmpty = _fisiotes.Sinonimos.IsEmpty();
+            }
 
+            if (_isEmpty)
+            {
                 var sinonimos = farmaticService.Sinonimos.GetAll();
 
                 for (int i = 0; i < sinonimos.Count; i += _batchSize)
@@ -48,6 +55,9 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                             }).ToList();
 
                     fisiotesService.Sinonimos.Insert(items);
+                    // 1er lote pregunta
+                    if (_isEmpty)
+                        _isEmpty = _fisiotes.Sinonimos.IsEmpty();
                 }
             }
         }

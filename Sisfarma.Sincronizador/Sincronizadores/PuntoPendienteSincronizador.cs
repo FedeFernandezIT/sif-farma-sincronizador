@@ -36,6 +36,8 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         private string _fechaDePuntos;
         private string _soloPuntosConTarjeta;
         private string _canjeoPuntos;
+        private int _anioInicio;
+        private long _ultimaVenta;
 
         public PuntoPendienteSincronizador(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
             : base(farmatic, fisiotes)
@@ -44,23 +46,30 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             _hasSexo = farmatic.Clientes.HasSexoField();
         }
 
+        public override void LoadConfiguration()
+        {
+            _perteneceFarmazul = _fisiotes.Configuraciones.PerteneceFarmazul();
+            _puntosDeSisfarma = ConfiguracionPredefinida[Configuracion.FIELD_PUNTOS_SISFARMA];
+            // _fechaDePuntos = ConfiguracionPredefinida[Configuracion.FIELD_FECHA_PUNTOS];
+            _cargarPuntos = ConfiguracionPredefinida[Configuracion.FIELD_CARGAR_PUNTOS];
+            //_puntosDeSisfarma = ConfiguracionPredefinida[Configuracion.FIELD_PUNTOS_SISFARMA];
+            //_soloPuntosConTarjeta = ConfiguracionPredefinida[Configuracion.FIELD_SOLO_PUNTOS_CON_TARJETA];
+            //_canjeoPuntos = ConfiguracionPredefinida[Configuracion.FIELD_CANJEO_PUNTOS];
+
+            _anioInicio = ConfiguracionPredefinida[Configuracion.FIELD_ANIO_INICIO]
+                .ToIntegerOrDefault(@default: DateTime.Now.Year - 2);
+        }
+
+        public override void PreSincronizacion()
+        {
+            _ultimaVenta = _fisiotes.PuntosPendientes.GetUltimaVenta();
+        }
+
         public override void Process() => ProcessPuntosPendientes();
 
         private void ProcessPuntosPendientes()
         {
-            var anioInicio = _fisiotes.Configuraciones.GetByCampo(YEAR_FOUND)
-                .ToIntegerOrDefault(@default: DateTime.Now.Year - 2);
-
-            var idVenta = _fisiotes.PuntosPendientes.GetUltimaVenta();
-
-            var ventas = _farmatic.Ventas.GetByIdGreaterOrEqual(anioInicio, idVenta);
-
-            _fechaDePuntos = _fisiotes.Configuraciones.GetByCampo(FIELD_FECHA_PUNTOS);
-            _cargarPuntos = _fisiotes.Configuraciones.GetByCampo(FIELD_CARGAR_PUNTOS) ?? string.Empty;
-            _puntosDeSisfarma = _fisiotes.Configuraciones.GetByCampo(FIELD_PUNTOS_SISFARMA) ?? string.Empty;
-            _soloPuntosConTarjeta = _fisiotes.Configuraciones.GetByCampo(FIELD_SOLO_PUNTOS_CON_TARJETA);
-            _canjeoPuntos = _fisiotes.Configuraciones.GetByCampo(FIELD_CANJEO_PUNTOS);
-            _perteneceFarmazul = _fisiotes.Configuraciones.PerteneceFarmazul();
+            var ventas = _farmatic.Ventas.GetByIdGreaterOrEqual(_anioInicio, _ultimaVenta);
 
             foreach (var venta in ventas)
             {
@@ -75,14 +84,13 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                     var cliente = _farmatic.Clientes.GetOneOrDefaulById(dni);
                     tarjetaDelCliente = cliente?.FIS_FAX ?? string.Empty;
                     if (cliente != null)
-                        // TODO: dentro de este método se pregunta si deben cargarse los puntos
                         InsertOrUpdateCliente(cliente);
                 }
 
                 var vendedor = _farmatic.Vendedores.GetOneOrDefaultById(venta.XVend_IdVendedor)?.NOMBRE ?? "NO";
                 var detalleVenta = _farmatic.Ventas.GetLineasVentaByVenta(venta.IdVenta);
 
-                // TODO: sólo se carga la desc venta una vez
+                // sólo se carga la desc venta una vez
                 var descuentoVentaCargado = false;
                 foreach (var linea in detalleVenta)
                 {
@@ -101,21 +109,21 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                 }
 
                 // TODO: actualizacion puntos del cliente
-                if (dni != 0 &&
-                    _puntosDeSisfarma.ToLower() == "si" &&
-                    _cargarPuntos.ToLower() != "si" &&
-                    _fechaDePuntos.ToLower() != "no" &&
-                    !string.IsNullOrWhiteSpace(_fechaDePuntos) &&
-                    venta.FechaHora.Date >= _fechaDePuntos.ToDateTimeOrDefault("yyyyMMdd"))
-                {
-                    var puntosDelCliente = Math.Round(_fisiotes.PuntosPendientes.GetPuntosByDni(dni), 2);
+                //if (dni != 0 &&
+                //    _puntosDeSisfarma.ToLower() == "si" &&
+                //    _cargarPuntos.ToLower() != "si" &&
+                //    _fechaDePuntos.ToLower() != "no" &&
+                //    !string.IsNullOrWhiteSpace(_fechaDePuntos) &&
+                //    venta.FechaHora.Date >= _fechaDePuntos.ToDateTimeOrDefault("yyyyMMdd"))
+                //{
+                //    var puntosDelCliente = Math.Round(_fisiotes.PuntosPendientes.GetPuntosByDni(dni), 2);
 
-                    var puntosCanjeadosDelCliente = Math.Round(_fisiotes.PuntosPendientes.GetPuntosCanjeadosByDni(dni), 2);
+                //    var puntosCanjeadosDelCliente = Math.Round(_fisiotes.PuntosPendientes.GetPuntosCanjeadosByDni(dni), 2);
 
-                    var puntosCalculados = Math.Round(puntosDelCliente - puntosCanjeadosDelCliente, 2);
+                //    var puntosCalculados = Math.Round(puntosDelCliente - puntosCanjeadosDelCliente, 2);
 
-                    _fisiotes.Clientes.UpdatePuntos(new UpdatePuntaje { dni = dniString, puntos = puntosCalculados });
-                }
+                //    _fisiotes.Clientes.UpdatePuntos(new UpdatePuntaje { dni = dniString, puntos = puntosCalculados });
+                //}
 
                 // Recuperamos el detalle de ventas virtuales
                 var virtuales = _farmatic.Ventas.GetLineasVirtualesByVenta(venta.IdVenta);
@@ -127,9 +135,12 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                         _fisiotes.Entregas.Insert(
                             GenerarEntregaCliente(venta, @virtual, vendedor));
 
-                        _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES, @virtual.IdVenta.ToString());
+                        _fisiotes.Configuraciones.Update(Configuracion.FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES, @virtual.IdVenta.ToString());
                     }
                 }
+
+                // TODO: verificar bien idvneta;
+                _ultimaVenta = venta.IdVenta;
             }
         }
 

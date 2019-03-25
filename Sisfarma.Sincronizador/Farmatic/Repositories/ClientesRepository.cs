@@ -16,17 +16,6 @@ namespace Sisfarma.Sincronizador.Farmatic.Repositories
         public ClientesRepository(LocalConfig config) : base(config)
         { }
 
-        public List<Cliente> GetAll()
-        {
-            using (var db = FarmaticContext.Create(_config))
-            {
-                var sql =
-                @"SELECT * FROM cliente ORDER BY CAST(Idcliente AS DECIMAL(20)) ASC";
-                return db.Database.SqlQuery<Cliente>(sql)
-                    .ToList();
-            }
-        }
-
         public List<Cliente> GetGreatThanId(int id)
         {
             using (var db = FarmaticContext.Create(_config))

@@ -18,7 +18,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores.SuperTypes
             _farmatic = farmatic ?? throw new ArgumentNullException(nameof(farmatic));
         }
 
-        protected ConfiguracionDictionary ConfiguracionPredeinida
+        protected ConfiguracionDictionary ConfiguracionPredefinida
         {
             get
             {

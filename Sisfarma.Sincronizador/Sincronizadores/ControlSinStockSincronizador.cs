@@ -12,17 +12,16 @@ namespace Sisfarma.Sincronizador.Sincronizadores
     public class ControlSinStockSincronizador : ControlSincronizador
     {
         private const string FIELD_POR_DONDE_VOY_SIN_STOCK = FieldsConfiguracion.FIELD_POR_DONDE_VOY_SIN_STOCK;
-        
-        public ControlSinStockSincronizador(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo) 
+
+        public ControlSinStockSincronizador(FarmaticService farmatic, FisiotesService fisiotes, ConsejoService consejo)
             : base(farmatic, fisiotes, consejo)
-        {        
+        {
         }
 
         public override void Process() => ProcessControlSinStockInicial();
 
         public void ProcessControlSinStockInicial()
         {
-
             var valorConfiguracion = _fisiotes.Configuraciones.GetByCampo(FIELD_POR_DONDE_VOY_SIN_STOCK);
 
             var codArticulo = !string.IsNullOrEmpty(valorConfiguracion)
@@ -40,18 +39,22 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             {
                 _cancellationToken.ThrowIfCancellationRequested();
 
-                _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_SIN_STOCK, articulo.IdArticu);
+                // va dentro soncronizar medicamento
+                // Configuraciones.Update(FIELD_POR_DONDE_VOY_SIN_STOCK, articulo.IdArticu);
 
                 var medicamentoGenerado = Generator.GenerarMedicamento(_farmatic, _consejo, articulo);
-                var medicamento = _fisiotes.Medicamentos.GetOneOrDefaultByCodNacional(articulo.IdArticu);
 
-                SincronizarMedicamento(_fisiotes, medicamento, medicamentoGenerado);                
+                _fisiotes.Medicamentos.InsertOrUpdate(medicamentoGenerado);
+
+                //var medicamento = _fisiotes.Medicamentos.GetOneOrDefaultByCodNacional(articulo.IdArticu);
+
+                SincronizarMedicamento(_fisiotes, medicamento, medicamentoGenerado);
             }
 
             if (_farmatic.Articulos.GetControlArticuloSinStockFisrtOrDefault(articulos.Last().IdArticu) == null)
             {
                 _fisiotes.Configuraciones.Update(FIELD_POR_DONDE_VOY_SIN_STOCK, "0");
-            }            
-        }                
+            }
+        }
     }
 }
