@@ -3,27 +3,15 @@ using Sisfarma.Sincronizador.Extensions;
 using Sisfarma.Sincronizador.Farmatic;
 using Sisfarma.Sincronizador.Farmatic.Models;
 using Sisfarma.Sincronizador.Fisiotes;
-using Sisfarma.Sincronizador.Fisiotes.DTO.Clientes;
 using Sisfarma.Sincronizador.Fisiotes.Models;
 using Sisfarma.Sincronizador.Helpers;
 using Sisfarma.Sincronizador.Sincronizadores.SuperTypes;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
-using static Sisfarma.Sincronizador.Fisiotes.Repositories.ConfiguracionesRepository;
 
 namespace Sisfarma.Sincronizador.Sincronizadores
 {
     public class PuntoPendienteSincronizador : TaskSincronizador
     {
-        private const string FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES = FieldsConfiguracion.FIELD_POR_DONDE_VOY_ENTREGAS_CLIENTES;
-        private const string YEAR_FOUND = FieldsConfiguracion.FIELD_ANIO_INICIO;
-        private const string FIELD_PUNTOS_SISFARMA = FieldsConfiguracion.FIELD_PUNTOS_SISFARMA;
-        private const string FIELD_FECHA_PUNTOS = FieldsConfiguracion.FIELD_FECHA_PUNTOS;
-        private const string FIELD_CARGAR_PUNTOS = FieldsConfiguracion.FIELD_CARGAR_PUNTOS;
-        private const string FIELD_SOLO_PUNTOS_CON_TARJETA = FieldsConfiguracion.FIELD_SOLO_PUNTOS_CON_TARJETA;
-        private const string FIELD_CANJEO_PUNTOS = FieldsConfiguracion.FIELD_CANJEO_PUNTOS;
-
         private const string FAMILIA_DEFAULT = "<Sin Clasificar>";
 
         private readonly bool _hasSexo;
@@ -50,12 +38,10 @@ namespace Sisfarma.Sincronizador.Sincronizadores
         {
             _perteneceFarmazul = _fisiotes.Configuraciones.PerteneceFarmazul();
             _puntosDeSisfarma = ConfiguracionPredefinida[Configuracion.FIELD_PUNTOS_SISFARMA];
-            // _fechaDePuntos = ConfiguracionPredefinida[Configuracion.FIELD_FECHA_PUNTOS];
             _cargarPuntos = ConfiguracionPredefinida[Configuracion.FIELD_CARGAR_PUNTOS];
-            //_puntosDeSisfarma = ConfiguracionPredefinida[Configuracion.FIELD_PUNTOS_SISFARMA];
-            //_soloPuntosConTarjeta = ConfiguracionPredefinida[Configuracion.FIELD_SOLO_PUNTOS_CON_TARJETA];
-            //_canjeoPuntos = ConfiguracionPredefinida[Configuracion.FIELD_CANJEO_PUNTOS];
-
+            _fechaDePuntos = ConfiguracionPredefinida[Configuracion.FIELD_FECHA_PUNTOS];
+            _soloPuntosConTarjeta = ConfiguracionPredefinida[Configuracion.FIELD_SOLO_PUNTOS_CON_TARJETA];
+            _canjeoPuntos = ConfiguracionPredefinida[Configuracion.FIELD_CANJEO_PUNTOS];
             _anioInicio = ConfiguracionPredefinida[Configuracion.FIELD_ANIO_INICIO]
                 .ToIntegerOrDefault(@default: DateTime.Now.Year - 2);
         }
@@ -108,23 +94,6 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                     }
                 }
 
-                // TODO: actualizacion puntos del cliente
-                //if (dni != 0 &&
-                //    _puntosDeSisfarma.ToLower() == "si" &&
-                //    _cargarPuntos.ToLower() != "si" &&
-                //    _fechaDePuntos.ToLower() != "no" &&
-                //    !string.IsNullOrWhiteSpace(_fechaDePuntos) &&
-                //    venta.FechaHora.Date >= _fechaDePuntos.ToDateTimeOrDefault("yyyyMMdd"))
-                //{
-                //    var puntosDelCliente = Math.Round(_fisiotes.PuntosPendientes.GetPuntosByDni(dni), 2);
-
-                //    var puntosCanjeadosDelCliente = Math.Round(_fisiotes.PuntosPendientes.GetPuntosCanjeadosByDni(dni), 2);
-
-                //    var puntosCalculados = Math.Round(puntosDelCliente - puntosCanjeadosDelCliente, 2);
-
-                //    _fisiotes.Clientes.UpdatePuntos(new UpdatePuntaje { dni = dniString, puntos = puntosCalculados });
-                //}
-
                 // Recuperamos el detalle de ventas virtuales
                 var virtuales = _farmatic.Ventas.GetLineasVirtualesByVenta(venta.IdVenta);
                 foreach (var @virtual in virtuales)
@@ -139,7 +108,6 @@ namespace Sisfarma.Sincronizador.Sincronizadores
                     }
                 }
 
-                // TODO: verificar bien idvneta;
                 _ultimaVenta = venta.IdVenta;
             }
         }
@@ -216,15 +184,14 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             }
 
             var sonPuntosDeSisfarma = puntosDeSisfarma.ToLower().Equals("si");
-            var fechaDePuntos = _fechaDePuntos;
             var fechaDeVenta = venta.FechaHora.Date;
             var cargado = cargarPuntos.ToLower().Equals("si");
 
             if (dni != 0 &&
                 sonPuntosDeSisfarma && !cargado &&
-                !string.IsNullOrWhiteSpace(fechaDePuntos) &&
-                fechaDePuntos.ToLower() != "no" &&
-                fechaDeVenta >= fechaDePuntos.ToDateTimeOrDefault("yyyyMMdd"))
+                !string.IsNullOrWhiteSpace(_fechaDePuntos) &&
+                _fechaDePuntos.ToLower() != "no" &&
+                fechaDeVenta >= _fechaDePuntos.ToDateTimeOrDefault("yyyyMMdd"))
             {
                 var tipoFamilia = pp.familia != FAMILIA_DEFAULT ? pp.familia : pp.superFamilia;
                 var importe = linea.ImporteNeto;
@@ -233,7 +200,7 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
                 pp.puntos = (float)CalcularPuntos(tarjetaDelCliente, tipoFamilia, importe, articuloDescripcion, articuloCantidad);
             }
-            else if (dni != 0 && fechaDePuntos.ToLower() != "no")
+            else if (dni != 0 && _fechaDePuntos.ToLower() != "no")
                 pp.cargado = "no";
 
             return pp;
@@ -315,15 +282,13 @@ namespace Sisfarma.Sincronizador.Sincronizadores
             {
                 _fisiotes.Clientes.InsertOrUpdate(
                     clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
-                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.Puntos, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
-                    withTrack: true);
+                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.Puntos, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd);
             }
             else
             {
                 _fisiotes.Clientes.InsertOrUpdate(
                     clienteDTO.Trabajador, clienteDTO.Tarjeta, cliente.IDCLIENTE, dniCliente, clienteDTO.Nombre.Strip(), clienteDTO.Telefono, clienteDTO.Direccion.Strip(),
-                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd,
-                    withTrack: true);
+                    clienteDTO.Movil, clienteDTO.Email, clienteDTO.FechaNacimiento, clienteDTO.Sexo, clienteDTO.FechaAlta, clienteDTO.Baja, clienteDTO.Lopd);
             }
         }
 
