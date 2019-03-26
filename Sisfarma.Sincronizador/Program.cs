@@ -77,9 +77,9 @@ namespace Sisfarma.Sincronizador
             RemoteConfig.Setup(_remoteServer, _remoteToken);
             LocalConfig.Setup(_localServer, _localBase, _localUser, _localPass, _marketCodeList);
 
-            //Task.Factory.StartNew(() => new PowerSwitchProgramado(FisiotesFactory.New()).SincronizarAsync(Updater.GetCancellationToken()));
-            Task.Factory.StartNew(() => new PowerSwitchManual(FisiotesFactory.New()).SincronizarAsync(Updater.GetCancellationToken()));
-            //Task.Factory.StartNew(() => new UpdateVersionSincronizador().SincronizarAsync(new CancellationToken()));
+            Task.Factory.StartNew(() => new PowerSwitchProgramado(FisiotesFactory.New()).SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 60000));
+            Task.Factory.StartNew(() => new PowerSwitchManual(FisiotesFactory.New()).SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 60000));
+            Task.Factory.StartNew(() => new UpdateVersionSincronizador().SincronizarAsync(new CancellationToken(), delayLoop: 60000));
 
             Application.ApplicationExit += (sender, @event) => notifyIcon.Visible = false;
             Application.Run(new SincronizadorApplication());

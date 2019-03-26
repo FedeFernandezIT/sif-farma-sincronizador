@@ -14,11 +14,10 @@ namespace Sisfarma.Sincronizador.Sincronizadores
 
         private void ProcessPowerSwitch()
         {
-            //var estadoActual = _fisiotes.Configuraciones
-            //    .GetByCampo(FIELD_ENCENDIDO)
-            //        .ToLower()
-            //        .Trim() ;
-            var estadoActual = Programacion.Encendido;
+            var estadoActual = _fisiotes.Configuraciones
+                .GetByCampo(FIELD_ENCENDIDO)
+                    .ToLower()
+                    .Trim();
 
             if (EstaEncendido && estadoActual == Programacion.Apagado)
                 Apagar();

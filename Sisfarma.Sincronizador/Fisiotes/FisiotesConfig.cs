@@ -87,7 +87,7 @@ namespace Sisfarma.Sincronizador.Fisiotes
                     GetValorByCampo = "/api/configuracion/index/campo/{campo}",
                     UpdateValorByCampo = "/api/configuracion/campo",
                     PerteneceFarmazul = "/api/configuracion/esfarmazul",
-                    GetAll = "/api/configuracion"
+                    GetAll = "/api/configuracion/all"
                 },
 
                 Entregas = new EntregaResource
